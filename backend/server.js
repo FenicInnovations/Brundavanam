@@ -1,4 +1,3 @@
-
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const express = require("express");
@@ -8,40 +7,58 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 
-
 const { port, nodeEnv, frontendUrl } = require("./config/env");
 const connectDB = require("./config/db");
+const { connectRedis } = require("./config/redis");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
 connectDB();
+connectRedis();
 
 app.use(helmet());
 app.use(cors({ origin: frontendUrl, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ limit: "25mb", extended: true }));
 app.use(cookieParser());
 if (nodeEnv !== "test") app.use(morgan("dev"));
 
-// General API rate limit — tighter limits go on auth routes specifically
-// once they exist (Stage 3).
-app.use(
-  "/api",
-  rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true })
-);
+// Rate limiting
+if (nodeEnv === "production") {
+  app.use(
+    "/api",
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 500, standardHeaders: true })
+  );
+} else {
+  // Relaxed limit for local development
+  app.use(
+    "/api",
+    rateLimit({ windowMs: 15 * 60 * 1000, max: 10000, standardHeaders: true })
+  );
+}
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Brundavanam Goshala API is running" });
 });
 
-// Stage 3 onward: mount real routers here, e.g.
-// app.use("/api/auth", require("./routes/authRoutes"));
-// app.use("/api/products", require("./routes/productRoutes"));
-// app.use("/api/categories", require("./routes/categoryRoutes"));
+// Mount Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/admin/products", require("./routes/adminProductRoutes"));
+app.use("/api/admin/dashboard", require("./routes/adminDashboardRoutes"));
+
+// Cart & Wishlist Routes
+app.use("/api/cart", require("./routes/cartRoutes"));
+app.use("/api/wishlist", require("./routes/wishlistRoutes"));
+
+// Support & Customer Enquiries
+app.use("/api/support", require("./routes/supportRoutes"));
 
 app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(`[server] Listening on port ${port} (${nodeEnv})`);
+  console.log(`[server] Listening on port ${port} (${nodeEnv}) - Gmail SMTP enabled`);
 });

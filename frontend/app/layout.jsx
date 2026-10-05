@@ -2,6 +2,8 @@ import "./globals.css";
 import SiteShell from "@/components/layout/SiteShell";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { ReduxProvider } from "@/lib/redux/store";
 import { SITE_NAME } from "@/lib/constants";
 
 export const metadata = {
@@ -24,11 +26,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <CartProvider>
-          <WishlistProvider>
-            <SiteShell>{children}</SiteShell>
-          </WishlistProvider>
-        </CartProvider>
+        <ReduxProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <SiteShell>{children}</SiteShell>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

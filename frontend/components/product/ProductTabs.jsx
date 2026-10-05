@@ -48,12 +48,37 @@ export default function ProductTabs({ product }) {
   return (
     <div className="mt-4">
       <AccordionItem
-        title="Description"
+        title="Description & Vedic Preparation"
         open={openId === "description"}
         onToggle={() => toggle("description")}
       >
-        {product.description}
+        <div className="space-y-3">
+          <p>{product.description || product.shortDescription || "Handmade at Brundavanam Goshala following authentic Vedic principles. Prepared from the milk of naturally grazing indigenous Indian Gir cows with utmost reverence and Ahimsa care."}</p>
+          <div className="rounded-xl bg-amber-50/60 border border-amber-200/60 p-3 text-xs text-amber-900 space-y-1">
+            <p className="font-bold">🌿 Why Brundavanam Goshala?</p>
+            <p>• Calves are fed first before milking.</p>
+            <p>• Zero synthetic hormones, chemicals, or preservatives.</p>
+            <p>• Handcrafted in sacred temple environment with mantra chanting.</p>
+          </div>
+        </div>
       </AccordionItem>
+
+      {product.attributes && Array.isArray(product.attributes) && product.attributes.length > 0 && (
+        <AccordionItem
+          title="Specifications & Attributes"
+          open={openId === "attributes"}
+          onToggle={() => toggle("attributes")}
+        >
+          <div className="divide-y divide-line rounded-xl border border-line overflow-hidden">
+            {product.attributes.map((attr, idx) => (
+              <div key={idx} className="flex items-center justify-between p-2.5 bg-surface text-xs">
+                <span className="font-bold text-ink">{attr.name}</span>
+                <span className="text-ink-soft">{attr.value}</span>
+              </div>
+            ))}
+          </div>
+        </AccordionItem>
+      )}
 
       {product.ingredients && (
         <AccordionItem

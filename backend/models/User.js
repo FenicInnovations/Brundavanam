@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 
 const addressSchema = new mongoose.Schema(
   {
-    label: { type: String, default: "Home" }, // e.g. Home, Work
+    label: { type: String, default: "Home" },
     fullName: { type: String, required: true },
     phone: { type: String, required: true },
     line1: { type: String, required: true },
@@ -29,7 +29,12 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true, select: false },
     phone: String,
-    isAdmin: { type: Boolean, default: false },
+    role: {
+      type: String,
+      enum: ["customer", "admin", "super_admin"],
+      default: "customer",
+    },
+    isAdmin: { type: Boolean, default: false }, // synchronized with role
     isActive: { type: Boolean, default: true },
     addresses: [addressSchema],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
@@ -39,7 +44,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function hashPassword(next) {
+userSchema.pre("save", async function hashPasswordAndRole(next) {
+  if (this.isModified("role")) {
+    this.isAdmin = this.role === "admin" || this.role === "super_admin";
+  } else if (this.isModified("isAdmin") && this.isAdmin && this.role === "customer") {
+    this.role = "admin";
+  }
+
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

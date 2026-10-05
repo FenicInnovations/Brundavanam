@@ -1,14 +1,26 @@
-import { getAllProducts } from "@/lib/mockProducts";
+import { Suspense } from "react";
+import { fetchStorefrontProducts } from "@/lib/productUtils";
 import ShopView from "@/components/shop/ShopView";
 
 export const metadata = {
-  title: "Shop",
+  title: "Shop All Sacred Products | Brundavanam Goshala",
   description:
-    "Traditional ghee, panchagavya products, and puja essentials from Brundavanam Goshala.",
+    "Traditional Vedic A2 Gir Cow Bilona Ghee, natural Gau Dhoop, and authentic temple puja essentials from Brundavanam Goshala.",
 };
 
-// Stage 3 replaces this with a server-side fetch to GET /api/products.
-export default function ShopPage() {
-  const products = getAllProducts();
-  return <ShopView products={products} />;
+export default async function ShopPage() {
+  const products = await fetchStorefrontProducts();
+
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 text-ink-soft">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <p className="text-xs font-semibold">Loading Sacred Goshala Offerings...</p>
+        </div>
+      }
+    >
+      <ShopView products={products} />
+    </Suspense>
+  );
 }

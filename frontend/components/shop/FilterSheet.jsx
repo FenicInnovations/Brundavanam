@@ -1,15 +1,22 @@
 "use client";
 
 import BottomSheet from "@/components/ui/BottomSheet";
+import { useSelector, selectCategories } from "@/lib/redux/store";
 import { CATEGORIES } from "@/lib/mockCategories";
 import { FilterSection, Checkbox, PRICE_BANDS } from "@/components/shop/FilterSidebar";
 import Button from "@/components/ui/Button";
 
 export default function FilterSheet({ open, onClose, filters, onChange, resultCount }) {
-  const toggleCategory = (slug) => {
-    const next = filters.categories.includes(slug)
-      ? filters.categories.filter((c) => c !== slug)
-      : [...filters.categories, slug];
+  const reduxCategories = useSelector(selectCategories);
+  const categoriesList =
+    reduxCategories && reduxCategories.length > 0
+      ? reduxCategories.filter((c) => !c.parent)
+      : CATEGORIES;
+
+  const toggleCategory = (slugOrId) => {
+    const next = filters.categories.includes(slugOrId)
+      ? filters.categories.filter((c) => c !== slugOrId)
+      : [...filters.categories, slugOrId];
     onChange({ ...filters, categories: next });
   };
 
@@ -23,14 +30,17 @@ export default function FilterSheet({ open, onClose, filters, onChange, resultCo
   return (
     <BottomSheet open={open} onClose={onClose} title="Filters">
       <FilterSection title="Category">
-        {CATEGORIES.map((cat) => (
-          <Checkbox
-            key={cat.slug}
-            label={cat.name}
-            checked={filters.categories.includes(cat.slug)}
-            onChange={() => toggleCategory(cat.slug)}
-          />
-        ))}
+        {categoriesList.map((cat) => {
+          const val = cat.slug || cat._id;
+          return (
+            <Checkbox
+              key={val}
+              label={cat.name}
+              checked={filters.categories.includes(val) || filters.categories.includes(cat._id) || filters.categories.includes(cat.slug)}
+              onChange={() => toggleCategory(val)}
+            />
+          );
+        })}
       </FilterSection>
 
       <FilterSection title="Price">

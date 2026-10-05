@@ -1,16 +1,17 @@
 import { notFound } from "next/navigation";
-import { getAllProducts, getProductBySlug, getRelatedProducts } from "@/lib/mockProducts";
+import { getAllProducts } from "@/lib/mockProducts";
+import { fetchStorefrontProductBySlug } from "@/lib/productUtils";
 import ProductDetailView from "@/components/product/ProductDetailView";
 import RelatedProducts from "@/components/product/RelatedProducts";
 
-// Stage 3 replaces this with a fetch to GET /api/products (or generateStaticParams
-// against the real product list) once the backend is wired up.
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return getAllProducts().map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const product = getProductBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const { product } = await fetchStorefrontProductBySlug(params.slug);
   if (!product) return {};
 
   return {
@@ -24,11 +25,9 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function ProductPage({ params }) {
-  const product = getProductBySlug(params.slug);
+export default async function ProductPage({ params }) {
+  const { product, related } = await fetchStorefrontProductBySlug(params.slug);
   if (!product) notFound();
-
-  const related = getRelatedProducts(product);
 
   const structuredData = {
     "@context": "https://schema.org",

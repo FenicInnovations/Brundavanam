@@ -1,0 +1,14 @@
+{
+  "watch": [
+    "server.js",
+    "controllers",
+    "models",
+    "routes",
+    "middleware",
+    "config",
+    "services",
+    ".env"
+  ],
+  "ext": "js,mjs,cjs,json,env",
+  "ignore": ["node_modules", "package-lock.json"]
+}

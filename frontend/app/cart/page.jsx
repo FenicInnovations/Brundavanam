@@ -1,157 +1,200 @@
 "use client";
 
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
-import { Trash2, Heart } from "lucide-react";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import Button from "@/components/ui/Button";
-import EmptyState from "@/components/ui/EmptyState";
+import {
+  ShoppingBag,
+  Plus,
+  Minus,
+  Trash2,
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
+import {
+  useDispatch,
+  useSelector,
+  selectCartItems,
+  selectCartSubtotal,
+  selectCartTotalCount,
+  updateCartQuantity,
+  removeFromCart,
+} from "@/lib/redux/store";
 
 export default function CartPage() {
-  const { lines, subtotal, updateQuantity, removeFromCart } = useCart();
-  const { toggleWishlist } = useWishlist();
-
-  if (lines.length === 0) {
-    return (
-      <div className="mx-auto max-w-content px-6 py-10 md:px-8 md:py-14">
-        <h1 className="font-display text-2xl text-ink md:text-3xl">Your Cart</h1>
-        <EmptyState
-          title="Your cart is empty"
-          message="Browse the shop and add something you'll love."
-          actionLabel="Browse Shop"
-          actionHref="/shop"
-        />
-      </div>
-    );
-  }
-
-  const shipping = subtotal >= 1500 ? 0 : 79;
-  const total = subtotal + shipping;
+  const dispatch = useDispatch();
+  const cartItems = useSelector(selectCartItems);
+  const subtotal = useSelector(selectCartSubtotal);
+  const totalCount = useSelector(selectCartTotalCount);
 
   return (
-    <div className="mx-auto max-w-content px-6 py-10 md:px-8 md:py-14">
-      <h1 className="font-display text-2xl text-ink md:text-3xl">Your Cart</h1>
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-3">
+            <ShoppingBag className="w-7 h-7 text-emerald-600" />
+            <span>Shopping Cart ({totalCount})</span>
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Review your selected Brundavanam Goshala organic products before checkout.
+          </p>
+        </div>
 
-      <div className="mt-8 flex flex-col gap-10 lg:flex-row">
-        <div className="flex-1 divide-y">
-          {lines.map((line) => (
-            <div key={`${line.slug}-${line.variantId}`} className="flex gap-4 py-5">
-              <Link
-                href={`/product/${line.slug}`}
-                className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-line"
-              >
-                <Image
-                  src={line.product.images[0]}
-                  alt={line.product.name}
-                  width={200}
-                  height={200}
-                  className="h-full w-full object-cover"
-                />
-              </Link>
+        {cartItems.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4 shadow-xs">
+            <div className="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+              <ShoppingBag className="w-10 h-10" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Your Cart is Currently Empty</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                Explore our traditional Bilona A2 Desi Gir Cow Ghee, herbal Panchagavya products, and goshala items.
+              </p>
+            </div>
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-all shadow-md"
+            >
+              <span>Explore Products</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items List */}
+            <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-6">
+              <div className="divide-y divide-slate-100">
+                {cartItems.map((item) => {
+                  const product = item.product || {};
+                  const primaryImage =
+                    product.images?.find((i) => i.isPrimary)?.publicUrl ||
+                    product.images?.[0]?.publicUrl ||
+                    "https://placehold.co/150x150?text=No+Image";
 
-              <div className="flex flex-1 flex-col justify-between">
-                <div className="flex justify-between gap-4">
-                  <div>
-                    <Link
-                      href={`/product/${line.slug}`}
-                      className="text-sm font-medium text-ink hover:text-accent-deep"
-                    >
-                      {line.product.name}
-                    </Link>
-                    <p className="mt-1 text-xs text-ink-soft">{line.variant.label}</p>
-                  </div>
-                  <p className="whitespace-nowrap text-sm font-semibold text-ink">
-                    ₹{line.variant.price * line.quantity}
-                  </p>
+                  return (
+                    <div key={item._id} className="py-5 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
+                          <img src={primaryImage} alt={product.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="space-y-1 min-w-0">
+                          <Link
+                            href={`/product/${product.slug}`}
+                            className="font-bold text-sm text-slate-900 hover:text-emerald-600 transition-colors line-clamp-1"
+                          >
+                            {product.name}
+                          </Link>
+                          {item.variantLabel && (
+                            <span className="text-xs text-slate-500 font-medium block">
+                              Variant: {item.variantLabel}
+                            </span>
+                          )}
+                          {(() => {
+                            const rawPrice = product.price !== undefined ? Number(product.price) : 0;
+                            const rawDiscount = product.discountPrice !== undefined ? Number(product.discountPrice) : 0;
+                            const itemPrice = (rawDiscount > 0 && rawDiscount < rawPrice) ? rawDiscount : rawPrice;
+                            const itemCompare = (rawDiscount > 0 && rawDiscount < rawPrice) ? rawPrice : (product.compareAtPrice ? Number(product.compareAtPrice) : null);
+
+                            return (
+                              <div className="text-xs font-semibold text-emerald-700">
+                                ₹{itemPrice.toLocaleString("en-IN")}{" "}
+                                {itemCompare && itemCompare > itemPrice && (
+                                  <span className="text-[10px] text-slate-400 line-through ml-1">
+                                    ₹{itemCompare.toLocaleString("en-IN")}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <div className="flex items-center border border-slate-300 rounded-xl bg-slate-50">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              dispatch(updateCartQuantity({ itemId: item._id, quantity: item.quantity - 1 }))
+                            }
+                            className="p-2 text-slate-600 hover:text-slate-900"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="px-3 text-xs font-bold text-slate-900">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              dispatch(updateCartQuantity({ itemId: item._id, quantity: item.quantity + 1 }))
+                            }
+                            className="p-2 text-slate-600 hover:text-slate-900"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <span className="font-extrabold text-slate-900 text-sm">
+                          ₹{(((product.discountPrice > 0 && product.discountPrice < product.price) ? product.discountPrice : product.price) * item.quantity).toFixed(2)}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => dispatch(removeFromCart(item._id))}
+                          className="p-2 text-slate-400 hover:text-rose-600 transition-colors"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Order Summary & Checkout Sidebar */}
+            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-6 h-fit">
+              <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
+                Order Summary
+              </h3>
+
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Subtotal ({totalCount} items)</span>
+                  <span className="font-bold text-slate-900">₹{subtotal.toFixed(2)}</span>
                 </div>
+                <div className="flex justify-between text-slate-600">
+                  <span>Estimated Shipping</span>
+                  <span className="text-emerald-600 font-semibold">FREE</span>
+                </div>
+                <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-extrabold text-slate-900">
+                  <span>Total Amount</span>
+                  <span className="text-emerald-700">₹{subtotal.toFixed(2)}</span>
+                </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex items-center rounded border">
-                    <button
-                      type="button"
-                      aria-label="Decrease quantity"
-                      onClick={() =>
-                        updateQuantity(line.slug, line.variantId, line.quantity - 1)
-                      }
-                      className="flex h-8 w-8 items-center justify-center text-ink"
-                    >
-                      −
-                    </button>
-                    <span className="w-7 text-center text-sm">{line.quantity}</span>
-                    <button
-                      type="button"
-                      aria-label="Increase quantity"
-                      onClick={() =>
-                        updateQuantity(
-                          line.slug,
-                          line.variantId,
-                          Math.min(line.variant.stock, line.quantity + 1)
-                        )
-                      }
-                      className="flex h-8 w-8 items-center justify-center text-ink"
-                    >
-                      +
-                    </button>
-                  </div>
+              <button
+                type="button"
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2"
+              >
+                <span>Proceed to Checkout</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
 
-                  <div className="flex items-center gap-3 text-ink-soft">
-                    <button
-                      type="button"
-                      aria-label="Move to wishlist"
-                      onClick={() => {
-                        toggleWishlist(line.slug);
-                        removeFromCart(line.slug, line.variantId);
-                      }}
-                      className="hover:text-accent"
-                    >
-                      <Heart size={17} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Remove"
-                      onClick={() => removeFromCart(line.slug, line.variantId)}
-                      className="hover:text-accent-deep"
-                    >
-                      <Trash2 size={17} />
-                    </button>
-                  </div>
+              <div className="space-y-3 pt-2 text-xs text-slate-500 border-t border-slate-100">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>100% Authentic A2 Products Guarantee</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>Dispatched directly from Brundavanam Goshala</span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        <div className="h-fit w-full rounded-xl border bg-surface p-6 lg:w-80">
-          <p className="font-display text-lg text-ink">Order Summary</p>
-          <div className="mt-4 flex flex-col gap-2.5 text-sm">
-            <div className="flex justify-between text-ink-soft">
-              <span>Subtotal</span>
-              <span className="text-ink">₹{subtotal}</span>
-            </div>
-            <div className="flex justify-between text-ink-soft">
-              <span>Shipping</span>
-              <span className="text-ink">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
-            </div>
-            {shipping > 0 && (
-              <p className="text-xs text-ink-soft">
-                Add ₹{1500 - subtotal} more for free shipping.
-              </p>
-            )}
-            <div className="mt-2 flex justify-between border-t pt-3 text-base font-semibold text-ink">
-              <span>Total</span>
-              <span>₹{total}</span>
-            </div>
           </div>
-
-          {/* Checkout isn't built yet — this ships in a later stage. */}
-          <Button disabled className="mt-6 w-full">
-            Proceed to Checkout
-          </Button>
-          <p className="mt-2 text-center text-xs text-ink-soft">
-            Checkout arrives in a later stage.
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSelector, selectCategories } from "@/lib/redux/store";
 import { CATEGORIES } from "@/lib/mockCategories";
 
 const PRICE_BANDS = [
@@ -14,10 +15,16 @@ const PRICE_BANDS = [
  * two never drift — the same `filters` state powers both.
  */
 export default function FilterSidebar({ filters, onChange }) {
-  const toggleCategory = (slug) => {
-    const next = filters.categories.includes(slug)
-      ? filters.categories.filter((c) => c !== slug)
-      : [...filters.categories, slug];
+  const reduxCategories = useSelector(selectCategories);
+  const categoriesList =
+    reduxCategories && reduxCategories.length > 0
+      ? reduxCategories.filter((c) => !c.parent)
+      : CATEGORIES;
+
+  const toggleCategory = (slugOrId) => {
+    const next = filters.categories.includes(slugOrId)
+      ? filters.categories.filter((c) => c !== slugOrId)
+      : [...filters.categories, slugOrId];
     onChange({ ...filters, categories: next });
   };
 
@@ -32,14 +39,17 @@ export default function FilterSidebar({ filters, onChange }) {
     <aside className="hidden w-56 shrink-0 md:block">
       <div className="sticky top-[calc(var(--header-height)+24px)]">
         <FilterSection title="Category">
-          {CATEGORIES.map((cat) => (
-            <Checkbox
-              key={cat.slug}
-              label={cat.name}
-              checked={filters.categories.includes(cat.slug)}
-              onChange={() => toggleCategory(cat.slug)}
-            />
-          ))}
+          {categoriesList.map((cat) => {
+            const val = cat.slug || cat._id;
+            return (
+              <Checkbox
+                key={val}
+                label={cat.name}
+                checked={filters.categories.includes(val) || filters.categories.includes(cat._id) || filters.categories.includes(cat.slug)}
+                onChange={() => toggleCategory(val)}
+              />
+            );
+          })}
         </FilterSection>
 
         <FilterSection title="Price">

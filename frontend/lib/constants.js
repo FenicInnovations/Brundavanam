@@ -5,6 +5,8 @@ export const CONTACT_PHONE = "+91 90000 00000";
 export const CONTACT_EMAIL = "care@brundavanamgoshala.com";
 export const CONTACT_ADDRESS = "Goshala Road, Near Temple Circle, Hyderabad, Telangana 500001";
 export const BUSINESS_HOURS = "Mon–Sat, 9:30 AM – 6:00 PM IST";
+export const WHATSAPP_NUMBER = "+91 90000 00000";
+export const WHATSAPP_URL = "https://wa.me/919000000000?text=Namaste%20Brundavanam%20Goshala%20Team%2C%20I%20have%20an%20enquiry";
 export const TOP_BAR_MESSAGE = "Welcome to Brundavanam Goshala — from our herd to your home.";
 export const FREE_SHIPPING_MESSAGE = "Free Shipping in India: Order Above ₹1,500/-";
 
