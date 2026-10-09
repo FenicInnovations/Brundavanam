@@ -164,23 +164,27 @@ export default function CartPage() {
                   <span>Subtotal ({totalCount} items)</span>
                   <span className="font-bold text-slate-900">₹{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-slate-600">
+                <div className="flex justify-between items-center text-slate-600">
                   <span>Estimated Shipping</span>
-                  <span className="text-emerald-600 font-semibold">FREE</span>
+                  {subtotal >= 800 ? (
+                    <span className="text-emerald-600 font-bold text-xs uppercase tracking-wide">FREE (Above ₹800)</span>
+                  ) : (
+                    <span className="text-slate-500 font-medium text-xs">Calculated by PIN at Checkout</span>
+                  )}
                 </div>
                 <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-extrabold text-slate-900">
-                  <span>Total Amount</span>
+                  <span>Subtotal Amount</span>
                   <span className="text-emerald-700">₹{subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
-              <button
-                type="button"
+              <Link
+                href="/checkout"
                 className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Link>
 
               <div className="space-y-3 pt-2 text-xs text-slate-500 border-t border-slate-100">
                 <div className="flex items-center gap-2">

@@ -26,3 +26,24 @@ export const api = {
   getMe: () => request("/auth/me"),
   logout: () => request("/auth/logout", { method: "POST" }),
 };
+
+const axiosLikeRequest = async (path, options = {}) => {
+  try {
+    const data = await request(path, options);
+    return { data };
+  } catch (err) {
+    const axiosErr = new Error(err.message);
+    axiosErr.response = { data: { message: err.message } };
+    throw axiosErr;
+  }
+};
+
+const defaultApi = {
+  get: (path) => axiosLikeRequest(path, { method: "GET" }),
+  post: (path, body) => axiosLikeRequest(path, { method: "POST", body: JSON.stringify(body) }),
+  put: (path, body) => axiosLikeRequest(path, { method: "PUT", body: JSON.stringify(body) }),
+  patch: (path, body) => axiosLikeRequest(path, { method: "PATCH", body: JSON.stringify(body) }),
+  delete: (path) => axiosLikeRequest(path, { method: "DELETE" }),
+};
+
+export default defaultApi;

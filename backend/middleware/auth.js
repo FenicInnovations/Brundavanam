@@ -29,4 +29,20 @@ async function protect(req, res, next) {
   }
 }
 
-module.exports = { protect };
+async function optionalAuth(req, res, next) {
+  const token = req.cookies?.accessToken;
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    req.user = await User.findById(decoded.userId);
+  } catch {
+    req.user = null;
+  }
+  next();
+}
+
+module.exports = { protect, optionalAuth };

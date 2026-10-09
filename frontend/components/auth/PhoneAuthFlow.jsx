@@ -12,7 +12,7 @@ const RESEND_COOLDOWN = 60;
 
 export default function PhoneAuthFlow() {
   const router = useRouter();
-  const { refresh } = useAuth();
+  const { user, status, refresh } = useAuth();
 
   const [step, setStep] = useState("phone"); // phone | otp
   const [phone, setPhone] = useState("");
@@ -21,6 +21,13 @@ export default function PhoneAuthFlow() {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const otpRefs = useRef([]);
+
+  // Authenticated users cannot navigate to login or register page
+  useEffect(() => {
+    if (status === "authenticated" && user) {
+      router.replace("/account");
+    }
+  }, [status, user, router]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -98,6 +105,17 @@ export default function PhoneAuthFlow() {
       setLoading(false);
     }
   };
+
+  if (status === "loading" || (status === "authenticated" && user)) {
+    return (
+      <div className="mx-auto flex max-w-sm flex-col items-center justify-center px-6 py-20 text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        <p className="mt-4 text-xs font-medium text-ink-soft">
+          {status === "authenticated" ? "Already logged in. Redirecting to your account..." : "Checking authentication..."}
+        </p>
+      </div>
+    );
+  }
 
   if (step === "phone") {
     return (

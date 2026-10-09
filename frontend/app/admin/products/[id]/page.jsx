@@ -43,10 +43,20 @@ export default function ProductDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [stockEditOpen, setStockEditOpen] = useState(false);
   const [newStock, setNewStock] = useState("");
+  const [variantStocks, setVariantStocks] = useState({});
   const [updatingStock, setUpdatingStock] = useState(false);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Sync variant stocks into local state when product loads / stock editor opens
+  const handleOpenStockEdit = () => {
+    setNewStock(String(product.stock ?? ""));
+    const vs = {};
+    (product.variants || []).forEach((v) => { vs[v._id] = String(v.stock ?? 0); });
+    setVariantStocks(vs);
+    setStockEditOpen(true);
+  };
 
   useEffect(() => {
     if (params?.id) {
@@ -63,18 +73,27 @@ export default function ProductDetailPage() {
 
   const handleStockUpdate = async (e) => {
     e.preventDefault();
-    if (newStock === "" || Number(newStock) < 0) return;
     setUpdatingStock(true);
     try {
-      await dispatch(updateProductStock({ id: product._id, stock: Number(newStock) }));
-      dispatch(triggerToast("Stock count updated successfully", "success"));
+      const variantsPayload = Object.entries(variantStocks).map(([_id, stock]) => ({
+        _id,
+        stock: Number(stock) || 0,
+      }));
+      await dispatch(updateProductStock({
+        id: product._id,
+        stock: newStock !== "" ? Number(newStock) : undefined,
+        variants: variantsPayload.length > 0 ? variantsPayload : undefined,
+      }));
+      dispatch(triggerToast("Stock updated successfully", "success"));
       setStockEditOpen(false);
+      dispatch(fetchProductById(params.id)); // Refresh
     } catch (err) {
       dispatch(triggerToast(err.message || "Failed to update stock", "error"));
     } finally {
       setUpdatingStock(false);
     }
   };
+
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -252,10 +271,7 @@ export default function ProductDetailPage() {
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  setNewStock(product.stock);
-                  setStockEditOpen(!stockEditOpen);
-                }}
+                onClick={handleOpenStockEdit}
                 className="text-xs text-emerald-600 font-semibold hover:underline"
               >
                 Quick Edit
@@ -263,30 +279,71 @@ export default function ProductDetailPage() {
             </h3>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-medium">Available Units</span>
+              <span className="text-xs text-slate-500 font-medium">Base Stock</span>
               <span className="text-2xl font-extrabold text-slate-900">{product.stock}</span>
             </div>
 
+            {/* Show variant-level stocks */}
+            {product.variants?.length > 0 && (
+              <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Variant Stock</p>
+                {product.variants.map((v) => (
+                  <div key={v._id} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-600">{v.label}</span>
+                    <span className={`font-bold px-2 py-0.5 rounded-lg ${v.stock > 0 ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
+                      {v.stock > 0 ? `${v.stock} in stock` : "OUT OF STOCK ⚠️"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {stockEditOpen && (
               <form onSubmit={handleStockUpdate} className="pt-3 border-t border-slate-100 space-y-3">
-                <input
-                  type="number"
-                  min="0"
-                  value={newStock}
-                  onChange={(e) => setNewStock(e.target.value)}
-                  placeholder="New stock count"
-                  className="w-full px-3 py-2 border rounded-xl text-xs"
-                />
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 block mb-1">Base Stock</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newStock}
+                    onChange={(e) => setNewStock(e.target.value)}
+                    placeholder="Base stock count"
+                    className="w-full px-3 py-2 border rounded-xl text-xs"
+                  />
+                </div>
+
+                {/* Variant stock inputs */}
+                {product.variants?.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Variant Stock</p>
+                    {product.variants.map((v) => (
+                      <div key={v._id}>
+                        <label className="text-xs text-slate-600 block mb-1">{v.label}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={variantStocks[v._id] ?? v.stock}
+                          onChange={(e) => setVariantStocks((prev) => ({ ...prev, [v._id]: e.target.value }))}
+                          placeholder={`Stock for ${v.label}`}
+                          className="w-full px-3 py-2 border rounded-xl text-xs"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={updatingStock}
                   className="w-full py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1"
                 >
-                  {updatingStock ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save New Stock"}
+                  {updatingStock ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save All Stock"}
                 </button>
+                <button type="button" onClick={() => setStockEditOpen(false)} className="w-full py-1.5 text-xs text-slate-500 hover:text-slate-700">Cancel</button>
               </form>
             )}
           </div>
+
 
           {/* Pricing Summary */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">

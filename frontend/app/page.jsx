@@ -21,8 +21,7 @@ import {
   Clock,
 } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
-import { fetchStorefrontProducts, normalizeProduct } from "@/lib/productUtils";
-import { getBestSellers, getHotProduct } from "@/lib/mockProducts";
+import { fetchStorefrontProducts } from "@/lib/productUtils";
 import { CATEGORIES } from "@/lib/mockCategories";
 import { useDispatch, addToCart, triggerToast } from "@/lib/redux/store";
 
@@ -131,13 +130,20 @@ const TESTIMONIALS = [
 
 export default function HomePage() {
   const [liveProducts, setLiveProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     async function loadProducts() {
-      const items = await fetchStorefrontProducts();
-      if (items && items.length > 0) {
-        setLiveProducts(items);
+      try {
+        const items = await fetchStorefrontProducts();
+        if (items && items.length > 0) {
+          setLiveProducts(items);
+        }
+      } catch (err) {
+        console.error("Failed to fetch live products:", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadProducts();
@@ -151,15 +157,8 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const bestSellers =
-    liveProducts.length > 0
-      ? liveProducts.slice(0, 8)
-      : getBestSellers(8).map(normalizeProduct);
-
-  const hotProduct =
-    liveProducts.length > 0
-      ? liveProducts[0]
-      : normalizeProduct(getHotProduct());
+  const bestSellers = liveProducts.length > 0 ? liveProducts.slice(0, 8) : [];
+  const hotProduct = liveProducts.length > 0 ? liveProducts[0] : null;
 
   return (
     <div className="space-y-16 pb-16">
@@ -341,7 +340,11 @@ export default function HomePage() {
       {/* 3. Featured Deal Spotlight & Best Sellers Grid */}
       <section className="mx-auto max-w-content px-6 md:px-8 space-y-12">
         {/* Deal Spotlight Banner */}
-        <WeeklyDealSpotlight product={hotProduct} />
+        {loading ? (
+          <div className="h-64 animate-pulse rounded-3xl bg-amber-50/50 border border-line" />
+        ) : hotProduct ? (
+          <WeeklyDealSpotlight product={hotProduct} />
+        ) : null}
 
         {/* Best Sellers Grid */}
         <div>
@@ -366,11 +369,19 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.slug || product._id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="aspect-square animate-pulse rounded-2xl bg-amber-50/50 border border-line" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+              {bestSellers.map((product) => (
+                <ProductCard key={product.slug || product._id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -514,10 +525,12 @@ function WeeklyDealSpotlight({ product }) {
 
   if (!product) return null;
 
-  const sellingPrice = product.basePrice || product.price || 0;
-  const comparePrice = product.compareAtPrice || product.originalPrice || Math.round(sellingPrice * 1.25);
-  const discountPercent = product.discountPercent || Math.round(((comparePrice - sellingPrice) / comparePrice) * 100);
-  const savings = comparePrice - sellingPrice;
+  const sellingPrice = product.price || product.basePrice || 0;
+  const comparePrice = product.compareAtPrice || product.originalPrice || null;
+  const hasDiscount = Boolean(comparePrice && comparePrice > sellingPrice);
+  const discountPercent =
+    product.discountPercent || (hasDiscount ? Math.round(((comparePrice - sellingPrice) / comparePrice) * 100) : null);
+  const savings = hasDiscount ? comparePrice - sellingPrice : 0;
 
   const handleAdd = async () => {
     try {
@@ -577,12 +590,16 @@ function WeeklyDealSpotlight({ product }) {
             <span className="text-3xl font-black text-ink">
               ₹{sellingPrice.toLocaleString("en-IN")}
             </span>
-            <span className="text-base text-ink-soft/70 line-through">
-              ₹{comparePrice.toLocaleString("en-IN")}
-            </span>
-            <span className="rounded-xl bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-extrabold">
-              Save ₹{savings.toLocaleString("en-IN")} ({discountPercent}% OFF)
-            </span>
+            {hasDiscount && (
+              <span className="text-base text-ink-soft/70 line-through">
+                ₹{comparePrice.toLocaleString("en-IN")}
+              </span>
+            )}
+            {hasDiscount && savings > 0 && (
+              <span className="rounded-xl bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-extrabold">
+                Save ₹{savings.toLocaleString("en-IN")} ({discountPercent}% OFF)
+              </span>
+            )}
           </div>
 
           {/* Countdown Clock */}

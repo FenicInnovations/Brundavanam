@@ -94,14 +94,33 @@ export default function WishlistPage() {
                     </div>
                     <div className="p-5 space-y-2">
                       <h3 className="font-bold text-sm text-slate-900 line-clamp-1">{product.name}</h3>
-                      <div className="text-sm font-extrabold text-emerald-700">
-                        ₹{product.price}{" "}
-                        {product.discountPrice > 0 && (
-                          <span className="text-xs text-slate-400 line-through ml-1 font-normal">
-                            ₹{product.discountPrice}
-                          </span>
-                        )}
-                      </div>
+                      {(() => {
+                        const rawPrice = product.price !== undefined ? Number(product.price) : 0;
+                        const rawDiscount = product.discountPrice !== undefined ? Number(product.discountPrice) : 0;
+                        let sellingPrice = rawPrice;
+                        let strikePrice = null;
+
+                        if (rawDiscount > 0 && rawPrice > 0) {
+                          if (rawDiscount > rawPrice) {
+                            sellingPrice = rawPrice;
+                            strikePrice = rawDiscount;
+                          } else if (rawDiscount < rawPrice) {
+                            sellingPrice = rawDiscount;
+                            strikePrice = rawPrice;
+                          }
+                        }
+
+                        return (
+                          <div className="text-sm font-extrabold text-emerald-700">
+                            ₹{sellingPrice}{" "}
+                            {strikePrice && (
+                              <span className="text-xs text-slate-400 line-through ml-1 font-normal">
+                                ₹{strikePrice}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 

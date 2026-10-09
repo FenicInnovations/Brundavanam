@@ -174,9 +174,12 @@ export const deleteProduct = ({ id, hardDelete = false }) => async (dispatch) =>
   }
 };
 
-export const updateProductStock = ({ id, stock }) => async (dispatch) => {
+export const updateProductStock = ({ id, stock, variants }) => async (dispatch) => {
   try {
-    const res = await apiClient.patch(`/admin/products/${id}/stock`, { stock });
+    const body = {};
+    if (stock !== undefined) body.stock = stock;
+    if (variants) body.variants = variants;
+    const res = await apiClient.patch(`/admin/products/${id}/stock`, body);
     dispatch({
       type: productSliceActions.UPDATE_STOCK_LOCAL,
       payload: { id, stock: res.data.stock },

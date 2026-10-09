@@ -7,7 +7,7 @@ function assertEnv() {
   if (missing.length && process.env.NODE_ENV !== "test") {
     console.warn(
       `[env] Missing recommended variables: ${missing.join(", ")}. ` +
-        "Copy .env.example to .env and fill these in before running for real."
+      "Copy .env.example to .env and fill these in before running for real."
     );
   }
 }
@@ -51,5 +51,34 @@ module.exports = {
     pass: process.env.SMTP_PASS || "",
     supportEmail: process.env.SUPPORT_EMAIL || "brundavanamgaushala@gmail.com",
     adminNotificationEmail: process.env.ADMIN_NOTIFICATION_EMAIL || "brundavanamgaushala@gmail.com",
+  },
+
+  paymentProvider: process.env.PAYMENT_PROVIDER || "razorpay",
+  razorpay: {
+    // keyId: process.env.RAZORPAY_KEY_ID || "",
+    // keySecret: process.env.RAZORPAY_KEY_SECRET || "",
+    // webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || "",
+    keyId: "rzp_test_TkvXHtDKpt4OBC" || "",
+    keySecret: "V533DXVf9vcy8MCip4lIRBZe" || "",
+    webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || "",
+  },
+
+  shiprocket: {
+    email: process.env.SHIPROCKET_EMAIL || "gokarni1967@yahoo.com",
+    password: process.env.SHIPROCKET_PASSWORD || "kapardhI@1967",
+    pickupPincode: process.env.SHIPROCKET_PICKUP_PINCODE || "500081",
+    pickupLocation: process.env.SHIPROCKET_PICKUP_LOCATION || "Primary",
+    freeShippingThreshold: parseInt(process.env.FREE_SHIPPING_THRESHOLD, 10) || 800,
+  },
+
+  company: {
+    name: "Brundavanam Goshala",
+    legalName: "Brundavanam Goshala Trust",
+    gstin: process.env.COMPANY_GSTIN || "37AAATB1234F1Z5",
+    pan: process.env.COMPANY_PAN || "AAATB1234F",
+    address: "Survey No. 42, Brundavanam Goshala Road, Guntur District, Andhra Pradesh - 522002",
+    phone: "+91 98765 43210",
+    email: process.env.SUPPORT_EMAIL || "brundavanamgaushala@gmail.com",
+    website: process.env.FRONTEND_URL || "http://localhost:3000",
   },
 };

@@ -160,7 +160,11 @@ export default function CartDrawer({ isOpen, onClose }) {
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Shipping</span>
-                  <span className="text-emerald-600 font-semibold">Calculated at Checkout</span>
+                  {subtotal >= 800 ? (
+                    <span className="text-emerald-600 font-bold uppercase tracking-wide">FREE</span>
+                  ) : (
+                    <span className="text-slate-500 font-medium italic">Calculated at Checkout</span>
+                  )}
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-extrabold text-slate-900">
                   <span>Total Payable</span>
@@ -170,7 +174,7 @@ export default function CartDrawer({ isOpen, onClose }) {
 
               <div className="pt-2">
                 <Link
-                  href="/cart"
+                  href="/checkout"
                   onClick={onClose}
                   className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2"
                 >

@@ -29,6 +29,7 @@ import {
   X,
   Sparkles,
   LifeBuoy,
+  Home,
 } from "lucide-react";
 import { useDispatch, useSelector, selectSidebarExpanded, selectAuth } from "@/lib/redux/store";
 import { adminSliceActions } from "@/lib/redux/slices/adminSlice";
@@ -70,13 +71,13 @@ export default function AdminSidebar() {
       href: "/admin/support",
       isFuture: false,
     },
-    { label: "Orders", icon: ShoppingCart, href: "/admin/orders", isFuture: true },
-    { label: "Customers", icon: Users, href: "/admin/customers", isFuture: true },
-    { label: "Wishlist / Cart Analytics", icon: HeartHandshake, href: "/admin/analytics/cart", isFuture: true },
-    { label: "Reviews", icon: Star, href: "/admin/reviews", isFuture: true },
+    { label: "Orders", icon: ShoppingCart, href: "/admin/orders", isFuture: false },
+    { label: "Customers", icon: Users, href: "/admin/customers", isFuture: false },
+    { label: "Wishlist / Cart Analytics", icon: HeartHandshake, href: "/admin/analytics/cart", isFuture: false },
+    { label: "Reviews", icon: Star, href: "/admin/reviews", isFuture: false },
     { label: "Coupons / Discounts", icon: Ticket, href: "/admin/coupons", isFuture: true },
     { label: "Payments", icon: CreditCard, href: "/admin/payments", isFuture: true },
-    { label: "Shipping", icon: Truck, href: "/admin/shipping", isFuture: true },
+    { label: "Shipping", icon: Truck, href: "/admin/shipping", isFuture: false },
     { label: "Reports / Analytics", icon: BarChart3, href: "/admin/reports", isFuture: true },
     { label: "Media / Files", icon: ImageIcon, href: "/admin/media", isFuture: true },
     { label: "Notifications", icon: Bell, href: "/admin/notifications", isFuture: true },
@@ -208,6 +209,20 @@ export default function AdminSidebar() {
             </div>
           );
         })}
+      </div>
+
+      {/* Back to Home Navigation */}
+      <div className="p-2 border-t border-slate-800 bg-slate-950/40">
+        <Link
+          href="/"
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all group ${
+            !sidebarExpanded ? "justify-center" : ""
+          }`}
+          title="Back to Home Page"
+        >
+          <Home className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform flex-shrink-0" />
+          {sidebarExpanded && <span className="truncate">Back to Home</span>}
+        </Link>
       </div>
 
       {/* User Info & Logout Footer */}

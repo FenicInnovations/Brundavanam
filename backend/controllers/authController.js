@@ -90,6 +90,8 @@ async function verifyOtp(req, res, next) {
         phone: user.phone,
         name: user.name || null,
         email: user.email || null,
+        role: user.role || (user.isAdmin ? "admin" : "customer"),
+        isAdmin: Boolean(user.isAdmin || user.role === "admin" || user.role === "super_admin"),
       },
     });
   } catch (err) {
@@ -107,6 +109,8 @@ async function me(req, res) {
       phone: user.phone,
       name: user.name || null,
       email: user.email || null,
+      role: user.role || (user.isAdmin ? "admin" : "customer"),
+      isAdmin: Boolean(user.isAdmin || user.role === "admin" || user.role === "super_admin"),
       addresses: user.addresses,
     },
   });

@@ -1,5 +1,4 @@
 import { apiClient } from "@/lib/api/apiClient";
-import { getAllProducts, getProductBySlug, getRelatedProducts } from "@/lib/mockProducts";
 
 /**
  * Normalizes any product object (from MongoDB database API or mock products)
@@ -26,15 +25,21 @@ export function normalizeProduct(p) {
   let sellingPrice = rawPrice;
   let comparePrice = null;
 
-  if (rawDiscountPrice > 0 && rawDiscountPrice < rawPrice) {
-    sellingPrice = rawDiscountPrice;
-    comparePrice = rawPrice;
+  // Fully dynamic price parsing from database:
+  // In Brundavanam schema:
+  // - If discountPrice > price: price is the discounted selling price (e.g. 199), discountPrice is the actual original price (e.g. 219)
+  // - If discountPrice < price: discountPrice is the discounted selling price (e.g. 199), price is the actual original price (e.g. 219)
+  if (rawDiscountPrice > 0 && rawPrice > 0) {
+    if (rawDiscountPrice > rawPrice) {
+      sellingPrice = rawPrice;
+      comparePrice = rawDiscountPrice;
+    } else if (rawDiscountPrice < rawPrice) {
+      sellingPrice = rawDiscountPrice;
+      comparePrice = rawPrice;
+    }
   } else if (rawComparePrice > 0 && rawComparePrice > rawPrice) {
     sellingPrice = rawPrice;
     comparePrice = rawComparePrice;
-  } else if (rawPrice > 0) {
-    // Default authentic MRP comparison (approx 15-20% higher than direct goshala farm price)
-    comparePrice = Math.round(rawPrice * 1.18);
   }
 
   const hasDiscount = Boolean(comparePrice && comparePrice > sellingPrice);
@@ -98,24 +103,23 @@ export function normalizeProduct(p) {
 }
 
 /**
- * Fetches published products from backend MongoDB database with fallback to mock products.
+ * Fetches published products from backend MongoDB database.
  */
 export async function fetchStorefrontProducts() {
   try {
     const res = await apiClient.get("/products");
-    if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+    if (res?.data && Array.isArray(res.data)) {
       return res.data.map(normalizeProduct);
     }
   } catch (err) {
-    console.warn("[productUtils] Could not fetch live products from API, using fallback catalog:", err.message);
+    console.warn("[productUtils] Could not fetch live products from API:", err.message);
   }
 
-  // Fallback to mock catalog
-  return getAllProducts().map(normalizeProduct);
+  return [];
 }
 
 /**
- * Fetches single product details by slug/id with fallback to mock product.
+ * Fetches single product details by slug/id.
  */
 export async function fetchStorefrontProductBySlug(slug) {
   try {
@@ -127,15 +131,9 @@ export async function fetchStorefrontProductBySlug(slug) {
       };
     }
   } catch (err) {
-    console.warn("[productUtils] Could not fetch product by slug from API, using fallback:", err.message);
+    console.warn("[productUtils] Could not fetch product by slug from API:", err.message);
   }
 
-  const mockProduct = getProductBySlug(slug);
-  if (!mockProduct) return { product: null, related: [] };
-
-  return {
-    product: normalizeProduct(mockProduct),
-    related: getRelatedProducts(mockProduct).map(normalizeProduct),
-  };
+  return { product: null, related: [] };
 }
 

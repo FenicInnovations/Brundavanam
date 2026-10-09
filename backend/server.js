@@ -53,6 +53,15 @@ app.use("/api/admin/dashboard", require("./routes/adminDashboardRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
 
+// Order & Payment Pipeline Routes
+app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/admin/orders", require("./routes/adminOrderRoutes"));
+app.use("/api/admin/customers", require("./routes/adminCustomerRoutes"));
+app.use("/api/admin/analytics", require("./routes/adminAnalyticsRoutes"));
+app.use("/api/admin/reviews", require("./routes/adminReviewRoutes"));
+app.use("/api/reviews", require("./routes/reviewRoutes"));
+app.use("/api/webhooks", require("./routes/webhookRoutes"));
+
 // Support & Customer Enquiries
 app.use("/api/support", require("./routes/supportRoutes"));
 

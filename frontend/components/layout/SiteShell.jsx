@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/layout/Header";
 import MobileHeader from "@/components/layout/MobileHeader";
 import MobileMenuDrawer from "@/components/layout/MobileMenuDrawer";
@@ -14,6 +16,18 @@ import Footer from "@/components/layout/Footer";
  */
 export default function SiteShell({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const { user } = useAuth();
+
+  const isAdmin = Boolean(
+    user && (user.isAdmin || user.role === "admin" || user.role === "super_admin")
+  );
+  const isAdminRoute = pathname?.startsWith("/admin");
+
+  // Authorized admins on /admin render the standalone Admin layout without public shop chrome
+  if (isAdminRoute && isAdmin) {
+    return <main className="min-h-screen">{children}</main>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -16,6 +16,7 @@ import {
   TrendingUp,
   BarChart2,
   LifeBuoy,
+  Home,
 } from "lucide-react";
 import { useDispatch, useSelector, selectDashboardStats } from "@/lib/redux/store";
 import { fetchDashboardStats } from "@/lib/redux/slices/adminSlice";
@@ -72,6 +73,13 @@ export default function AdminDashboardPage() {
             >
               <span>Manage Product Catalog</span>
               <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/"
+              className="px-5 py-2.5 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-emerald-300 font-semibold text-xs rounded-xl border border-emerald-500/30 transition-all flex items-center gap-2"
+            >
+              <Home className="w-4 h-4 text-emerald-400" />
+              <span>Back to Home</span>
             </Link>
           </div>
         </div>

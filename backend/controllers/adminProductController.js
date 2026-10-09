@@ -421,25 +421,33 @@ async function deleteProduct(req, res, next) {
 async function updateStock(req, res, next) {
   try {
     const { id } = req.params;
-    const { stock } = req.body;
+    const { stock, variants } = req.body;
 
-    if (stock === undefined || Number(stock) < 0) {
-      const err = new Error("Valid stock number required");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    const product = await Product.findByIdAndUpdate(
-      id,
-      { stock: Number(stock) },
-      { new: true }
-    ).populate("category", "name slug");
-
+    const product = await Product.findById(id);
     if (!product) {
       const err = new Error("Product not found");
       err.statusCode = 404;
       throw err;
     }
+
+    // Update base stock if provided
+    if (stock !== undefined && Number(stock) >= 0) {
+      product.stock = Number(stock);
+    }
+
+    // Update individual variant stocks if provided
+    // Expects: variants = [{ _id: "variantId", stock: 20 }, ...]
+    if (Array.isArray(variants) && variants.length > 0) {
+      for (const vUpdate of variants) {
+        const variant = product.variants.id(vUpdate._id);
+        if (variant && Number(vUpdate.stock) >= 0) {
+          variant.stock = Number(vUpdate.stock);
+        }
+      }
+    }
+
+    await product.save();
+    await product.populate("category", "name slug");
 
     res.json({
       success: true,
@@ -450,6 +458,7 @@ async function updateStock(req, res, next) {
     next(err);
   }
 }
+
 
 // POST /api/admin/products/media/upload-url
 async function getSignedUploadUrl(req, res, next) {
