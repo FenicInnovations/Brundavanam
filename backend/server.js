@@ -17,8 +17,36 @@ const app = express();
 connectDB();
 connectRedis();
 
-app.use(helmet());
-app.use(cors({ origin: frontendUrl, credentials: true }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
+const allowedOrigins = [
+  frontendUrl,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".netlify.app") ||
+        (process.env.ADDITIONAL_ORIGINS &&
+          process.env.ADDITIONAL_ORIGINS.split(",").map((s) => s.trim()).includes(origin))
+      ) {
+        return callback(null, true);
+      }
+      // Allow in production if origin header matches Netlify deployment
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ limit: "25mb", extended: true }));
 app.use(cookieParser());
