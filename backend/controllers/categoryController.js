@@ -1,5 +1,6 @@
 const Category = require("../models/Category");
 const { createSlug } = require("../utils/slugify");
+const { invalidateCache } = require("../graphql/resolvers");
 
 // GET /api/categories (supports all=true for admin view)
 async function getCategories(req, res, next) {
@@ -50,6 +51,8 @@ async function createCategory(req, res, next) {
     });
 
     await category.save();
+    invalidateCache("gql:*").catch(() => {});
+
     const populated = await Category.findById(category._id).populate("parent", "name slug");
 
     res.status(201).json({
@@ -85,6 +88,8 @@ async function updateCategory(req, res, next) {
     if (isActive !== undefined) category.isActive = Boolean(isActive);
 
     await category.save();
+    invalidateCache("gql:*").catch(() => {});
+
     const populated = await Category.findById(category._id).populate("parent", "name slug");
 
     res.json({
@@ -118,6 +123,7 @@ async function deleteCategory(req, res, next) {
     }
 
     await Category.findByIdAndDelete(id);
+    invalidateCache("gql:*").catch(() => {});
 
     res.json({
       success: true,

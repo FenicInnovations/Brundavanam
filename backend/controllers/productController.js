@@ -1,5 +1,30 @@
 const Product = require("../models/Product");
 
+function attachWeightDefaults(p) {
+  if (!p) return p;
+  const weightVal =
+    p.weightValue !== undefined && p.weightValue !== null
+      ? p.weightValue
+      : (/50\s*g/i.test(p.name)
+          ? 50
+          : /15\s*ml/i.test(p.name)
+          ? 15
+          : /8\s*ml/i.test(p.name)
+          ? 8
+          : 100);
+  const unit = p.weightUnit || (/ml/i.test(p.name) ? "ml" : "g");
+  const weightKg = p.weight || (unit === "kg" ? weightVal : Math.round((weightVal / 1000) * 1000) / 1000);
+  const dimensions = p.dimensions || { length: 10, breadth: 10, height: 6 };
+
+  return {
+    ...p,
+    weightValue: weightVal,
+    weightUnit: unit,
+    weight: weightKg,
+    dimensions,
+  };
+}
+
 // GET /api/products
 async function getPublicProducts(req, res, next) {
   try {
@@ -29,7 +54,7 @@ async function getPublicProducts(req, res, next) {
 
     res.json({
       success: true,
-      data: products,
+      data: products.map(attachWeightDefaults),
     });
   } catch (err) {
     next(err);
@@ -80,8 +105,8 @@ async function getPublicProductBySlug(req, res, next) {
 
     res.json({
       success: true,
-      data: product,
-      related,
+      data: attachWeightDefaults(product),
+      related: related.map(attachWeightDefaults),
     });
   } catch (err) {
     next(err);

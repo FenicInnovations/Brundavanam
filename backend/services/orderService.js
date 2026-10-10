@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Cart = require("../models/Cart");
@@ -37,7 +38,9 @@ class OrderService {
     let totalWeight = 0; // Default to 1kg if not specified per product
 
     for (const item of checkoutItems) {
-      const productId = item.product?._id || item.product;
+      const productId = item.product?._id ? item.product._id.toString() : (item.product?.id || item.product);
+      if (!productId) continue;
+
       const product = await Product.findById(productId);
 
       if (!product || product.isDeleted || !product.isActive) {
@@ -46,29 +49,45 @@ class OrderService {
         throw err;
       }
 
-      let unitPrice = product.discountPrice > 0 ? product.discountPrice : product.price;
+      let unitPrice = product.discountPrice > 0 && product.discountPrice < product.price ? product.discountPrice : product.price;
       let regularPrice = product.price;
       let variantLabel = item.variantLabel || "";
       let sku = product.sku;
-      let weight = product.weight || 0.5; // Assume 500g default
       let resolvedVariantId = null; // Default: no variant
+      let variantWeight = null;
 
       if (item.variantId) {
-        const variant = product.variants.id(item.variantId);
+        let variant = null;
+        if (product.variants?.id && typeof product.variants.id === "function" && mongoose.Types.ObjectId.isValid(item.variantId)) {
+          variant = product.variants.id(item.variantId);
+        }
+        if (!variant && Array.isArray(product.variants)) {
+          variant = product.variants.find(
+            (v) => (v._id?.toString() === item.variantId?.toString()) || (v.id?.toString() === item.variantId?.toString())
+          );
+        }
+
         if (variant) {
-          // Variant still exists — use variant-level pricing and stock
-          unitPrice = variant.discountPrice > 0 ? variant.discountPrice : variant.price;
+          // Variant exists — use variant-level pricing, weight and sku
+          unitPrice = variant.discountPrice > 0 && variant.discountPrice < variant.price ? variant.discountPrice : variant.price;
           regularPrice = variant.price;
           variantLabel = variant.label;
           sku = variant.sku || sku;
           resolvedVariantId = variant._id;
+          if (variant.weight && variant.weight > 0) {
+            variantWeight = variant.weight;
+          }
         } else {
           // Stale variantId — variant was removed from product. Fall back to base product.
-          console.warn(`[OrderService] Cart item has stale variantId ${item.variantId} for product ${product.name}. Falling back to base product stock.`);
+          console.warn(`[OrderService] Cart item has stale variantId ${item.variantId} for product ${product.name}. Falling back to base product.`);
           variantLabel = "";
           resolvedVariantId = null;
         }
       }
+
+      // Accurate weight calculation: variant weight -> product weight -> default 0.1 kg (100g)
+      let itemWeight = variantWeight || product.weight || 0.1;
+      if (itemWeight <= 0) itemWeight = 0.1;
 
       const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
       const subtotal = unitPrice * qty;
@@ -77,7 +96,7 @@ class OrderService {
 
       itemsTotal += subtotal;
       taxTotal += gstAmount;
-      totalWeight += weight * qty;
+      totalWeight += itemWeight * qty;
 
       const primaryImg = product.images?.find((img) => img.isPrimary) || product.images?.[0];
 
@@ -239,6 +258,7 @@ class OrderService {
           courierName: shippingInfo.courierName,
           courierCompanyId: shippingInfo.courierCompanyId,
           estimatedDelivery: shippingInfo.estimatedDeliveryDays,
+          weight: totalWeight > 0 ? Math.round(totalWeight * 1000) / 1000 : 0.5,
         },
         billingAddress: {
           fullName: actualBilling.fullName,
@@ -393,7 +413,7 @@ class OrderService {
   /**
    * 4. Dispatch Order to Shiprocket (Admin action or auto-fulfillment)
    */
-  async dispatchOrderToShiprocket(orderId) {
+  async dispatchOrderToShiprocket(orderId, packingOverrides = {}) {
     const order = await Order.findById(orderId);
     if (!order) {
       const err = new Error("Order not found");
@@ -405,6 +425,20 @@ class OrderService {
       const err = new Error(`Order in status '${order.status}' cannot be dispatched.`);
       err.statusCode = 400;
       throw err;
+    }
+
+    // Apply any warehouse packing overrides
+    if (packingOverrides.weight) {
+      order.shipping.weight = Math.max(0.05, Number(packingOverrides.weight));
+    }
+    if (packingOverrides.length) {
+      order.shipping.length = Math.max(1, Number(packingOverrides.length));
+    }
+    if (packingOverrides.breadth) {
+      order.shipping.breadth = Math.max(1, Number(packingOverrides.breadth));
+    }
+    if (packingOverrides.height) {
+      order.shipping.height = Math.max(1, Number(packingOverrides.height));
     }
 
     // Call Shipping Service

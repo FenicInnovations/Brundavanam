@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { SITE_NAME } from "@/lib/constants";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 
 const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
@@ -120,7 +121,20 @@ export default function PhoneAuthFlow() {
   if (step === "phone") {
     return (
       <div className="mx-auto flex max-w-sm flex-col px-6 py-14 text-center md:py-20">
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white p-1.5 shadow-md ring-2 ring-amber-300">
+          <Image
+            src="/images/logo.png"
+            alt="Brundavanam Goshala Logo"
+            width={72}
+            height={72}
+            className="h-full w-full object-contain"
+            priority
+          />
+        </div>
         <p className="font-display text-2xl text-ink">{SITE_NAME}</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-800">
+          Ahar.am • Arogy.am • Soundary.am
+        </p>
         <h1 className="mt-2 text-base font-medium text-ink">Log In / Create Account</h1>
 
         <form onSubmit={handleSendOtp} className="mt-8 flex flex-col gap-4 text-left">
@@ -156,7 +170,20 @@ export default function PhoneAuthFlow() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-col px-6 py-14 text-center md:py-20">
+      <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white p-1.5 shadow-md ring-2 ring-amber-300">
+        <Image
+          src="/images/logo.png"
+          alt="Brundavanam Goshala Logo"
+          width={72}
+          height={72}
+          className="h-full w-full object-contain"
+          priority
+        />
+      </div>
       <p className="font-display text-2xl text-ink">{SITE_NAME}</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-amber-800">
+        Ahar.am • Arogy.am • Soundary.am
+      </p>
       <h1 className="mt-2 text-base font-medium text-ink">Enter OTP</h1>
       <p className="mt-1 text-sm text-ink-soft">
         Sent to +91 {phone}.{" "}

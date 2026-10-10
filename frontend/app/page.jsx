@@ -19,9 +19,15 @@ import {
   Heart,
   Star,
   Clock,
+  Phone,
+  Mail,
+  MapPin,
+  Globe,
+  Leaf,
+  Users,
 } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
-import { fetchStorefrontProducts } from "@/lib/productUtils";
+import { fetchStorefrontInitial } from "@/lib/productUtils";
 import { CATEGORIES } from "@/lib/mockCategories";
 import { useDispatch, addToCart, triggerToast } from "@/lib/redux/store";
 
@@ -50,57 +56,111 @@ const TRUST_BADGES = [
 
 const HERO_SLIDES = [
   {
-    badge: "100% Traditional Vedic Bilona Churned",
-    title: "Pure A2 Desi Gir Cow Ghee",
+    badge: "Traditional • Ayurvedic • Natural • Sustainable",
+    supertitle: "Brundavanam Goshala — Nature's Essence, A Brighter Tomorrow",
+    title: "Rooted in Tradition. Made for a Kinder Tomorrow.",
     subtitle:
-      "Crafted using ancient curd-churning methods in clay pots over slow cow-dung fire. Golden, aromatic, and rich in natural nutrients.",
-    tags: ["Ahimsa Care", "Handmade at Dawn", "Glass Jar Packing"],
-    buttonText: "Shop Pure A2 Ghee",
+      "Natural. Thoughtful. Meaningful. Pure, honest wellness rooted in timeless Ayurvedic wisdom, promoting holistic vitality through our sacred bond with Gaumata.",
+    quote: "“When we care for Gaumata, we care for a healthier, kinder world.”",
+    tags: ["People", "Cows", "Planet", "Together"],
+    buttonText: "Shop Sacred Offerings",
     buttonHref: "/shop",
-    image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=1600&q=80",
+    secondaryText: "Our Story & Purpose",
+    secondaryHref: "/about",
+    image: "/images/brochure/hero_gaumata_calf.jpg",
   },
   {
-    badge: "Sacred Aromatherapy & Temple Purity",
-    title: "Natural Cow Dung Dhoop & Incense",
+    badge: "Pure Ayurveda for Everyday Wellness • Goodness in Every Drop",
+    supertitle: "Sacred Cow-Based Formulations",
+    title: "Simple. Natural. Meaningful.",
     subtitle:
-      "Purify your home and puja mandir with charcoal-free dhoop cups made with pure desi cow dung, loban, camphor, and sacred ayurvedic herbs.",
-    tags: ["100% Natural", "Air Purifying", "Charcoal Free"],
-    buttonText: "Explore Puja Collection",
+      "Handcrafted pure Ayurvedic wellness derived from cow-based ingredients: Sahaja Kunkuma (సహజ కుంకుమ), Amrutha Dhara (అమృత ధార), and Gau Dhara (గౌ ధార) Universal Pain Relief Oil. 100% chemical-free.",
+    quote: "“Trust Nature. Choose Brundavanam.”",
+    tags: ["Sahaja Kunkuma", "Amrutha Dhara", "Gau Dhara Oil", "100% Chemical-Free"],
+    buttonText: "Explore Ayurvedic Wellness",
     buttonHref: "/shop",
-    image: "https://images.unsplash.com/photo-1609743522653-52354461eb27?w=1600&q=80",
+    secondaryText: "Read Product Lineage",
+    secondaryHref: "/about",
+    image: "/images/brochure/ayurvedic_products_trio.jpg",
   },
   {
-    badge: "Sanctuary for 500+ Indigenous Cows",
-    title: "Sacred Goshala Heritage & Seva",
+    badge: "Care Today for a Brighter Tomorrow • A Deeper Purpose",
+    supertitle: "Holistic Wellness & Gaumata Seva",
+    title: "Goodness for People. Care for Cows. Harmony for Planet.",
     subtitle:
-      "Every purchase directly supports the nutrition, healthcare, and lifelong shelter of abandoned and aging desi cows in our sanctuary.",
-    tags: ["500+ Cows Protected", "Natural Green Fodder", "Ahimsa Milk"],
-    buttonText: "Discover Our Mission",
-    buttonHref: "/goshala",
-    image: "https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?w=1600&q=80",
+      "Brundavanam Goshala is more than a brand — it is a heartfelt initiative to bring the timeless wisdom of Ayurveda to modern lives while supporting the care, protection, and well-being of cows.",
+    quote: "“Our journey is driven by a simple belief — when we care for nature, it cares for us.”",
+    tags: ["Natural Living", "Ayurvedic Heritage", "Gaumata Care", "Sustainable Future"],
+    buttonText: "Discover Our Story",
+    buttonHref: "/about",
+    secondaryText: "Visit Goshala Sanctuary",
+    secondaryHref: "/contact",
+    image: "/images/brochure/pastoral_sanctuary_sunset.jpg",
   },
 ];
 
-const BILONA_STEPS = [
+const BROCHURE_VALUES = [
   {
-    step: "01",
-    title: "Ahimsa Milking",
-    desc: "Calves drink their fill first. Fresh milk is gathered with love from healthy, naturally grazing desi Gir cows.",
+    icon: "🌱",
+    title: "Natural Living",
+    desc: "Products inspired by nature and traditional wellness practices, completely chemical-free.",
   },
   {
-    step: "02",
-    title: "Clay Pot Fermentation",
-    desc: "Milk is boiled gently on cow dung cake embers and naturally cultured overnight into thick probiotics-rich curd.",
+    icon: "🪷",
+    title: "Ayurvedic Heritage",
+    desc: "Rooted in India's timeless knowledge of holistic well-being and sacred healing scriptures.",
   },
   {
-    step: "03",
-    title: "Wooden Bilona Churning",
-    desc: "Churned bi-directionally before sunrise using wooden churners to separate pure Makkhan (cultured butter).",
+    icon: "🐄",
+    title: "Gaumata Care",
+    desc: "Supporting the loving protection, nurturing, and lifelong honorable shelter of indigenous cows.",
   },
   {
-    step: "04",
-    title: "Slow Low-Flame Clarification",
-    desc: "Butter is melted slowly with sacred herbs until water evaporates, yielding luminous granular golden ghee.",
+    icon: "🌍",
+    title: "Sustainable Future",
+    desc: "Encouraging responsible choices and circular organic harmony for a healthier planet.",
+  },
+];
+
+const BROCHURE_SIGNATURE_PRODUCTS = [
+  {
+    id: "sahaja-kunkuma",
+    title: "Sahaja Kunkuma",
+    teluguTitle: "సహజ కుంకుమ",
+    tagline: "Traditional Purity for Everyday Life",
+    desc: "A pure and natural kunkuma made from cow-based ingredients. A 100% chemical-free sacred product for daily prayer and divine grace.",
+    badge: "100% Chemical Free",
+    accent: "from-rose-500/10 to-amber-500/10",
+    border: "border-rose-200",
+    badgeColor: "bg-rose-100 text-rose-800",
+    icon: "🔴",
+    href: "/shop",
+  },
+  {
+    id: "amrutha-dhara",
+    title: "Amrutha Dhara",
+    teluguTitle: "అమృత ధార",
+    tagline: "Timeless Care in Every Drop",
+    desc: "A traditional Ayurvedic preparation for everyday wellness, cold relief, headache soothing, and natural respiratory comfort.",
+    badge: "Goodness in Every Drop",
+    accent: "from-amber-500/10 to-yellow-500/10",
+    border: "border-amber-200",
+    badgeColor: "bg-amber-100 text-amber-900",
+    icon: "💧",
+    href: "/shop",
+  },
+  {
+    id: "gau-dhara",
+    title: "Gau Dhara",
+    teluguTitle: "గౌ ధార",
+    tagline: "Natural Relief for a More Active You",
+    desc: "Universal Pain Relief Oil. A natural and traditional formulation for everyday comfort, soothing joints and easing muscle fatigue.",
+    badge: "Universal Pain Relief Oil",
+    accent: "from-emerald-500/10 to-teal-500/10",
+    border: "border-emerald-200",
+    badgeColor: "bg-emerald-100 text-emerald-800",
+    icon: "🌿",
+    href: "/shop",
   },
 ];
 
@@ -130,23 +190,35 @@ const TESTIMONIALS = [
 
 export default function HomePage() {
   const [liveProducts, setLiveProducts] = useState([]);
+  const [liveDeals, setLiveDeals] = useState([]);
+  const [liveCategories, setLiveCategories] = useState([]);
+  const [cacheSource, setCacheSource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadStorefront() {
       try {
-        const items = await fetchStorefrontProducts();
-        if (items && items.length > 0) {
-          setLiveProducts(items);
+        const initial = await fetchStorefrontInitial(8);
+        if (initial?.featuredProducts && initial.featuredProducts.length > 0) {
+          setLiveProducts(initial.featuredProducts);
+        }
+        if (initial?.deals && initial.deals.length > 0) {
+          setLiveDeals(initial.deals);
+        }
+        if (initial?.categories && initial.categories.length > 0) {
+          setLiveCategories(initial.categories);
+        }
+        if (initial?.cacheSource) {
+          setCacheSource(initial.cacheSource);
         }
       } catch (err) {
-        console.error("Failed to fetch live products:", err);
+        console.error("Failed to load storefront data:", err);
       } finally {
         setLoading(false);
       }
     }
-    loadProducts();
+    loadStorefront();
   }, []);
 
   // Slide carousel auto-advance
@@ -158,49 +230,64 @@ export default function HomePage() {
   }, []);
 
   const bestSellers = liveProducts.length > 0 ? liveProducts.slice(0, 8) : [];
-  const hotProduct = liveProducts.length > 0 ? liveProducts[0] : null;
+  const hotProduct = liveDeals.length > 0 ? liveDeals[0] : (liveProducts.length > 0 ? liveProducts[0] : null);
+  const displayCategories = liveCategories.length > 0 ? liveCategories : CATEGORIES;
 
   return (
-    <div className="space-y-16 pb-16">
-      {/* 1. Hero Promotional Showcase Banner */}
-      <section className="relative overflow-hidden bg-[#1f1911] text-[#faf3e0]">
-        <div className="relative min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] flex items-center">
-          {/* Background Slide Image with Layered Gradient */}
+    <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16">
+      {/* 1. Hero Promotional Showcase Banner - Subtle Warm Dark Theme */}
+      <section className="relative overflow-hidden bg-[#1d1711] text-amber-50 border-b border-amber-900/40">
+        <div className="relative min-h-[440px] sm:min-h-[540px] lg:min-h-[600px] flex items-center">
+          {/* Background Slide Image with Warm Subtle Dark Lighting */}
           <div className="absolute inset-0">
             <img
               src={HERO_SLIDES[currentSlide].image}
               alt="Brundavanam Goshala"
-              className="h-full w-full object-cover opacity-35 transition-all duration-1000 scale-105"
+              className="h-full w-full object-cover object-right md:object-center transition-all duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#17120a] via-[#17120a]/85 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#17120a] via-transparent to-black/20" />
+            {/* Soft Warm Dark Overlay - Preserves rich photography while ensuring crystal clear readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#18130e]/95 via-[#201811]/85 sm:via-[#201811]/70 md:via-[#201811]/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#18130e]/80 via-transparent to-transparent" />
           </div>
 
           {/* Hero Content Container */}
-          <div className="relative mx-auto max-w-content px-6 py-12 md:px-8 md:py-16 w-full">
-            <div className="max-w-2xl space-y-5 animate-in fade-in slide-in-from-left duration-700">
+          <div className="relative mx-auto max-w-content px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 w-full">
+            <div className="max-w-2xl space-y-3 sm:space-y-4 animate-in fade-in slide-in-from-left duration-700">
               {/* Sacred Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1 text-xs font-bold text-amber-300 backdrop-blur-xs">
-                <Sparkles size={14} className="text-amber-400" />
-                <span>{HERO_SLIDES[currentSlide].badge}</span>
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-bold text-amber-300 shadow-xs backdrop-blur-xs">
+                <Sparkles size={13} className="text-amber-400 shrink-0" />
+                <span className="truncate max-w-[280px] sm:max-w-none">{HERO_SLIDES[currentSlide].badge}</span>
               </div>
 
-              {/* Title */}
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-[#faf3e0] tracking-tight">
+              {HERO_SLIDES[currentSlide].supertitle && (
+                <p className="text-[10px] sm:text-[11px] uppercase tracking-widest font-extrabold text-amber-400">
+                  {HERO_SLIDES[currentSlide].supertitle}
+                </p>
+              )}
+
+              {/* Title - Responsive sizing prevents massive mobile stretching */}
+              <h1 className="font-display text-2xl sm:text-4xl lg:text-6xl font-bold leading-[1.2] text-white tracking-tight drop-shadow-xs">
                 {HERO_SLIDES[currentSlide].title}
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-sm sm:text-base leading-relaxed text-[#ded4be] font-sans max-w-xl">
+              {/* Subtitle - Clamped on mobile to prevent excessive scrolling */}
+              <p className="text-xs sm:text-base leading-relaxed text-[#ded4be] font-sans max-w-xl line-clamp-2 sm:line-clamp-none">
                 {HERO_SLIDES[currentSlide].subtitle}
               </p>
 
-              {/* Badges List */}
-              <div className="flex flex-wrap gap-2.5 pt-1">
+              {/* Holy Quote Callout - Desktop and Tablet Only */}
+              {HERO_SLIDES[currentSlide].quote && (
+                <div className="hidden sm:block rounded-xl border-l-4 border-amber-500 bg-amber-500/15 px-4 py-2.5 text-xs sm:text-sm italic font-serif text-amber-200 max-w-xl shadow-xs backdrop-blur-xs">
+                  {HERO_SLIDES[currentSlide].quote}
+                </div>
+              )}
+
+              {/* Badges List - Desktop and Tablet Only */}
+              <div className="hidden sm:flex flex-wrap gap-2.5 pt-1">
                 {HERO_SLIDES[currentSlide].tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-xs font-semibold text-[#faf3e0] backdrop-blur-xs"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/25 bg-white/10 px-3 py-1 text-xs font-semibold text-amber-100 shadow-xs backdrop-blur-xs"
                   >
                     <CheckCircle2 size={13} className="text-amber-400" />
                     <span>{tag}</span>
@@ -208,22 +295,22 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* Hero Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-3">
+              {/* Hero Action Buttons - Full-width stacked on mobile for thumb accessibility */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4 pt-2 sm:pt-3">
                 <Link
                   href={HERO_SLIDES[currentSlide].buttonHref}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-6 py-3.5 text-xs sm:text-sm font-bold text-slate-950 shadow-lg shadow-amber-900/30 hover:scale-105 active:scale-95 transition-all"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold text-stone-950 shadow-lg shadow-amber-950/40 hover:brightness-110 active:scale-95 transition-all text-center"
                 >
-                  <ShoppingBag size={17} />
+                  <ShoppingBag size={16} />
                   <span>{HERO_SLIDES[currentSlide].buttonText}</span>
-                  <ArrowRight size={15} />
+                  <ArrowRight size={14} />
                 </Link>
 
                 <Link
-                  href="/goshala"
-                  className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/5 px-5 py-3.5 text-xs sm:text-sm font-semibold text-[#faf3e0] hover:bg-white/15 transition-all backdrop-blur-xs"
+                  href={HERO_SLIDES[currentSlide].secondaryHref || "/about"}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-300/40 bg-white/10 px-4 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-sm font-semibold text-amber-100 hover:bg-white/20 hover:text-white transition-all shadow-xs backdrop-blur-xs text-center"
                 >
-                  <span>Our Heritage & Cows</span>
+                  <span>{HERO_SLIDES[currentSlide].secondaryText || "Our Story & Heritage"}</span>
                 </Link>
               </div>
             </div>
@@ -236,7 +323,7 @@ export default function HomePage() {
             onClick={() =>
               setCurrentSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1))
             }
-            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white hover:bg-amber-600 transition-all backdrop-blur-xs"
+            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white border border-white/20 hover:bg-accent hover:border-amber-400 transition-all shadow-md backdrop-blur-xs"
           >
             <ChevronLeft size={22} />
           </button>
@@ -246,90 +333,91 @@ export default function HomePage() {
             onClick={() =>
               setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length)
             }
-            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white hover:bg-amber-600 transition-all backdrop-blur-xs"
+            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white border border-white/20 hover:bg-accent hover:border-amber-400 transition-all shadow-md backdrop-blur-xs"
           >
             <ChevronRight size={22} />
           </button>
 
           {/* Slide Indicator Dots */}
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2">
             {HERO_SLIDES.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  currentSlide === idx ? "w-8 bg-amber-400" : "w-2.5 bg-white/40 hover:bg-white/70"
+                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+                  currentSlide === idx ? "w-6 sm:w-8 bg-amber-400" : "w-2 sm:w-2.5 bg-white/40 hover:bg-white/70"
                 }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Live Goshala Metrics Bar */}
-        <div className="border-t border-amber-900/40 bg-[#16120b] px-6 py-4">
-          <div className="mx-auto max-w-content grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-display text-xl sm:text-2xl font-bold text-amber-400">500+</span>
-              <span className="text-[11px] uppercase tracking-wider text-[#ded4be]">Indigenous Gir Cows Protected</span>
+        {/* Live Goshala Metrics Bar - Refined Warm Subtle Dark */}
+        <div className="border-t border-amber-900/40 bg-[#16120d] px-4 py-3.5 sm:px-6 sm:py-4 shadow-inner-xs text-amber-100">
+          <div className="mx-auto max-w-content grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-center">
+            <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">500+</span>
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Indigenous Gir Cows</span>
             </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-display text-xl sm:text-2xl font-bold text-amber-400">100% Vedic</span>
-              <span className="text-[11px] uppercase tracking-wider text-[#ded4be]">Bilona Wooden Churned</span>
+            <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">100% Vedic</span>
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Bilona Churned Ghee</span>
             </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-display text-xl sm:text-2xl font-bold text-amber-400">15,000+</span>
-              <span className="text-[11px] uppercase tracking-wider text-[#ded4be]">Happy Devotees & Families</span>
+            <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">15,000+</span>
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Happy Families</span>
             </div>
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-display text-xl sm:text-2xl font-bold text-amber-400">Ahimsa Certified</span>
-              <span className="text-[11px] uppercase tracking-wider text-[#ded4be]">Zero Chemical Adulteration</span>
+            <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">Ahimsa</span>
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Zero Chemicals</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Shop by Category Showcase */}
-      <section className="mx-auto max-w-content px-6 md:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      {/* 2. Shop by Category Showcase - Mobile Horizontal Pill Scroll + Desktop Grid */}
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+        <div className="flex items-end justify-between gap-2 mb-4 sm:mb-8">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-accent-deep">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
               Sacred Offerings
             </span>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink mt-1">
+            <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-0.5">
               Explore by Vedic Category
             </h2>
-            <p className="text-xs text-ink-soft mt-1">
+            <p className="hidden sm:block text-xs text-ink-soft mt-1">
               Carefully crafted products direct from our goshala sanctuary to your home.
             </p>
           </div>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-deep transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-deep transition-colors shrink-0"
           >
-            <span>View All Categories</span>
-            <ArrowRight size={14} />
+            <span>View All</span>
+            <ArrowRight size={13} />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {CATEGORIES.map((cat) => (
+        {/* Mobile Horizontal Pill Scroll + Desktop Grid */}
+        <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
+          {displayCategories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/shop?category=${cat.slug}`}
-              className="group relative flex flex-col items-center text-center rounded-2xl border border-line/80 bg-surface p-5 shadow-2xs hover:-translate-y-1.5 hover:border-accent hover:shadow-xl transition-all duration-300"
+              className="group shrink-0 w-[125px] sm:w-auto relative flex flex-col items-center text-center rounded-2xl border border-line/80 bg-surface p-3 sm:p-5 shadow-2xs hover:-translate-y-1 hover:border-accent hover:shadow-xl transition-all duration-300"
             >
-              <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-amber-100 to-amber-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 border border-amber-200/50">
-                <span className="text-3xl">🌿</span>
+              <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-gradient-to-tr from-amber-100 to-amber-50 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300 border border-amber-200/50 shadow-2xs">
+                <span className="text-2xl sm:text-3xl">🌿</span>
               </div>
-              <h3 className="font-display text-sm font-bold text-ink group-hover:text-accent transition-colors leading-tight">
+              <h3 className="font-display text-xs sm:text-sm font-bold text-ink group-hover:text-accent transition-colors leading-tight line-clamp-2">
                 {cat.name}
               </h3>
-              <p className="text-[11px] text-ink-soft mt-1 line-clamp-2">
+              <p className="hidden sm:block text-[11px] text-ink-soft mt-1 line-clamp-2">
                 {cat.description || "Authentic Vedic Goshala prepared product."}
               </p>
-              <span className="mt-3 text-[10px] font-bold text-accent uppercase tracking-wider group-hover:underline">
+              <span className="mt-1.5 sm:mt-3 text-[10px] font-bold text-accent uppercase tracking-wider group-hover:underline">
                 Explore →
               </span>
             </Link>
@@ -338,45 +426,45 @@ export default function HomePage() {
       </section>
 
       {/* 3. Featured Deal Spotlight & Best Sellers Grid */}
-      <section className="mx-auto max-w-content px-6 md:px-8 space-y-12">
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8 space-y-8 sm:space-y-12">
         {/* Deal Spotlight Banner */}
         {loading ? (
-          <div className="h-64 animate-pulse rounded-3xl bg-amber-50/50 border border-line" />
+          <div className="h-64 animate-pulse rounded-2xl sm:rounded-3xl bg-amber-50/50 border border-line" />
         ) : hotProduct ? (
           <WeeklyDealSpotlight product={hotProduct} />
         ) : null}
 
         {/* Best Sellers Grid */}
         <div>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div className="flex items-end justify-between gap-2 mb-4 sm:mb-8">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-accent-deep">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
                 Top Rated Offerings
               </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink mt-1">
+              <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-0.5">
                 Goshala Best Sellers
               </h2>
-              <p className="text-xs text-ink-soft mt-1">
+              <p className="hidden sm:block text-xs text-ink-soft mt-1">
                 Handpicked sacred products cherished for purity, nutritional vitality, and divine aroma.
               </p>
             </div>
             <Link
               href="/shop"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-deep transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-deep transition-colors shrink-0"
             >
-              <span>Explore Full Store</span>
-              <ArrowRight size={14} />
+              <span>Explore All</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
               {[1, 2].map((i) => (
                 <div key={i} className="aspect-square animate-pulse rounded-2xl bg-amber-50/50 border border-line" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6">
               {bestSellers.map((product) => (
                 <ProductCard key={product.slug || product._id} product={product} />
               ))}
@@ -385,36 +473,115 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. The 5 Steps of Vedic Purity (Bilona Method) */}
-      <section className="border-y border-line bg-[#fbf7ed] py-14">
-        <div className="mx-auto max-w-content px-6 md:px-8">
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent-deep bg-amber-100/70 px-3 py-1 rounded-full border border-amber-200">
-              <Sparkles size={12} className="text-amber-600" />
-              <span>Ancient Vedic Wisdom</span>
-            </span>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink mt-3">
-              The Sacred 4-Step Bilona Method
-            </h2>
-            <p className="text-xs text-ink-soft mt-2 leading-relaxed">
-              Unlike commercial ghee made by separating cream with high-speed centrifuges, our A2 ghee is prepared following the authentic 5,000-year-old Vedic churning process.
-            </p>
+      {/* 4. Brochure Featured Collection: Pure Ayurveda for Everyday Wellness */}
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+        <div className="rounded-2xl sm:rounded-3xl border border-amber-200/80 bg-gradient-to-br from-[#fffdf9] via-[#fbf7ed] to-[#f5eedc] p-4 sm:p-8 lg:p-10 shadow-xs">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-6 sm:mb-8">
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-amber-200">
+                <Sparkles size={12} className="text-amber-600" />
+                <span>Pure Ayurveda for Everyday Wellness</span>
+              </span>
+              <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-2">
+                Simple. Natural. Meaningful.
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-soft mt-1">
+                Handcrafted formulations derived from cow-based ingredients. Free from harmful chemicals.
+              </p>
+            </div>
+            <div className="text-left md:text-right">
+              <span className="inline-block text-xs font-serif italic text-amber-900 font-semibold bg-amber-200/50 px-2.5 py-1 rounded-lg">
+                Goodness in Every Drop
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {BILONA_STEPS.map((step) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            {BROCHURE_SIGNATURE_PRODUCTS.map((prod) => (
               <div
-                key={step.step}
-                className="relative rounded-2xl border border-line bg-surface p-6 shadow-xs hover:border-accent hover:shadow-lg transition-all"
+                key={prod.id}
+                className={`relative flex flex-col justify-between rounded-xl sm:rounded-2xl border ${prod.border} bg-surface p-4 sm:p-6 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
               >
-                <span className="font-display text-4xl font-extrabold text-amber-200/80 block mb-2">
-                  {step.step}
-                </span>
-                <h3 className="font-display text-base font-bold text-ink mb-2">
-                  {step.title}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+                    <span className="text-2xl sm:text-3xl">{prod.icon}</span>
+                    <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${prod.badgeColor}`}>
+                      {prod.badge}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-base sm:text-lg font-bold text-ink">
+                    {prod.title}
+                  </h3>
+                  <p className="text-xs font-bold text-accent-deep font-sans mb-1">
+                    {prod.teluguTitle}
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-ink-soft/90 uppercase tracking-wider mb-2">
+                    {prod.tagline}
+                  </p>
+                  <p className="text-xs text-ink-soft leading-relaxed">
+                    {prod.desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-3 border-t border-line/60">
+                  <Link
+                    href={prod.href}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-deep transition-colors"
+                  >
+                    <span>Discover Offering</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-amber-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-center sm:text-left">
+            <p className="text-xs font-bold tracking-wide text-amber-950 uppercase">
+              Trust Nature. Choose Brundavanam.
+            </p>
+            <Link
+              href="/shop"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-surface hover:bg-accent-deep transition-all shadow-sm w-full sm:w-auto"
+            >
+              <ShoppingBag size={14} />
+              <span>Explore All Ayurvedic Offerings</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Brochure Core Values: Care Today for a Brighter Tomorrow */}
+      <section className="border-y border-line bg-[#fbf7ed] py-8 sm:py-14">
+        <div className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep bg-amber-100/70 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full border border-amber-200">
+              <Sparkles size={12} className="text-amber-600" />
+              <span>Care Today for a Brighter Tomorrow</span>
+            </span>
+            <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-2 sm:mt-3">
+              Our Values & Deeper Purpose
+            </h2>
+            <p className="text-xs sm:text-sm text-ink-soft mt-1 sm:mt-2 leading-relaxed">
+              Brundavanam Goshala is driven by a simple belief — when we care for nature, it cares for us.
+            </p>
+            <div className="mt-2.5 sm:mt-3 inline-block rounded-xl bg-amber-200/50 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-xs font-bold tracking-wider text-amber-950 uppercase">
+              Goodness for People • Care for Cows • Harmony for the Planet
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
+            {BROCHURE_VALUES.map((val, idx) => (
+              <div
+                key={idx}
+                className="relative rounded-xl sm:rounded-2xl border border-line bg-surface p-3.5 sm:p-6 shadow-xs hover:border-accent hover:shadow-lg transition-all"
+              >
+                <span className="text-2xl sm:text-3xl mb-2 sm:mb-3 block">{val.icon}</span>
+                <h3 className="font-display text-xs sm:text-base font-bold text-ink mb-1 sm:mb-2">
+                  {val.title}
                 </h3>
-                <p className="text-xs text-ink-soft leading-relaxed">
-                  {step.desc}
+                <p className="text-[11px] sm:text-xs text-ink-soft leading-relaxed line-clamp-3 sm:line-clamp-none">
+                  {val.desc}
                 </p>
               </div>
             ))}
@@ -422,69 +589,119 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Goshala Mission Banner */}
-      <section className="mx-auto max-w-content px-6 md:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-[#1c1813] text-[#faf3e0] p-8 md:p-14">
-          <div className="relative z-10 max-w-2xl space-y-5">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 bg-white/10 px-3 py-1 rounded-full backdrop-blur-xs">
-              ❤️ Gau Mata Seva & Protection
-            </span>
-            <h2 className="font-display text-2xl sm:text-4xl font-bold leading-tight">
-              A Sacred Sanctuary Built on Love, Never Exploitation
-            </h2>
-            <p className="text-xs sm:text-sm text-[#ded4be] leading-relaxed">
-              At Brundavanam Goshala, cows live out their natural lives in peace and honor. Male calves and non-milking aging cows receive equal love, medical attention, and nourishing organic fodder.
-            </p>
-            <div className="flex flex-wrap gap-4 pt-2">
-              <Link
-                href="/goshala"
-                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-xs font-bold text-surface hover:bg-accent-deep transition-all shadow-md"
-              >
-                <span>Read Our Goshala Story</span>
-                <ArrowRight size={14} />
-              </Link>
-              <Link
-                href="/shop"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-5 py-3 text-xs font-semibold hover:bg-white/10 transition-all"
-              >
-                <span>Support via Purchases</span>
-              </Link>
+      {/* 6. Brochure Gratitude Banner: Gratitude to Gaumata - Subtle Warm Dark Theme */}
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#231c15] via-[#2a221a] to-[#1c1711] p-4 sm:p-8 lg:p-12 border border-amber-500/30 shadow-xl text-amber-50">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+            {/* Left Narrative Column */}
+            <div className="lg:col-span-7 space-y-4 sm:space-y-5">
+              <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-300 bg-amber-500/20 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full border border-amber-400/40">
+                ❤️ Together for a Kinder Tomorrow
+              </span>
+              <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white">
+                Gratitude to Gaumata for a Healthier, Happier Tomorrow.
+              </h2>
+              <p className="font-serif italic text-sm sm:text-base text-amber-300 font-semibold">
+                Small choices. A bigger tomorrow.
+              </p>
+              <p className="text-xs sm:text-sm text-[#ded4be] leading-relaxed">
+                Every mindful choice creates a brighter world. When you choose Brundavanam Goshala, you bring authentic Ayurvedic goodness into your family while nurturing and honoring indigenous desi cows in our sacred sanctuary.
+              </p>
+
+              {/* Contacts Card - Subtle Translucent Dark Glass */}
+              <div className="rounded-xl sm:rounded-2xl border border-amber-500/20 bg-white/5 backdrop-blur-md p-3.5 sm:p-5 shadow-inner-xs space-y-2.5 sm:space-y-3">
+                <p className="font-bold text-amber-300 uppercase tracking-wider text-[10px] sm:text-[11px]">
+                  Let&apos;s Stay Connected:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs text-amber-100 font-medium">
+                  <a href="tel:+919492602499" className="flex items-center gap-2 hover:text-amber-300 transition-colors">
+                    <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                      <Phone size={12} />
+                    </span>
+                    <span>+91 94926 02499</span>
+                  </a>
+                  <a href="mailto:gokarni@yahoo.com" className="flex items-center gap-2 hover:text-amber-300 transition-colors truncate">
+                    <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                      <Mail size={12} />
+                    </span>
+                    <span className="truncate">gokarni@yahoo.com</span>
+                  </a>
+                  <div className="flex items-center gap-2 truncate">
+                    <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                      <Globe size={12} />
+                    </div>
+                    <span className="truncate">www.brundavanamgoshala.com</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                      <MapPin size={12} />
+                    </div>
+                    <span>Brundavanam Goshala, India</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4 pt-1">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-5 py-3 sm:px-6 sm:py-3.5 text-xs font-bold text-stone-950 hover:brightness-110 active:scale-95 transition-all shadow-md shadow-amber-950/40 text-center w-full sm:w-auto"
+                >
+                  <ShoppingBag size={15} />
+                  <span>Support via Purchases</span>
+                  <ArrowRight size={14} />
+                </Link>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300/40 bg-white/10 px-4 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-sm font-semibold text-amber-100 hover:bg-white/20 hover:text-white transition-all shadow-xs backdrop-blur-xs text-center w-full sm:w-auto"
+                >
+                  <span>Read Our Mission & Values</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column: 100% Fully Visible Banner Photograph */}
+            <div className="lg:col-span-5 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
+              <img
+                src="/images/brochure/sacred_gaumata_gratitude.jpg"
+                alt="Sacred Gaumata at Brundavanam Goshala"
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* 6. Real Customer Testimonials */}
-      <section className="mx-auto max-w-content px-6 md:px-8">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="text-xs font-bold uppercase tracking-wider text-accent-deep">
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-10">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
             Blessed Feedback
           </span>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink mt-1">
+          <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-0.5 sm:mt-1">
             Loved by Thousands of Households
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-6">
           {TESTIMONIALS.map((t, idx) => (
             <div
               key={idx}
-              className="rounded-2xl border border-line bg-surface p-6 shadow-xs flex flex-col justify-between"
+              className="rounded-xl sm:rounded-2xl border border-line bg-surface p-4 sm:p-6 shadow-xs flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center gap-1 text-amber-500 mb-3">
+                <div className="flex items-center gap-1 text-amber-500 mb-2 sm:mb-3">
                   {[...Array(t.rating)].map((_, i) => (
-                    <Star key={i} size={15} fill="currentColor" />
+                    <Star key={i} size={14} fill="currentColor" />
                   ))}
                 </div>
-                <p className="text-xs text-ink-soft leading-relaxed italic mb-4">
+                <p className="text-xs text-ink-soft leading-relaxed italic mb-3 sm:mb-4">
                   "{t.text}"
                 </p>
               </div>
               <div className="pt-3 border-t border-line/60">
                 <p className="text-xs font-bold text-ink">{t.name}</p>
                 <p className="text-[11px] text-ink-soft">{t.city} • Verified Devotee</p>
-                <span className="inline-block mt-1 text-[10px] font-semibold text-accent-deep">
+                <span className="inline-block mt-0.5 text-[10px] font-semibold text-accent-deep">
                   Verified: {t.product}
                 </span>
               </div>
@@ -494,14 +711,14 @@ export default function HomePage() {
       </section>
 
       {/* 7. Trust & Confidence Guarantees */}
-      <section className="mx-auto max-w-content px-6 md:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-xs">
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-8 shadow-xs">
           {TRUST_BADGES.map((b, idx) => {
             const Icon = b.icon;
             return (
-              <div key={idx} className="flex items-start gap-3.5 p-2">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100/70 text-accent-deep">
-                  <Icon size={20} />
+              <div key={idx} className="flex items-start gap-3 p-1.5 sm:p-2">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-100/70 text-accent-deep">
+                  <Icon size={18} />
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-ink">{b.title}</h3>
@@ -537,7 +754,7 @@ function WeeklyDealSpotlight({ product }) {
       await dispatch(
         addToCart({
           product,
-          variantId: product.variants?.[0]?.id || null,
+          variantId: product.variants?.[0]?.isFallback ? null : (product.variants?.[0]?.id || null),
           quantity: 1,
         })
       );
@@ -550,32 +767,32 @@ function WeeklyDealSpotlight({ product }) {
   };
 
   return (
-    <div className="rounded-3xl border border-line bg-gradient-to-br from-[#fffdf8] to-[#fbf7ed] p-6 sm:p-8 shadow-xs">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <div className="rounded-2xl sm:rounded-3xl border border-line bg-gradient-to-br from-[#fffdf8] to-[#fbf7ed] p-4 sm:p-6 lg:p-8 shadow-xs">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
         {/* Left: Product Image */}
-        <div className="lg:col-span-5 relative aspect-square rounded-2xl overflow-hidden bg-white border border-line/80 shadow-inner-xs">
+        <div className="lg:col-span-5 relative aspect-square max-w-[280px] sm:max-w-none mx-auto sm:mx-0 w-full rounded-2xl overflow-hidden bg-white border border-line/80 shadow-inner-xs">
           <img
             src={product.images?.[0] || "https://placehold.co/600x600?text=Brundavanam+Deal"}
             alt={product.name}
             className="h-full w-full object-cover"
           />
-          <div className="absolute top-3 left-3 bg-rose-600 text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+          <div className="absolute top-3 left-3 bg-rose-600 text-white text-[11px] sm:text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
             <Flame size={13} className="fill-white" />
             <span>SPECIAL SPOTLIGHT DEAL</span>
           </div>
         </div>
 
         {/* Right: Deal Details, Compare Price & Timer */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="lg:col-span-7 space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-accent-deep bg-amber-100/60 px-2.5 py-0.5 rounded-md">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-accent-deep bg-amber-100/60 px-2.5 py-0.5 rounded-md">
               Limited Harvest Batch
             </span>
-            <span className="text-xs text-ink-soft">• In Stock & Ready to Ship</span>
+            <span className="text-[11px] sm:text-xs text-ink-soft">• In Stock & Ready to Ship</span>
           </div>
 
           <Link href={`/product/${product.slug}`} className="block">
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink hover:text-accent transition-colors">
+            <h2 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-ink hover:text-accent transition-colors">
               {product.name}
             </h2>
           </Link>
@@ -586,24 +803,24 @@ function WeeklyDealSpotlight({ product }) {
           </p>
 
           {/* Price Row with Compare Price Strikethrough & Savings Badge */}
-          <div className="flex flex-wrap items-baseline gap-3 pt-1">
-            <span className="text-3xl font-black text-ink">
+          <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 pt-0.5 sm:pt-1">
+            <span className="text-2xl sm:text-3xl font-black text-ink">
               ₹{sellingPrice.toLocaleString("en-IN")}
             </span>
             {hasDiscount && (
-              <span className="text-base text-ink-soft/70 line-through">
+              <span className="text-sm sm:text-base text-ink-soft/70 line-through">
                 ₹{comparePrice.toLocaleString("en-IN")}
               </span>
             )}
             {hasDiscount && savings > 0 && (
-              <span className="rounded-xl bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-extrabold">
+              <span className="rounded-xl bg-emerald-100 text-emerald-800 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-extrabold">
                 Save ₹{savings.toLocaleString("en-IN")} ({discountPercent}% OFF)
               </span>
             )}
           </div>
 
           {/* Countdown Clock */}
-          <div className="pt-2">
+          <div className="pt-1 sm:pt-2">
             <p className="text-xs font-bold text-ink mb-1.5 flex items-center gap-1.5">
               <Clock size={14} className="text-accent" />
               <span>Offer Valid For This Batch:</span>
@@ -612,18 +829,18 @@ function WeeklyDealSpotlight({ product }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 sm:pt-3">
             <button
               type="button"
               onClick={handleAdd}
-              className="flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-xs sm:text-sm font-bold text-surface shadow-md shadow-accent/20 hover:bg-accent-deep active:scale-95 transition-all"
+              className="flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-xs sm:text-sm font-bold text-surface shadow-md shadow-accent/20 hover:bg-accent-deep active:scale-95 transition-all text-center w-full sm:w-auto"
             >
               <ShoppingBag size={16} />
               <span>{added ? "Added to Cart ✓" : "Add to Cart Now"}</span>
             </button>
             <Link
               href={`/product/${product.slug}`}
-              className="rounded-xl border border-line bg-surface px-5 py-3 text-xs sm:text-sm font-semibold text-ink hover:bg-bg transition-colors"
+              className="rounded-xl border border-line bg-surface px-5 py-3 text-xs sm:text-sm font-semibold text-ink hover:bg-bg transition-colors text-center w-full sm:w-auto"
             >
               View Full Details
             </Link>

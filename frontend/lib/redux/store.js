@@ -4,8 +4,8 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback, u
 import { authReducer, initialAuthState, checkAuthSession } from "./slices/authSlice";
 import { productReducer, initialProductState } from "./slices/productSlice";
 import { adminReducer, initialAdminState } from "./slices/adminSlice";
-import { cartReducer, initialCartState } from "./slices/cartSlice";
-import { wishlistReducer, initialWishlistState } from "./slices/wishlistSlice";
+import { cartReducer, initialCartState, cartSliceActions, getInitialGuestCart } from "./slices/cartSlice";
+import { wishlistReducer, initialWishlistState, wishlistSliceActions, getInitialGuestWishlist } from "./slices/wishlistSlice";
 
 const ReduxStoreContext = createContext(null);
 
@@ -44,7 +44,21 @@ export function ReduxProvider({ children }) {
   );
 
   useEffect(() => {
-    // Verify session & sync cart/wishlist on mount
+    // 1. Safely hydrate guest cart & wishlist on client mount after DOM hydration matches server
+    try {
+      const localCart = getInitialGuestCart();
+      if (Array.isArray(localCart) && localCart.length > 0) {
+        customDispatch({ type: cartSliceActions.SET_CART, payload: localCart });
+      }
+      const localWishlist = getInitialGuestWishlist();
+      if (Array.isArray(localWishlist) && localWishlist.length > 0) {
+        customDispatch({ type: wishlistSliceActions.SET_WISHLIST, payload: localWishlist });
+      }
+    } catch (err) {
+      console.warn("[redux:hydration] could not hydrate local storage:", err);
+    }
+
+    // 2. Verify session & sync cart/wishlist on mount
     checkAuthSession()(customDispatch);
   }, [customDispatch]);
 

@@ -22,8 +22,6 @@ const userSchema = new mongoose.Schema(
     name: { type: String, default: "Valued Customer", trim: true },
     email: {
       type: String,
-      default: null,
-      sparse: true,
       lowercase: true,
       trim: true,
     },
@@ -42,6 +40,15 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: { type: Date, select: false },
   },
   { timestamps: true }
+);
+
+// Enforce unique email only when email is an actual string (allows multiple users with no email)
+userSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { email: { $type: "string" } },
+  }
 );
 
 userSchema.pre("save", async function hashPasswordAndRole(next) {

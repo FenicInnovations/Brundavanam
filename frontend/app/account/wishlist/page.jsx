@@ -13,6 +13,7 @@ import {
   addToCart,
 } from "@/lib/redux/store";
 import { triggerToast } from "@/lib/redux/slices/adminSlice";
+import { resolveProductImage } from "@/lib/productUtils";
 
 export default function WishlistPage() {
   const dispatch = useDispatch();
@@ -78,10 +79,7 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlistItems.map((item) => {
               const product = item.product || {};
-              const primaryImage =
-                product.images?.find((i) => i.isPrimary)?.publicUrl ||
-                product.images?.[0]?.publicUrl ||
-                "https://placehold.co/300x300?text=No+Image";
+              const primaryImage = resolveProductImage(product);
 
               return (
                 <div
@@ -89,8 +87,16 @@ export default function WishlistPage() {
                   className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between"
                 >
                   <div>
-                    <div className="aspect-square relative overflow-hidden bg-slate-100">
-                      <img src={primaryImage} alt={product.name} className="w-full h-full object-cover" />
+                    <div className="aspect-square relative overflow-hidden bg-amber-50/50">
+                      <img
+                        src={primaryImage}
+                        alt={product.name || "Product"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/images/logo.png";
+                        }}
+                      />
                     </div>
                     <div className="p-5 space-y-2">
                       <h3 className="font-bold text-sm text-slate-900 line-clamp-1">{product.name}</h3>

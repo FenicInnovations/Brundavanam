@@ -449,6 +449,76 @@ async function sendTestEmail({ to }) {
   });
 }
 
+/**
+ * 7. Send Welcome Email upon Newsletter Subscription
+ */
+async function sendNewsletterWelcomeEmail({ email }) {
+  const subject = `Welcome to Brundavanam Goshala - Sacred Wellness & Vedic Blessings`;
+
+  const content = `
+    <div class="greeting">Namaste! 🙏</div>
+    <p>Warmest greetings from all of us and our beloved herd at <strong>${BRAND_NAME}</strong>.</p>
+    <p>Thank you for subscribing to our community newsletter. You are now part of our sacred mission — honouring indigenous Gaumata, revitalising Vedic wellness traditions, and sharing pure, unadulterated Ayurvedic living.</p>
+    <div class="content-box">
+      <p style="margin: 0 0 8px 0; font-weight: 700; color: #8c4a1f;">🌟 What to Look Forward To in Your Inbox:</p>
+      <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+        <li>Fresh batches of authentic <strong>Vedic Bilona A2 Desi Cow Ghee</strong></li>
+        <li>Traditional herbal wisdom (Sahaja Kunkuma, Amrutha Dhara, Gau Dhara Oil)</li>
+        <li>Stories and photo updates of mother cows and playful calves in our sanctuary</li>
+        <li>Exclusive sacred festive discounts and priority devotee access</li>
+      </ul>
+    </div>
+    <p>Every offering you bring into your home directly supports the lifetime care, organic fodder, and medicinal sanctuary for our protected indigenous cows.</p>
+    <p>May mother Surabhi bless your home with health, peace, and abundance.</p>
+  `;
+
+  const html = renderEmailShell({
+    title: subject,
+    preheader: "Welcome to Brundavanam Goshala - Pure Vedic Ayurveda & Gaumata Seva",
+    content,
+    actionUrl: `${frontendUrl}/shop`,
+    actionText: "Explore Sacred Offerings",
+  });
+
+  return sendEmail({
+    to: email,
+    subject,
+    html,
+    text: `Namaste! Welcome to Brundavanam Goshala. Thank you for subscribing to our newsletter. Explore our pure Ayurvedic offerings and goshala updates at ${frontendUrl}/shop`,
+  });
+}
+
+/**
+ * 8. Send Newsletter Broadcast Announcement to a subscriber
+ */
+async function sendNewsletterBroadcastEmail({ to, subject, message, actionUrl, actionText }) {
+  const content = `
+    <div class="greeting">Namaste Devotee! 🙏</div>
+    <div style="font-size: 14px; line-height: 1.7; color: #3c3328;">
+      ${message.replace(/\n/g, "<br/>")}
+    </div>
+    <div class="divider"></div>
+    <p style="font-size: 12px; color: #7c7263; font-style: italic;">
+      You received this update because you are subscribed to the Brundavanam Goshala newsletter.
+    </p>
+  `;
+
+  const html = renderEmailShell({
+    title: subject,
+    preheader: subject,
+    content,
+    actionUrl: actionUrl || `${frontendUrl}/shop`,
+    actionText: actionText || "Visit Brundavanam Goshala",
+  });
+
+  return sendEmail({
+    to,
+    subject,
+    html,
+    text: `${subject}\n\n${message}\n\nVisit: ${actionUrl || frontendUrl}`,
+  });
+}
+
 module.exports = {
   verifySmtp,
   sendTestEmail,
@@ -457,5 +527,8 @@ module.exports = {
   sendTicketResolvedEmail,
   sendTicketReopenedEmail,
   sendAdminNotificationEmail,
+  sendNewsletterWelcomeEmail,
+  sendNewsletterBroadcastEmail,
 };
+
 

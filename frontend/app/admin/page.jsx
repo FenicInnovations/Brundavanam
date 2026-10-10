@@ -17,6 +17,7 @@ import {
   BarChart2,
   LifeBuoy,
   Home,
+  Mail,
 } from "lucide-react";
 import { useDispatch, useSelector, selectDashboardStats } from "@/lib/redux/store";
 import { fetchDashboardStats } from "@/lib/redux/slices/adminSlice";
@@ -169,40 +170,51 @@ export default function AdminDashboardPage() {
           </Link>
 
           {/* Registered Customers */}
-          <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden">
+          <Link
+            href="/admin/customers"
+            className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden hover:border-purple-400 transition-all block group"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">Registered Customers</span>
-              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
                 <Users className="w-5 h-5" />
               </div>
             </div>
             <div className="text-3xl font-extrabold text-slate-900">{customers.total}</div>
-            <p className="text-xs text-purple-600 font-medium">Active customer accounts</p>
-          </div>
+            <p className="text-xs text-purple-600 font-medium">Customer accounts & locations &rarr;</p>
+          </Link>
 
-          {/* Total Orders (Future) */}
-          <div className="p-6 bg-slate-50/80 rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden opacity-90">
+          {/* Newsletter Subscribers (Live) */}
+          <Link
+            href="/admin/newsletter"
+            className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden hover:border-amber-400 transition-all block group"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Total Orders</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                Future Module
-              </span>
+              <span className="text-xs font-semibold text-slate-500">Newsletter Devotees</span>
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
+                <Mail className="w-5 h-5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-slate-400">N/A</div>
-            <p className="text-xs text-slate-400">Order management workflow planned for next release.</p>
-          </div>
+            <div className="text-3xl font-extrabold text-slate-900">
+              {stats?.newsletter?.total ?? "Active"}
+            </div>
+            <p className="text-xs text-amber-600 font-medium">Manage subscribers & broadcast &rarr;</p>
+          </Link>
 
-          {/* Pending Orders (Future) */}
-          <div className="p-6 bg-slate-50/80 rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden opacity-90">
+          {/* Total Orders (Live pipeline) */}
+          <Link
+            href="/admin/orders"
+            className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden hover:border-emerald-400 transition-all block group"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500">Pending Orders</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                Future Module
-              </span>
+              <span className="text-xs font-semibold text-slate-500">Orders Pipeline</span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-slate-400">N/A</div>
-            <p className="text-xs text-slate-400">Real-time order status tracking coming soon.</p>
-          </div>
+            <div className="text-3xl font-extrabold text-slate-900">{orders?.total ?? 0}</div>
+            <p className="text-xs text-emerald-600 font-medium">Shipment tracking & orders &rarr;</p>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Store, Search, ShoppingBag, User } from "lucide-react";
@@ -15,6 +16,11 @@ const ICONS = { Home, Store, Search, ShoppingBag, User };
 export default function BottomNav() {
   const pathname = usePathname();
   const cartCount = useSelector(selectCartTotalCount) || 0;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <nav
@@ -27,7 +33,7 @@ export default function BottomNav() {
           const Icon = ICONS[item.icon];
           const isActive =
             item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const badge = item.href === "/cart" ? cartCount : 0;
+          const badge = mounted && item.href === "/cart" ? cartCount : 0;
 
           return (
             <li key={item.href} className="flex flex-1">

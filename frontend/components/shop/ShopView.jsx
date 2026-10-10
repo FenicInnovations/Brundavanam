@@ -205,9 +205,9 @@ export default function ShopView({ initialProducts = [], products = [] }) {
   };
 
   return (
-    <div className="mx-auto max-w-content px-4 sm:px-6 py-8 md:px-8 md:py-12 space-y-8">
+    <div className="mx-auto max-w-content px-3 sm:px-6 py-5 sm:py-8 md:px-8 md:py-12 space-y-5 sm:space-y-8">
       {/* 1. Shop Header Banner */}
-      <div className="rounded-3xl bg-gradient-to-r from-[#20180f] via-[#2c2215] to-[#1c1813] text-[#faf3e0] p-6 sm:p-10 shadow-lg">
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#20180f] via-[#2c2215] to-[#1c1813] text-[#faf3e0] p-4 sm:p-8 md:p-10 shadow-lg">
         <div className="max-w-2xl space-y-2.5">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 bg-white/10 px-3 py-1 rounded-full backdrop-blur-xs">
             <Sparkles size={13} className="text-amber-400" />
@@ -409,7 +409,7 @@ export default function ShopView({ initialProducts = [], products = [] }) {
               onAction={clearAllFilters}
             />
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-6">
               {filtered.map((product) => (
                 <ProductCard key={product.slug || product._id || product.id} product={product} />
               ))}

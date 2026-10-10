@@ -157,6 +157,10 @@ const orderSchema = new mongoose.Schema(
       etd: { type: String, default: "" },
       currentStatus: { type: String, default: "Pending Shipment" },
       history: [trackingHistoryItemSchema],
+      weight: { type: Number, default: 0.5 },
+      length: { type: Number },
+      breadth: { type: Number },
+      height: { type: Number },
     },
 
     invoice: {

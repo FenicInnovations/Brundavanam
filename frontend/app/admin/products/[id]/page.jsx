@@ -20,6 +20,8 @@ import {
   AlertTriangle,
   Boxes,
   Loader2,
+  Scale,
+  Box,
 } from "lucide-react";
 import {
   useDispatch,
@@ -360,6 +362,56 @@ export default function ProductDetailPage() {
                 <span className="font-bold text-rose-600">₹{product.discountPrice}</span>
               </div>
             )}
+          </div>
+
+          {/* Shipping & Logistics (Shiprocket) */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3 text-xs">
+            <h3 className="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Scale className="w-4 h-4 text-emerald-600" />
+                <span>Shipping &amp; Logistics</span>
+              </span>
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase">
+                Shiprocket
+              </span>
+            </h3>
+
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Physical Weight:</span>
+              <span className="font-bold text-slate-900">
+                {product.weightValue || (product.weight ? Math.round(product.weight * 1000) : 100)}{" "}
+                {product.weightUnit || "g"}{" "}
+                <span className="text-slate-400 font-normal">({product.weight || 0.1} kg)</span>
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Parcel Dimensions:</span>
+              <span className="font-mono font-medium text-slate-800">
+                {product.dimensions?.length || 10} × {product.dimensions?.breadth || 10} ×{" "}
+                {product.dimensions?.height || 10} cm
+              </span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Volumetric Weight:</span>
+              <span className="font-mono text-amber-700 font-semibold">
+                {(
+                  ((Number(product.dimensions?.length) || 10) *
+                    (Number(product.dimensions?.breadth) || 10) *
+                    (Number(product.dimensions?.height) || 10)) /
+                  5000
+                ).toFixed(2)}{" "}
+                kg
+              </span>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[11px]">
+              <span className="text-slate-500">Base Courier Slab:</span>
+              <span className="font-bold text-emerald-700">
+                {Math.max(0.5, product.weight || 0.1)} kg
+              </span>
+            </div>
           </div>
 
           {/* Categories & Organization */}

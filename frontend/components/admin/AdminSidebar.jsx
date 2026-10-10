@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -31,6 +32,7 @@ import {
   LifeBuoy,
   Home,
   MapPin,
+  Mail,
 } from "lucide-react";
 import { useDispatch, useSelector, selectSidebarExpanded, selectAuth } from "@/lib/redux/store";
 import { adminSliceActions } from "@/lib/redux/slices/adminSlice";
@@ -80,6 +82,12 @@ export default function AdminSidebar() {
       href: "/admin/customers/locations",
       isFuture: false,
     },
+    {
+      label: "Newsletter Subscribers",
+      icon: Mail,
+      href: "/admin/newsletter",
+      isFuture: false,
+    },
     { label: "Wishlist / Cart Analytics", icon: HeartHandshake, href: "/admin/analytics/cart", isFuture: false },
     { label: "Reviews", icon: Star, href: "/admin/reviews", isFuture: false },
     { label: "Coupons / Discounts", icon: Ticket, href: "/admin/coupons", isFuture: true },
@@ -106,15 +114,21 @@ export default function AdminSidebar() {
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800 bg-slate-950/40">
         <Link href="/admin" className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-amber-500 flex items-center justify-center text-white font-bold shadow-lg shadow-emerald-900/30 flex-shrink-0">
-            BG
+          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-amber-400 bg-white shadow-md flex-shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="Brundavanam Goshala"
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
+            />
           </div>
           {sidebarExpanded && (
             <div className="flex flex-col">
               <span className="font-semibold text-white tracking-wide text-sm leading-tight">
                 Brundavanam
               </span>
-              <span className="text-[10px] text-emerald-400 font-medium tracking-wider uppercase">
+              <span className="text-[10px] text-amber-300 font-medium tracking-wider uppercase">
                 Admin Console
               </span>
             </div>

@@ -72,8 +72,8 @@ async function verifyOtp(req, res, next) {
     // a brand-new number creating duplicate users.
     const user = await User.findOneAndUpdate(
       { phone: normalized },
-      { $setOnInsert: { phone: normalized } },
-      { upsert: true, new: true }
+      { $setOnInsert: { phone: normalized, name: "Valued Customer" } },
+      { upsert: true, new: true, setDefaultsOnInsert: false }
     );
 
     const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: jwtExpiresIn });

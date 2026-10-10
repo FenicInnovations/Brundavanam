@@ -282,10 +282,10 @@ class ShippingService {
         })),
         payment_method: order.payment.provider === "cod" ? "COD" : "Prepaid",
         sub_total: order.pricing.grandTotal,
-        length: 15,
-        breadth: 15,
-        height: 15,
-        weight: 1.2, // Default parcel weight in kg
+        length: order.shipping?.length || (order.shipping?.weight > 1.5 ? 22 : (order.shipping?.weight > 0.5 ? 16 : 12)),
+        breadth: order.shipping?.breadth || (order.shipping?.weight > 1.5 ? 18 : (order.shipping?.weight > 0.5 ? 14 : 10)),
+        height: order.shipping?.height || (order.shipping?.weight > 1.5 ? 14 : (order.shipping?.weight > 0.5 ? 10 : 6)),
+        weight: Math.max(0.2, Math.round((order.shipping?.weight || 0.5) * 100) / 100),
       };
 
       const { ok, data } = await this.request("/orders/create/adhoc", {

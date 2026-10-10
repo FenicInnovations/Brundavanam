@@ -22,6 +22,7 @@ import {
   updateCartQuantity,
   removeFromCart,
 } from "@/lib/redux/store";
+import { resolveProductImage } from "@/lib/productUtils";
 
 export default function CartPage() {
   const dispatch = useDispatch();
@@ -68,16 +69,21 @@ export default function CartPage() {
               <div className="divide-y divide-slate-100">
                 {cartItems.map((item) => {
                   const product = item.product || {};
-                  const primaryImage =
-                    product.images?.find((i) => i.isPrimary)?.publicUrl ||
-                    product.images?.[0]?.publicUrl ||
-                    "https://placehold.co/150x150?text=No+Image";
+                  const primaryImage = resolveProductImage(product);
 
                   return (
                     <div key={item._id} className="py-5 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
-                          <img src={primaryImage} alt={product.name} className="w-full h-full object-cover" />
+                        <div className="w-20 h-20 rounded-2xl bg-amber-50/50 border border-slate-200 overflow-hidden flex-shrink-0 relative">
+                          <img
+                            src={primaryImage}
+                            alt={product.name || "Product"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = "/images/logo.png";
+                            }}
+                          />
                         </div>
                         <div className="space-y-1 min-w-0">
                           <Link

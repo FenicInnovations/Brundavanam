@@ -8,7 +8,7 @@ const cartItemSchema = new mongoose.Schema(
       required: true,
     },
     variantId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.Mixed,
       default: null,
     },
     variantLabel: {

@@ -71,11 +71,26 @@ async function addItem(req, res, next) {
       cart = new Cart({ user: req.user._id, items: [] });
     }
 
+    // Sanitize variantId to ensure only genuine product variants are linked
+    let sanitizedVariantId = null;
+    let sanitizedVariantLabel = variantLabel || "";
+    if (variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+      const matched = product.variants.find(
+        (v) => v._id?.toString() === variantId.toString()
+      );
+      if (matched) {
+        sanitizedVariantId = matched._id;
+        sanitizedVariantLabel = matched.label || sanitizedVariantLabel;
+      }
+    }
+
     // Check if item already exists in cart with same product and variant
     const existingIndex = cart.items.findIndex(
       (item) =>
         item.product.toString() === productId &&
-        (variantId ? item.variantId?.toString() === variantId : !item.variantId)
+        (sanitizedVariantId
+          ? item.variantId?.toString() === sanitizedVariantId.toString()
+          : !item.variantId)
     );
 
     const requestedQty = Number(quantity);
@@ -88,8 +103,8 @@ async function addItem(req, res, next) {
       const initialQty = Math.min(requestedQty, product.stock);
       cart.items.push({
         product: productId,
-        variantId: variantId || null,
-        variantLabel: variantLabel || "",
+        variantId: sanitizedVariantId,
+        variantLabel: sanitizedVariantLabel,
         quantity: initialQty,
       });
     }
@@ -210,11 +225,24 @@ async function mergeCart(req, res, next) {
         continue;
       }
 
+      // Sanitize guestItem variantId against actual product variants
+      let sanitizedVariantId = null;
+      let sanitizedVariantLabel = guestItem.variantLabel || "";
+      if (guestItem.variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+        const matched = product.variants.find(
+          (v) => v._id?.toString() === guestItem.variantId.toString()
+        );
+        if (matched) {
+          sanitizedVariantId = matched._id;
+          sanitizedVariantLabel = matched.label || sanitizedVariantLabel;
+        }
+      }
+
       const existingIndex = cart.items.findIndex(
         (item) =>
           item.product.toString() === productId &&
-          (guestItem.variantId
-            ? item.variantId?.toString() === guestItem.variantId
+          (sanitizedVariantId
+            ? item.variantId?.toString() === sanitizedVariantId.toString()
             : !item.variantId)
       );
 
@@ -227,8 +255,8 @@ async function mergeCart(req, res, next) {
       } else {
         cart.items.push({
           product: productId,
-          variantId: guestItem.variantId || null,
-          variantLabel: guestItem.variantLabel || "",
+          variantId: sanitizedVariantId,
+          variantLabel: sanitizedVariantLabel,
           quantity: Math.min(guestQty, product.stock),
         });
       }

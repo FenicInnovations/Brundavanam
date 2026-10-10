@@ -65,9 +65,16 @@ app.use("/api/webhooks", require("./routes/webhookRoutes"));
 // Support & Customer Enquiries
 app.use("/api/support", require("./routes/supportRoutes"));
 
+// Newsletter & Subscribers
+app.use("/api/newsletter", require("./routes/newsletterRoutes"));
+
+// High-Performance GraphQL API (Single roundtrip, field-level precision, Redis-cached)
+app.use("/api/graphql", require("./routes/graphqlRoutes"));
+app.use("/graphql", require("./routes/graphqlRoutes"));
+
 app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(`[server] Listening on port ${port} (${nodeEnv}) - Gmail SMTP enabled`);
+  console.log(`[server] Listening on port ${port} (${nodeEnv}) - Shiprocket Logistics ready`);
 });

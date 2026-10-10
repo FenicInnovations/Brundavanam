@@ -50,6 +50,13 @@ export default function AdminOrderDetailsPage() {
   const [restockInventoryCheck, setRestockInventoryCheck] = useState(true);
   
   const [processing, setProcessing] = useState(false);
+  const [packingBox, setPackingBox] = useState({
+    weight: "0.5",
+    length: "12",
+    breadth: "10",
+    height: "6",
+    custom: false,
+  });
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -68,6 +75,22 @@ export default function AdminOrderDetailsPage() {
   useEffect(() => {
     fetchOrder();
   }, [fetchOrder]);
+
+  useEffect(() => {
+    if (order?.shipping) {
+      const w = Number(order.shipping.weight) || 0.5;
+      const defL = w > 1.5 ? 22 : (w > 0.5 ? 16 : 12);
+      const defB = w > 1.5 ? 18 : (w > 0.5 ? 14 : 10);
+      const defH = w > 1.5 ? 14 : (w > 0.5 ? 10 : 6);
+      setPackingBox({
+        weight: String(order.shipping.weight || 0.5),
+        length: String(order.shipping.length || defL),
+        breadth: String(order.shipping.breadth || defB),
+        height: String(order.shipping.height || defH),
+        custom: false,
+      });
+    }
+  }, [order]);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -100,7 +123,13 @@ export default function AdminOrderDetailsPage() {
   const handleCreateShipment = async () => {
     setProcessing(true);
     try {
-      const res = await apiClient.post(`/admin/orders/${id}/ship`);
+      const payload = {
+        weight: Number(packingBox.weight) || undefined,
+        length: Number(packingBox.length) || undefined,
+        breadth: Number(packingBox.breadth) || undefined,
+        height: Number(packingBox.height) || undefined,
+      };
+      const res = await apiClient.post(`/admin/orders/${id}/ship`, payload);
       setOrder(res.order);
     } catch (err) {
       console.error("Shipment creation failed:", err.message);
@@ -462,15 +491,82 @@ export default function AdminOrderDetailsPage() {
                 <span className="font-medium text-slate-800">{order.shipping?.currentStatus}</span>
               </div>
 
-              <div className="pt-4 grid gap-2">
+              <div className="pt-4 grid gap-3">
                 {!order.shipping?.awbCode ? (
-                  <button
-                    onClick={handleCreateShipment}
-                    disabled={processing || !['confirmed', 'processing'].includes(order.status)}
-                    className="w-full py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-medium text-sm transition-colors disabled:opacity-50"
-                  >
-                    Create Shiprocket Shipment
-                  </button>
+                  <div className="space-y-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <Package className="w-4 h-4 text-emerald-600" />
+                        <span>Packing Parcel Dimensions</span>
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        Vol: {(
+                          ((Number(packingBox.length) || 12) *
+                            (Number(packingBox.breadth) || 10) *
+                            (Number(packingBox.height) || 6)) /
+                          5000
+                        ).toFixed(2)}{" "}
+                        kg
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 text-xs">
+                      <div>
+                        <label className="text-[10px] text-slate-500 block mb-0.5">Weight (kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.05"
+                          value={packingBox.weight}
+                          onChange={(e) => setPackingBox({ ...packingBox, weight: e.target.value })}
+                          className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 block mb-0.5">L (cm)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={packingBox.length}
+                          onChange={(e) => setPackingBox({ ...packingBox, length: e.target.value })}
+                          className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-mono text-slate-800"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 block mb-0.5">B (cm)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={packingBox.breadth}
+                          onChange={(e) => setPackingBox({ ...packingBox, breadth: e.target.value })}
+                          className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-mono text-slate-800"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 block mb-0.5">H (cm)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={packingBox.height}
+                          onChange={(e) => setPackingBox({ ...packingBox, height: e.target.value })}
+                          className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-mono text-slate-800"
+                        />
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-slate-500 leading-tight">
+                      💡 Dimensions auto-filled based on items. Adjust above if you packed into a different carton/flyer.
+                    </p>
+
+                    <button
+                      onClick={handleCreateShipment}
+                      disabled={processing || !['confirmed', 'processing'].includes(order.status)}
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    >
+                      <Truck className="w-4 h-4" />
+                      <span>{processing ? "Dispatching..." : "Create Shiprocket Shipment & Generate AWB"}</span>
+                    </button>
+                  </div>
                 ) : (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

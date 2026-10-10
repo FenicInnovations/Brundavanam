@@ -165,6 +165,7 @@ export default function AddressesPage() {
           dispatch(triggerToast("Address updated successfully.", "success"));
           setModalOpen(false);
           await refresh();
+          if (typeof window !== "undefined") window.dispatchEvent(new Event("address-updated"));
         }
       } else {
         const res = await api.addAddress(formData);
@@ -173,6 +174,7 @@ export default function AddressesPage() {
           dispatch(triggerToast("Address added successfully.", "success"));
           setModalOpen(false);
           await refresh();
+          if (typeof window !== "undefined") window.dispatchEvent(new Event("address-updated"));
         }
       }
     } catch (err) {
@@ -192,6 +194,7 @@ export default function AddressesPage() {
         setAddresses(res.addresses);
         dispatch(triggerToast("Address removed.", "info"));
         await refresh();
+        if (typeof window !== "undefined") window.dispatchEvent(new Event("address-updated"));
       }
     } catch (err) {
       dispatch(triggerToast(err.message || "Failed to remove address", "error"));
@@ -208,6 +211,7 @@ export default function AddressesPage() {
         setAddresses(res.addresses);
         dispatch(triggerToast("Primary delivery address updated.", "success"));
         await refresh();
+        if (typeof window !== "undefined") window.dispatchEvent(new Event("address-updated"));
       }
     } catch (err) {
       dispatch(triggerToast(err.message || "Failed to set primary address", "error"));

@@ -39,6 +39,7 @@ import {
 import { triggerToast } from "@/lib/redux/slices/adminSlice";
 import { TableSkeleton } from "@/components/admin/SkeletonLoader";
 import ConfirmModal from "@/components/admin/ConfirmModal";
+import { resolveProductImage } from "@/lib/productUtils";
 
 export default function AllProductsPage() {
   const router = useRouter();
@@ -254,18 +255,23 @@ export default function AllProductsPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
                 {products.map((product) => {
-                  const primaryImg =
-                    product.images?.find((img) => img.isPrimary)?.publicUrl ||
-                    product.images?.[0]?.publicUrl ||
-                    "https://placehold.co/100x100?text=No+Image";
+                  const primaryImg = resolveProductImage(product);
 
                   return (
                     <tr key={product._id} className="hover:bg-slate-50/80 transition-colors">
                       {/* Product Name & Thumbnail */}
                       <td className="p-4">
                         <div className="flex items-center gap-3 min-w-[220px]">
-                          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            <img src={primaryImg} alt={product.name} className="w-full h-full object-cover" />
+                          <div className="w-12 h-12 rounded-xl bg-amber-50/50 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img
+                              src={primaryImg}
+                              alt={product.name || "Product"}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "/images/logo.png";
+                              }}
+                            />
                           </div>
                           <div className="flex flex-col min-w-0">
                             <Link
@@ -274,9 +280,13 @@ export default function AllProductsPage() {
                             >
                               {product.name}
                             </Link>
-                            <span className="text-[10px] text-slate-400 truncate">
-                              Brand: {product.brand || "Brundavanam"}
-                            </span>
+                            <div className="flex items-center gap-1.5 text-[10px] text-slate-400 truncate">
+                              <span>{product.brand || "Brundavanam"}</span>
+                              <span className="text-slate-300">•</span>
+                              <span className="text-emerald-700 font-medium bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
+                                {product.weightValue || (product.weight ? Math.round(product.weight * 1000) : 100)} {product.weightUnit || "g"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </td>

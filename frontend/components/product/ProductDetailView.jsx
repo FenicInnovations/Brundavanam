@@ -62,11 +62,16 @@ export default function ProductDetailView({ product }) {
   const handleAddToCart = async () => {
     if (outOfStock) return;
     try {
+      const genuineVariantId =
+        selectedVariant?.id && !selectedVariant?.isFallback && selectedVariant.id !== product.slug
+          ? selectedVariant.id
+          : null;
+
       await dispatch(
         addToCart({
           product,
-          variantId: selectedVariant?.id || null,
-          variantLabel: selectedVariant?.label || "",
+          variantId: genuineVariantId,
+          variantLabel: genuineVariantId ? (selectedVariant?.label || "") : "",
           quantity,
         })
       );
@@ -82,11 +87,16 @@ export default function ProductDetailView({ product }) {
   const handleBuyNow = async () => {
     if (outOfStock) return;
     try {
+      const genuineVariantId =
+        selectedVariant?.id && !selectedVariant?.isFallback && selectedVariant.id !== product.slug
+          ? selectedVariant.id
+          : null;
+
       await dispatch(
         addToCart({
           product,
-          variantId: selectedVariant?.id || null,
-          variantLabel: selectedVariant?.label || "",
+          variantId: genuineVariantId,
+          variantLabel: genuineVariantId ? (selectedVariant?.label || "") : "",
           quantity,
         })
       );

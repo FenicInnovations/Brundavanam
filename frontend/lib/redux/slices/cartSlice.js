@@ -2,8 +2,8 @@ import { apiClient } from "@/lib/api/apiClient";
 
 const GUEST_CART_STORAGE_KEY = "bg_guest_cart";
 
-// Load guest cart from localStorage safetly
-function getInitialGuestCart() {
+// Load guest cart from localStorage safely
+export function getInitialGuestCart() {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(GUEST_CART_STORAGE_KEY);
@@ -15,7 +15,7 @@ function getInitialGuestCart() {
 }
 
 // Save guest cart to localStorage
-function saveGuestCart(items) {
+export function saveGuestCart(items) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(GUEST_CART_STORAGE_KEY, JSON.stringify(items));
@@ -35,7 +35,7 @@ export function clearGuestCartStorage() {
 }
 
 export const initialCartState = {
-  items: getInitialGuestCart(),
+  items: [],
   loading: false,
   isSyncing: false,
   error: null,

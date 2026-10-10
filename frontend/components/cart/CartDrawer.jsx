@@ -21,6 +21,7 @@ import {
   updateCartQuantity,
   removeFromCart,
 } from "@/lib/redux/store";
+import { resolveProductImage } from "@/lib/productUtils";
 
 export default function CartDrawer({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -85,15 +86,20 @@ export default function CartDrawer({ isOpen, onClose }) {
             ) : (
               cartItems.map((item) => {
                 const product = item.product || {};
-                const primaryImage =
-                  product.images?.find((i) => i.isPrimary)?.publicUrl ||
-                  product.images?.[0]?.publicUrl ||
-                  "https://placehold.co/100x100?text=No+Image";
+                const primaryImage = resolveProductImage(product);
 
                 return (
                   <div key={item._id} className="pt-4 first:pt-0 flex gap-4 items-center">
-                    <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 relative">
-                      <img src={primaryImage} alt={product.name} className="w-full h-full object-cover" />
+                    <div className="w-16 h-16 rounded-xl bg-amber-50/50 border border-slate-200 overflow-hidden flex-shrink-0 relative">
+                      <img
+                        src={primaryImage}
+                        alt={product.name || "Product"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/images/logo.png";
+                        }}
+                      />
                     </div>
 
                     <div className="flex-1 min-w-0">

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSelector, useDispatch, selectCartItems, selectCartSubtotal, clearCart } from "@/lib/redux/store";
+import { resolveProductImage } from "@/lib/productUtils";
 import { apiClient } from "@/lib/api/apiClient";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -797,11 +798,19 @@ export default function CheckoutPage() {
                 {cartItems.map((item) => {
                   const product = item.product || {};
                   const price = product.discountPrice > 0 ? product.discountPrice : product.price || 0;
-                  const image = product.images?.find(i => i.isPrimary)?.publicUrl || product.images?.[0]?.publicUrl;
+                  const image = resolveProductImage(product);
                   return (
                     <div key={item._id} className="py-4 first:pt-0 last:pb-0 flex items-center gap-3">
-                      <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
-                        {image ? <img src={image} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full" />}
+                      <div className="w-14 h-14 rounded-xl bg-amber-50/50 border border-slate-200 overflow-hidden shrink-0 relative">
+                        <img
+                          src={image}
+                          alt={product.name || "Product"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/images/logo.png";
+                          }}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-800 truncate">{product.name}</p>

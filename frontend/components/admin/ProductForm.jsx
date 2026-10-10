@@ -17,6 +17,9 @@ import {
   CheckCircle2,
   FolderPlus,
   ExternalLink,
+  Scale,
+  Ruler,
+  Box,
 } from "lucide-react";
 import ImageUploader from "./ImageUploader";
 import FileUploader from "./FileUploader";
@@ -48,6 +51,13 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
     price: "",
     discountPrice: "",
     stock: "",
+    weightValue: "100",
+    weightUnit: "g",
+    dimensions: {
+      length: 10,
+      breadth: 10,
+      height: 10,
+    },
     images: [],
     files: [],
     variants: [],
@@ -60,7 +70,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
   });
 
   const [attributeInput, setAttributeInput] = useState({ name: "", value: "" });
-  const [variantInput, setVariantInput] = useState({ label: "", price: "", stock: "", sku: "" });
+  const [variantInput, setVariantInput] = useState({ label: "", price: "", stock: "", sku: "", weightValue: "", weightUnit: "g" });
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -81,6 +91,17 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
         price: initialData.price !== undefined ? initialData.price : "",
         discountPrice: initialData.discountPrice !== undefined ? initialData.discountPrice : "",
         stock: initialData.stock !== undefined ? initialData.stock : "",
+        weightValue: initialData.weightValue !== undefined && initialData.weightValue !== null
+          ? String(initialData.weightValue)
+          : (initialData.weight
+              ? String(initialData.weightUnit === "kg" ? initialData.weight : Math.round(initialData.weight * 1000))
+              : "100"),
+        weightUnit: initialData.weightUnit || "g",
+        dimensions: {
+          length: initialData.dimensions?.length || 10,
+          breadth: initialData.dimensions?.breadth || 10,
+          height: initialData.dimensions?.height || 10,
+        },
         images: initialData.images || [],
         files: initialData.files || [],
         variants: initialData.variants || [],
@@ -94,12 +115,39 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
     }
   }, [initialData]);
 
+  // Helper to preview normalized weight in kg
+  const calculateNormalizedWeight = (val, unit) => {
+    const num = Number(val);
+    if (isNaN(num) || num <= 0) return 0.1;
+    switch (unit?.toLowerCase()) {
+      case "kg":
+      case "l":
+        return num;
+      case "g":
+      case "ml":
+      default:
+        return Math.round((num / 1000) * 1000) / 1000;
+    }
+  };
+
   // Handle standard input change
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  // Handle package dimensions change
+  const handleDimensionChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      dimensions: {
+        ...prev.dimensions,
+        [name]: value,
+      },
     }));
   };
 
@@ -132,10 +180,12 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
           price: Number(variantInput.price),
           stock: Number(variantInput.stock || 0),
           sku: variantInput.sku.trim(),
+          weightValue: variantInput.weightValue ? Number(variantInput.weightValue) : null,
+          weightUnit: variantInput.weightUnit || "g",
         },
       ],
     }));
-    setVariantInput({ label: "", price: "", stock: "", sku: "" });
+    setVariantInput({ label: "", price: "", stock: "", sku: "", weightValue: "", weightUnit: "g" });
   };
 
   const removeVariant = (index) => {
@@ -217,6 +267,21 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
       price: Number(formData.price),
       discountPrice: formData.discountPrice ? Number(formData.discountPrice) : 0,
       stock: formData.stock ? Number(formData.stock) : 0,
+      weightValue: formData.weightValue !== "" ? Number(formData.weightValue) : 100,
+      weightUnit: formData.weightUnit || "g",
+      dimensions: {
+        length: Math.max(1, Number(formData.dimensions?.length) || 10),
+        breadth: Math.max(1, Number(formData.dimensions?.breadth) || 10),
+        height: Math.max(1, Number(formData.dimensions?.height) || 10),
+      },
+      variants: formData.variants.map((v) => ({
+        ...v,
+        price: Number(v.price),
+        stock: Number(v.stock || 0),
+        sku: v.sku ? v.sku.trim() : "",
+        weightValue: v.weightValue !== undefined && v.weightValue !== "" && v.weightValue !== null ? Number(v.weightValue) : null,
+        weightUnit: v.weightUnit || formData.weightUnit || "g",
+      })),
       tags: formattedTags,
     };
 
@@ -398,50 +463,100 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                 Product Options / Variants (e.g. 500ml, 1L, 5L)
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <input
-                  type="text"
-                  placeholder="Variant Label (e.g. 500ml)"
-                  value={variantInput.label}
-                  onChange={(e) => setVariantInput({ ...variantInput, label: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
-                />
-                <input
-                  type="number"
-                  placeholder="Price (₹)"
-                  value={variantInput.price}
-                  onChange={(e) => setVariantInput({ ...variantInput, price: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
-                />
-                <input
-                  type="number"
-                  placeholder="Stock Qty"
-                  value={variantInput.stock}
-                  onChange={(e) => setVariantInput({ ...variantInput, stock: e.target.value })}
-                  className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
-                />
-                <button
-                  type="button"
-                  onClick={addVariant}
-                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-4 h-4" /> Add Variant
-                </button>
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <input
+                    type="text"
+                    placeholder="Variant Label (e.g. 500ml, 1L, Pack of 2)"
+                    value={variantInput.label}
+                    onChange={(e) => setVariantInput({ ...variantInput, label: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price (₹) *"
+                    value={variantInput.price}
+                    onChange={(e) => setVariantInput({ ...variantInput, price: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Stock Qty"
+                    value={variantInput.stock}
+                    onChange={(e) => setVariantInput({ ...variantInput, stock: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center">
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      step="any"
+                      min="0"
+                      placeholder="Variant Weight (e.g. 500)"
+                      value={variantInput.weightValue}
+                      onChange={(e) => setVariantInput({ ...variantInput, weightValue: e.target.value })}
+                      className="w-2/3 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <select
+                      value={variantInput.weightUnit}
+                      onChange={(e) => setVariantInput({ ...variantInput, weightUnit: e.target.value })}
+                      className="w-1/3 px-2 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500 font-semibold"
+                    >
+                      <option value="g">g</option>
+                      <option value="ml">ml</option>
+                      <option value="kg">kg</option>
+                      <option value="l">L</option>
+                    </select>
+                  </div>
+
+                  <input
+                    type="text"
+                    placeholder="SKU (Optional)"
+                    value={variantInput.sku}
+                    onChange={(e) => setVariantInput({ ...variantInput, sku: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                  >
+                    <Plus className="w-4 h-4" /> Add Variant
+                  </button>
+                </div>
               </div>
 
               {formData.variants.length > 0 && (
                 <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
                   {formData.variants.map((varItem, idx) => (
-                    <div key={idx} className="p-3 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-4">
+                    <div key={idx} className="p-3 flex items-center justify-between text-xs hover:bg-slate-50 transition-colors">
+                      <div className="flex flex-wrap items-center gap-3">
                         <span className="font-bold text-slate-900">{varItem.label}</span>
-                        <span className="text-emerald-700 font-semibold">₹{varItem.price}</span>
+                        <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                          ₹{varItem.price}
+                        </span>
                         <span className="text-slate-500">Stock: {varItem.stock}</span>
+                        {varItem.weightValue && (
+                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-medium text-[11px]">
+                            <Scale className="w-3 h-3 text-amber-600" />
+                            {varItem.weightValue} {varItem.weightUnit || "g"}
+                            <span className="text-amber-600 font-normal">
+                              ({calculateNormalizedWeight(varItem.weightValue, varItem.weightUnit)} kg)
+                            </span>
+                          </span>
+                        )}
+                        {varItem.sku && (
+                          <span className="text-[10px] font-mono text-slate-400">SKU: {varItem.sku}</span>
+                        )}
                       </div>
                       <button
                         type="button"
                         onClick={() => removeVariant(idx)}
-                        className="text-rose-500 hover:text-rose-700 p-1"
+                        className="text-rose-500 hover:text-rose-700 p-1 rounded-md hover:bg-rose-50 transition-colors"
+                        title="Remove Variant"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -639,6 +754,136 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
+            </div>
+          </div>
+
+          {/* Shipping Weight & Package Dimensions for Shiprocket */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div className="pb-2 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Scale className="w-4 h-4 text-emerald-600" />
+                <span>Shipping Weight & Dimensions</span>
+              </h3>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-100">
+                Shiprocket
+              </span>
+            </div>
+
+            {/* Product Weight & Unit */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Product Weight / Volume *
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  name="weightValue"
+                  step="any"
+                  min="0.01"
+                  required
+                  value={formData.weightValue}
+                  onChange={handleChange}
+                  placeholder="e.g. 10, 100, 500, 1"
+                  className="w-2/3 px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold"
+                />
+                <select
+                  name="weightUnit"
+                  value={formData.weightUnit}
+                  onChange={handleChange}
+                  className="w-1/3 px-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white font-semibold"
+                >
+                  <option value="g">Grams (g)</option>
+                  <option value="ml">Milliliters (ml)</option>
+                  <option value="kg">Kilograms (kg)</option>
+                  <option value="l">Liters (L)</option>
+                </select>
+              </div>
+
+              {/* Dynamic Weight Analysis */}
+              <div className="mt-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Dead Weight:</span>
+                  <span className="font-bold text-slate-800">
+                    {calculateNormalizedWeight(formData.weightValue, formData.weightUnit)} kg
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Base Courier Slab:</span>
+                  <span className="font-bold text-emerald-700">
+                    {Math.max(0.5, calculateNormalizedWeight(formData.weightValue, formData.weightUnit))} kg
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 leading-relaxed">
+                  💡 Multiple small items (e.g. 10ml bottles) pack together into 1 base parcel slab (up to 500g) without courier price jumps.
+                </p>
+              </div>
+            </div>
+
+            {/* Parcel Dimensions */}
+            <div className="pt-2 border-t border-slate-100">
+              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Box className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Parcel Dimensions (cm)</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal">L × B × H</span>
+              </label>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <input
+                    type="number"
+                    name="length"
+                    min="1"
+                    value={formData.dimensions.length}
+                    onChange={handleDimensionChange}
+                    placeholder="L"
+                    className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs text-center focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <span className="text-[10px] text-slate-400 block text-center mt-0.5">Length</span>
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    name="breadth"
+                    min="1"
+                    value={formData.dimensions.breadth}
+                    onChange={handleDimensionChange}
+                    placeholder="B"
+                    className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs text-center focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <span className="text-[10px] text-slate-400 block text-center mt-0.5">Breadth</span>
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    name="height"
+                    min="1"
+                    value={formData.dimensions.height}
+                    onChange={handleDimensionChange}
+                    placeholder="H"
+                    className="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs text-center focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <span className="text-[10px] text-slate-400 block text-center mt-0.5">Height</span>
+                </div>
+              </div>
+
+              {/* Volumetric calculation snippet */}
+              <div className="mt-2.5 p-2 bg-amber-50/70 border border-amber-200/60 rounded-xl text-[11px] text-amber-900 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <Ruler className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Volumetric:</span>
+                </span>
+                <span className="font-mono font-bold">
+                  {(
+                    ((Number(formData.dimensions?.length) || 10) *
+                      (Number(formData.dimensions?.breadth) || 10) *
+                      (Number(formData.dimensions?.height) || 10)) /
+                    5000
+                  ).toFixed(2)}{" "}
+                  kg
+                </span>
+              </div>
             </div>
           </div>
 

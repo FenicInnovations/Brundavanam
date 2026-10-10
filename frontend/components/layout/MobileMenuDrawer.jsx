@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { X, User, Heart, ShoppingBag, LogOut, Shield, ChevronRight, Phone } from "lucide-react";
 import { SITE_NAME, CONTACT_PHONE } from "@/lib/constants";
@@ -28,12 +30,25 @@ export default function MobileMenuDrawer({ open, onClose }) {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { logout: ctxLogout } = useAuth();
-  const user = useSelector(selectCurrentUser);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const { user: ctxUser, logout: ctxLogout } = useAuth();
+  const reduxUser = useSelector(selectCurrentUser);
+  const user = reduxUser || ctxUser;
   const isAdmin = useSelector(selectIsAdmin);
   const cartCount = useSelector(selectCartTotalCount) || 0;
   const wishlistItems = useSelector(selectWishlistItems);
   const wishlistCount = wishlistItems?.length || 0;
+
+  // Selected Delivery Address & Recipient Name computation
+  const addresses = user?.addresses || [];
+  const selectedAddress =
+    addresses.find((a) => a.isDefault) || (addresses.length > 0 ? addresses[0] : null);
+  const selectedPersonName = selectedAddress?.fullName?.trim();
+  const customerDisplayName = selectedPersonName || "Valued Customer";
 
   const isLinkActive = (href) => {
     if (href === "/") return pathname === "/";
@@ -73,16 +88,22 @@ export default function MobileMenuDrawer({ open, onClose }) {
       >
         {/* Drawer Header */}
         <div className="flex items-center justify-between border-b border-line bg-surface p-5">
-          <Link href="/" onClick={onClose} className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 text-white font-serif font-bold text-sm shadow-xs">
-              BG
-            </span>
+          <Link href="/" onClick={onClose} className="flex items-center gap-3">
+            <div className="relative h-10 w-10 rounded-full overflow-hidden border border-amber-300 shadow-2xs shrink-0 bg-white">
+              <Image
+                src="/images/logo.png"
+                alt={SITE_NAME}
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
+              />
+            </div>
             <div className="flex flex-col">
               <span className="font-display text-base font-bold text-ink leading-tight">
                 {SITE_NAME}
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-accent-deep">
-                Vedic Desi Cow Goshala
+              <span className="text-[9px] font-bold tracking-wider text-amber-800">
+                Ahar.am • Arogy.am • Soundary.am
               </span>
             </div>
           </Link>
@@ -98,15 +119,27 @@ export default function MobileMenuDrawer({ open, onClose }) {
 
         {/* User Account Tile */}
         <div className="p-4 border-b border-line bg-surface/70">
-          {user ? (
+          {mounted && user ? (
             <div className="flex flex-col gap-2 bg-amber-50/70 border border-amber-200/70 rounded-2xl p-3.5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-surface font-bold text-sm">
-                  {user.name ? user.name[0].toUpperCase() : "U"}
+                  {customerDisplayName !== "Valued Customer" ? (
+                    customerDisplayName[0].toUpperCase()
+                  ) : (
+                    <User size={18} />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-ink truncate">{user.name || "Customer"}</p>
+                  <p className="text-sm font-bold text-ink truncate" title={customerDisplayName}>
+                    {customerDisplayName}
+                  </p>
                   <p className="text-xs text-ink-soft truncate">+91 {user.phone}</p>
+                  {selectedAddress?.city && (
+                    <p className="text-[10px] text-amber-800 font-medium truncate">
+                      📍 {selectedAddress.city}
+                      {selectedAddress.postalCode ? `, ${selectedAddress.postalCode}` : ""}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 pt-2 border-t border-amber-200/50 mt-1">
@@ -192,7 +225,7 @@ export default function MobileMenuDrawer({ open, onClose }) {
                 <Heart size={18} className="text-rose-600" />
                 <span>Wishlist</span>
               </span>
-              {wishlistCount > 0 && (
+              {mounted && wishlistCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
                   {wishlistCount}
                 </span>
@@ -208,7 +241,7 @@ export default function MobileMenuDrawer({ open, onClose }) {
                 <ShoppingBag size={18} className="text-accent" />
                 <span>Shopping Cart</span>
               </span>
-              {cartCount > 0 && (
+              {mounted && cartCount > 0 && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
                   {cartCount} items
                 </span>

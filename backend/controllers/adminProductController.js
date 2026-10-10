@@ -2,6 +2,43 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const { createSlug } = require("../utils/slugify");
 const gcsService = require("../services/gcsService");
+const { invalidateCache } = require("../graphql/resolvers");
+
+/**
+ * Normalizes weight to kilograms based on unit:
+ * - 'kg': value as-is
+ * - 'g': value / 1000
+ * - 'ml': value / 1000 (standard liquid density ~0.95-1.0 g/ml)
+ * - 'l': value * 1.0
+ */
+function normalizeWeightToKg(value, unit = "g") {
+  const num = Number(value);
+  if (isNaN(num) || num <= 0) return 0.1; // Default 100g if unset
+
+  switch (unit?.toLowerCase()) {
+    case "kg":
+      return Math.round(num * 1000) / 1000;
+    case "g":
+      return Math.round((num / 1000) * 1000) / 1000;
+    case "ml":
+      return Math.round((num / 1000) * 1000) / 1000;
+    case "l":
+      return Math.round(num * 1000) / 1000;
+    default:
+      return Math.round((num / 1000) * 1000) / 1000;
+  }
+}
+
+function normalizeDimensions(dim) {
+  if (!dim || typeof dim !== "object") {
+    return { length: 10, breadth: 10, height: 10 };
+  }
+  return {
+    length: Math.max(1, Number(dim.length) || 10),
+    breadth: Math.max(1, Number(dim.breadth) || 10),
+    height: Math.max(1, Number(dim.height) || 10),
+  };
+}
 
 // GET /api/admin/products
 async function getProducts(req, res, next) {
@@ -158,6 +195,9 @@ async function createProduct(req, res, next) {
       isActive = true,
       seoTitle,
       seoDescription,
+      weightValue,
+      weightUnit = "g",
+      dimensions,
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -205,6 +245,19 @@ async function createProduct(req, res, next) {
       isPrimary: img.isPrimary || (index === 0 && !images.some((i) => i.isPrimary)),
     }));
 
+    // Normalize physical weight and dimensions for Shiprocket courier calculation
+    const normalizedWeight = normalizeWeightToKg(weightValue, weightUnit);
+    const normalizedDimensions = normalizeDimensions(dimensions);
+
+    const formattedVariants = (variants || []).map((v) => ({
+      ...v,
+      weightValue: v.weightValue !== undefined && v.weightValue !== "" ? Number(v.weightValue) : null,
+      weightUnit: v.weightUnit || weightUnit || "g",
+      weight: v.weightValue
+        ? normalizeWeightToKg(v.weightValue, v.weightUnit || weightUnit)
+        : normalizedWeight,
+    }));
+
     const product = new Product({
       name: name.trim(),
       slug: finalSlug,
@@ -217,9 +270,13 @@ async function createProduct(req, res, next) {
       price: Number(price),
       discountPrice: discountPrice ? Number(discountPrice) : 0,
       stock: stock !== undefined ? Number(stock) : 0,
+      weight: normalizedWeight,
+      weightValue: weightValue !== undefined && weightValue !== "" ? Number(weightValue) : (weightUnit === "kg" ? normalizedWeight : normalizedWeight * 1000),
+      weightUnit: weightUnit || "g",
+      dimensions: normalizedDimensions,
       images: formattedImages,
       files,
-      variants,
+      variants: formattedVariants,
       attributes,
       tags,
       isFeatured: Boolean(isFeatured),
@@ -229,6 +286,7 @@ async function createProduct(req, res, next) {
     });
 
     await product.save();
+    invalidateCache("gql:*").catch(() => {});
     const populatedProduct = await Product.findById(product._id)
       .populate("category", "name slug")
       .populate("subcategory", "name slug");
@@ -276,6 +334,9 @@ async function updateProduct(req, res, next) {
       isActive,
       seoTitle,
       seoDescription,
+      weightValue,
+      weightUnit,
+      dimensions,
     } = req.body;
 
     // Detect deleted GCS images to prevent orphan files in storage
@@ -344,7 +405,32 @@ async function updateProduct(req, res, next) {
 
     existingProduct.images = formattedImages;
     existingProduct.files = files;
-    existingProduct.variants = variants;
+
+    const activeUnit = weightUnit || existingProduct.weightUnit || "g";
+    if (weightValue !== undefined && weightValue !== "") {
+      existingProduct.weightValue = Number(weightValue);
+      existingProduct.weightUnit = activeUnit;
+      existingProduct.weight = normalizeWeightToKg(weightValue, activeUnit);
+    } else if (weightUnit !== undefined && existingProduct.weightValue) {
+      existingProduct.weightUnit = weightUnit;
+      existingProduct.weight = normalizeWeightToKg(existingProduct.weightValue, weightUnit);
+    }
+
+    if (dimensions !== undefined) {
+      existingProduct.dimensions = normalizeDimensions(dimensions);
+    }
+
+    if (variants !== undefined) {
+      existingProduct.variants = (variants || []).map((v) => ({
+        ...v,
+        weightValue: v.weightValue !== undefined && v.weightValue !== "" ? Number(v.weightValue) : null,
+        weightUnit: v.weightUnit || activeUnit,
+        weight: v.weightValue
+          ? normalizeWeightToKg(v.weightValue, v.weightUnit || activeUnit)
+          : (existingProduct.weight || 0.1),
+      }));
+    }
+
     existingProduct.attributes = attributes;
     existingProduct.tags = tags;
     if (isFeatured !== undefined) existingProduct.isFeatured = Boolean(isFeatured);
@@ -353,6 +439,7 @@ async function updateProduct(req, res, next) {
     if (seoDescription !== undefined) existingProduct.seoDescription = seoDescription;
 
     await existingProduct.save();
+    invalidateCache("gql:*").catch(() => {});
 
     const updatedProduct = await Product.findById(id)
       .populate("category", "name slug")
@@ -394,6 +481,7 @@ async function deleteProduct(req, res, next) {
       }
 
       await Product.findByIdAndDelete(id);
+      invalidateCache("gql:*").catch(() => {});
 
       return res.json({
         success: true,
@@ -405,6 +493,7 @@ async function deleteProduct(req, res, next) {
       product.deletedAt = new Date();
       product.isActive = false;
       await product.save();
+      invalidateCache("gql:*").catch(() => {});
 
       return res.json({
         success: true,
@@ -447,6 +536,7 @@ async function updateStock(req, res, next) {
     }
 
     await product.save();
+    invalidateCache("gql:*").catch(() => {});
     await product.populate("category", "name slug");
 
     res.json({

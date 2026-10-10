@@ -30,6 +30,9 @@ const variantSchema = new mongoose.Schema(
     price: { type: Number, required: true, min: 0 },
     discountPrice: { type: Number, min: 0 },
     stock: { type: Number, default: 0, min: 0 },
+    weight: { type: Number, default: null, min: 0 }, // Normalized weight in kg
+    weightValue: { type: Number, default: null, min: 0 },
+    weightUnit: { type: String, enum: ["g", "kg", "ml", "l"], default: "g" },
     attributes: [
       {
         name: { type: String, required: true },
@@ -73,6 +76,16 @@ const productSchema = new mongoose.Schema(
     price: { type: Number, required: true, min: 0 },
     discountPrice: { type: Number, default: 0, min: 0 },
     stock: { type: Number, required: true, default: 0, min: 0 },
+
+    // Physical shipping attributes for accurate Shiprocket logistics
+    weight: { type: Number, default: 0.1, min: 0 }, // Normalized weight in kg (default 100g)
+    weightValue: { type: Number, default: 100, min: 0 }, // Admin entered value (e.g., 10, 50, 500, 1)
+    weightUnit: { type: String, enum: ["g", "kg", "ml", "l"], default: "g" },
+    dimensions: {
+      length: { type: Number, default: 10, min: 0 }, // in cm
+      breadth: { type: Number, default: 10, min: 0 }, // in cm
+      height: { type: Number, default: 10, min: 0 }, // in cm
+    },
 
     images: [gcsFileSchema],
     files: [gcsFileSchema], // PDF manuals, specifications, lab reports

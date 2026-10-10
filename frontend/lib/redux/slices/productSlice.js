@@ -192,6 +192,25 @@ export const updateProductStock = ({ id, stock, variants }) => async (dispatch) 
 };
 
 export const fetchCategories = (all = false) => async (dispatch) => {
+  // 1. Primary: Ultra-fast GraphQL query backed by Redis
+  try {
+    const { gqlRequest } = await import("@/lib/graphql/client");
+    const { GET_CATEGORIES_QUERY } = await import("@/lib/graphql/queries");
+
+    const data = await gqlRequest(GET_CATEGORIES_QUERY, { all });
+    if (data?.categories && Array.isArray(data.categories) && data.categories.length > 0) {
+      const normalized = data.categories.map((c) => ({
+        ...c,
+        _id: c.id,
+      }));
+      dispatch({ type: productSliceActions.SET_CATEGORIES, payload: normalized });
+      return normalized;
+    }
+  } catch (err) {
+    console.warn("[productSlice:GraphQL] Falling back to REST for categories:", err?.message || err);
+  }
+
+  // 2. Fallback: REST endpoint
   try {
     const endpoint = all ? "/categories?all=true" : "/categories";
     const res = await apiClient.get(endpoint);

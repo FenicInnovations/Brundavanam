@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -25,6 +26,7 @@ import {
   TOP_BAR_MESSAGE,
   FREE_SHIPPING_MESSAGE,
 } from "@/lib/constants";
+import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import {
   useDispatch,
@@ -56,6 +58,11 @@ export default function Header() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const accountMenuRef = useRef(null);
   const categoryMenuRef = useRef(null);
@@ -72,6 +79,49 @@ export default function Header() {
 
   const currentUser = reduxUser || ctxUser;
   const isAuthenticated = ctxStatus === "authenticated" || !!reduxUser;
+
+  // Selected Delivery Address & Recipient Name State
+  const [userAddresses, setUserAddresses] = useState([]);
+
+  // Fetch saved addresses to determine the selected/primary address recipient name
+  const fetchUserAddresses = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const res = await api.getAddresses();
+      if (res?.success && Array.isArray(res.addresses)) {
+        setUserAddresses(res.addresses);
+      }
+    } catch {
+      // ignore
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserAddresses();
+    } else {
+      setUserAddresses([]);
+    }
+  }, [isAuthenticated, fetchUserAddresses]);
+
+  // Listen for real-time address updates triggered anywhere in the app
+  useEffect(() => {
+    const handleAddressUpdated = () => {
+      fetchUserAddresses();
+    };
+    window.addEventListener("address-updated", handleAddressUpdated);
+    return () => window.removeEventListener("address-updated", handleAddressUpdated);
+  }, [fetchUserAddresses]);
+
+  // Priority: 
+  // 1. Check primary/default address in userAddresses or currentUser.addresses
+  // 2. Fall back to "Valued Customer" if user has no address saved
+  const effectiveAddresses = userAddresses.length > 0 ? userAddresses : (currentUser?.addresses || []);
+  const selectedAddress =
+    effectiveAddresses.find((a) => a.isDefault) ||
+    (effectiveAddresses.length > 0 ? effectiveAddresses[0] : null);
+  const selectedPersonName = selectedAddress?.fullName?.trim();
+  const customerDisplayName = selectedPersonName || "Valued Customer";
 
   // Clean up legacy stale localStorage keys on initial mount
   useEffect(() => {
@@ -180,17 +230,26 @@ export default function Header() {
       >
         {/* Brand Logo & Tagline */}
         <Link href="/" className="group flex items-center gap-3 shrink-0">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 text-white font-serif font-black text-xl shadow-md shadow-amber-900/20 group-hover:scale-105 transition-transform duration-200">
-            BG
+          <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-amber-300 shadow-sm group-hover:scale-105 transition-transform duration-200 bg-white">
+            <Image
+              src="/images/logo.png"
+              alt={SITE_NAME}
+              width={48}
+              height={48}
+              priority
+              className="h-full w-full object-cover"
+            />
           </div>
           <div className="flex flex-col">
             <span className="font-display text-xl tracking-tight text-ink font-bold group-hover:text-accent transition-colors leading-none">
               {SITE_NAME}
             </span>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-accent-deep mt-1 flex items-center gap-1">
-              <span>Sacred Desi Cow Goshala</span>
-              <span className="w-1 h-1 rounded-full bg-accent inline-block" />
-              <span>100% Vedic Pure</span>
+            <span className="text-[10px] font-extrabold tracking-wide text-amber-800 mt-1 flex items-center gap-1.5">
+              <span>Ahar.am</span>
+              <span className="text-amber-500 font-bold">•</span>
+              <span>Arogy.am</span>
+              <span className="text-amber-500 font-bold">•</span>
+              <span>Soundary.am</span>
             </span>
           </div>
         </Link>
@@ -256,22 +315,33 @@ export default function Header() {
 
           {/* Account Dropdown Menu */}
           <div className="relative" ref={accountMenuRef}>
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => setAccountMenuOpen(!accountMenuOpen)}
                 className="flex items-center gap-2.5 rounded-xl border border-line bg-surface hover:bg-bg/60 p-2 lg:px-3 lg:py-2 transition-all"
+                title={`Logged in as ${customerDisplayName}`}
               >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent-deep font-bold text-xs">
-                  {currentUser?.name ? currentUser.name[0].toUpperCase() : <User size={16} />}
+                  {customerDisplayName !== "Valued Customer" ? (
+                    customerDisplayName[0].toUpperCase()
+                  ) : (
+                    <User size={16} />
+                  )}
                 </div>
                 <div className="hidden text-left leading-tight lg:block">
                   <span className="block text-[10px] text-ink-soft font-medium">Hello,</span>
-                  <span className="block text-xs font-bold text-ink max-w-[120px] truncate">
-                    {currentUser?.name || `+91 ${currentUser?.phone || ""}`}
+                  <span
+                    className="block text-xs font-bold text-ink max-w-[130px] truncate"
+                    title={customerDisplayName}
+                  >
+                    {customerDisplayName}
                   </span>
                 </div>
-                <ChevronDown size={14} className={`text-ink-soft transition-transform ${accountMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  size={14}
+                  className={`text-ink-soft transition-transform ${accountMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
             ) : (
               <Link
@@ -289,11 +359,21 @@ export default function Header() {
             )}
 
             {/* Authenticated Account Dropdown Drawer */}
-            {isAuthenticated && accountMenuOpen && (
+            {mounted && isAuthenticated && accountMenuOpen && (
               <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-line bg-surface p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="p-3 border-b border-line mb-1 bg-bg/40 rounded-xl">
-                  <p className="text-xs font-bold text-ink truncate">{currentUser?.name || "Customer"}</p>
-                  <p className="text-[11px] text-ink-soft truncate">+91 {currentUser?.phone}</p>
+                  <p className="text-xs font-bold text-ink truncate" title={customerDisplayName}>
+                    {customerDisplayName}
+                  </p>
+                  {currentUser?.phone && (
+                    <p className="text-[11px] text-ink-soft truncate">+91 {currentUser.phone}</p>
+                  )}
+                  {selectedAddress?.city && (
+                    <p className="text-[10px] text-amber-700 font-medium truncate mt-0.5">
+                      📍 {selectedAddress.city}
+                      {selectedAddress.postalCode ? `, ${selectedAddress.postalCode}` : ""}
+                    </p>
+                  )}
                   {isAdmin && (
                     <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                       <Shield size={10} /> Admin Access
@@ -359,7 +439,7 @@ export default function Header() {
             title="Saved Items in Wishlist"
           >
             <Heart size={20} className="transition-transform group-hover:scale-110" />
-            {wishlistTotalCount > 0 && (
+            {mounted && wishlistTotalCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1.5 text-[10px] font-bold text-white shadow-xs animate-in zoom-in">
                 {wishlistTotalCount}
               </span>
@@ -375,7 +455,7 @@ export default function Header() {
           >
             <div className="relative">
               <ShoppingBag size={20} className="transition-transform group-hover:scale-105" />
-              {cartTotalCount > 0 && (
+              {mounted && cartTotalCount > 0 && (
                 <span className="absolute -right-2.5 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#1c1813] px-1 text-[10px] font-bold text-white border-2 border-surface shadow-xs">
                   {cartTotalCount}
                 </span>

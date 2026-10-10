@@ -102,7 +102,13 @@ async function updateOrderStatus(req, res, next) {
  */
 async function createShipment(req, res, next) {
   try {
-    const order = await orderService.dispatchOrderToShiprocket(req.params.id);
+    const { weight, length, breadth, height } = req.body || {};
+    const order = await orderService.dispatchOrderToShiprocket(req.params.id, {
+      weight,
+      length,
+      breadth,
+      height,
+    });
 
     res.json({
       success: true,

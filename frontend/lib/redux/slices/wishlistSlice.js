@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/apiClient";
 
 const GUEST_WISHLIST_STORAGE_KEY = "bg_guest_wishlist";
 
-function getInitialGuestWishlist() {
+export function getInitialGuestWishlist() {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(GUEST_WISHLIST_STORAGE_KEY);
@@ -13,7 +13,7 @@ function getInitialGuestWishlist() {
   }
 }
 
-function saveGuestWishlist(items) {
+export function saveGuestWishlist(items) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(GUEST_WISHLIST_STORAGE_KEY, JSON.stringify(items));
@@ -32,7 +32,7 @@ export function clearGuestWishlistStorage() {
 }
 
 export const initialWishlistState = {
-  items: getInitialGuestWishlist(),
+  items: [],
   loading: false,
   error: null,
 };
