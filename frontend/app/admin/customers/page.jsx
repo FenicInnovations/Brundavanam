@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Search, Users, Phone, Mail, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
+import Link from "next/link";
+import { Search, Users, Phone, Mail, ChevronLeft, ChevronRight, BadgeCheck, MapPin } from "lucide-react";
 import { apiClient } from "@/lib/api/apiClient";
 
 export default function AdminCustomersPage() {
@@ -61,6 +62,14 @@ export default function AdminCustomersPage() {
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Customers</h1>
           <p className="text-sm text-slate-500 mt-1">Manage user accounts and details</p>
         </div>
+
+        <Link
+          href="/admin/customers/locations"
+          className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 text-xs font-bold shadow-sm shadow-emerald-900/20 transition-all hover:scale-[1.02] active:scale-95 self-start md:self-auto"
+        >
+          <MapPin size={15} />
+          <span>Geo & Marketing Insights</span>
+        </Link>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">

@@ -14,10 +14,12 @@ const PRICE_BANDS = [
  * Desktop-only filter panel. Mirrors FilterSheet's fields exactly so the
  * two never drift — the same `filters` state powers both.
  */
-export default function FilterSidebar({ filters, onChange }) {
+export default function FilterSidebar({ filters, onChange, categories }) {
   const reduxCategories = useSelector(selectCategories);
   const categoriesList =
-    reduxCategories && reduxCategories.length > 0
+    categories && categories.length > 0
+      ? categories
+      : reduxCategories && reduxCategories.length > 0
       ? reduxCategories.filter((c) => !c.parent)
       : CATEGORIES;
 

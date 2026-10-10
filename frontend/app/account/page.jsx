@@ -164,13 +164,26 @@ export default function AccountPage() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-4 rounded-xl border bg-surface p-5 opacity-60">
-            <MapPin size={20} className="text-ink-soft" />
-            <div>
-              <p className="text-sm font-medium text-ink">Addresses</p>
-              <p className="text-xs text-ink-soft">Coming soon</p>
+          <Link
+            href="/account/addresses"
+            className="flex items-center gap-4 rounded-xl border bg-surface p-5 transition-all duration-150 hover:border-accent hover:shadow-xs group"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent group-hover:bg-accent group-hover:text-white transition-colors">
+              <MapPin size={20} />
             </div>
-          </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-ink">Saved Addresses</p>
+                {user.addresses && user.addresses.length > 0 && (
+                  <span className="rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5">
+                    {user.addresses.length} / 5
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-ink-soft">Manage delivery locations & primary address</p>
+            </div>
+            <ArrowRight size={16} className="text-ink-soft/40 group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+          </Link>
         </div>
       </div>
     </div>

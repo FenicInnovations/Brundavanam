@@ -1,9 +1,17 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+function getApiUrl() {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  if (typeof window === "undefined") {
+    return (process.env.INTERNAL_API_URL || envUrl).replace("//localhost:", "//127.0.0.1:");
+  }
+  return envUrl;
+}
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_URL}${path}`, {
+  const baseUrl = getApiUrl();
+  const res = await fetch(`${baseUrl}${path}`, {
     credentials: "include", // sends/receives the HttpOnly accessToken cookie
     headers: { "Content-Type": "application/json", ...options.headers },
+    cache: options.cache || "no-store",
     ...options,
   });
 
@@ -25,6 +33,11 @@ export const api = {
     request("/auth/verify-otp", { method: "POST", body: JSON.stringify({ phone, otp }) }),
   getMe: () => request("/auth/me"),
   logout: () => request("/auth/logout", { method: "POST" }),
+  getAddresses: () => request("/auth/addresses"),
+  addAddress: (data) => request("/auth/addresses", { method: "POST", body: JSON.stringify(data) }),
+  updateAddress: (id, data) => request(`/auth/addresses/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteAddress: (id) => request(`/auth/addresses/${id}`, { method: "DELETE" }),
+  setDefaultAddress: (id) => request(`/auth/addresses/${id}/default`, { method: "PATCH" }),
 };
 
 const axiosLikeRequest = async (path, options = {}) => {

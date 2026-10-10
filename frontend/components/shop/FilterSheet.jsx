@@ -6,10 +6,12 @@ import { CATEGORIES } from "@/lib/mockCategories";
 import { FilterSection, Checkbox, PRICE_BANDS } from "@/components/shop/FilterSidebar";
 import Button from "@/components/ui/Button";
 
-export default function FilterSheet({ open, onClose, filters, onChange, resultCount }) {
+export default function FilterSheet({ open, onClose, filters, onChange, resultCount, categories }) {
   const reduxCategories = useSelector(selectCategories);
   const categoriesList =
-    reduxCategories && reduxCategories.length > 0
+    categories && categories.length > 0
+      ? categories
+      : reduxCategories && reduxCategories.length > 0
       ? reduxCategories.filter((c) => !c.parent)
       : CATEGORIES;
 

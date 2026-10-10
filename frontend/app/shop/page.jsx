@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import { fetchStorefrontProducts } from "@/lib/productUtils";
 import ShopView from "@/components/shop/ShopView";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Shop All Sacred Products | Brundavanam Goshala",
   description:
@@ -20,7 +23,7 @@ export default async function ShopPage() {
         </div>
       }
     >
-      <ShopView products={products} />
+      <ShopView initialProducts={products} products={products} />
     </Suspense>
   );
 }

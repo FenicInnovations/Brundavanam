@@ -30,6 +30,7 @@ import {
   Sparkles,
   LifeBuoy,
   Home,
+  MapPin,
 } from "lucide-react";
 import { useDispatch, useSelector, selectSidebarExpanded, selectAuth } from "@/lib/redux/store";
 import { adminSliceActions } from "@/lib/redux/slices/adminSlice";
@@ -73,6 +74,12 @@ export default function AdminSidebar() {
     },
     { label: "Orders", icon: ShoppingCart, href: "/admin/orders", isFuture: false },
     { label: "Customers", icon: Users, href: "/admin/customers", isFuture: false },
+    {
+      label: "Customer Geo & Marketing",
+      icon: MapPin,
+      href: "/admin/customers/locations",
+      isFuture: false,
+    },
     { label: "Wishlist / Cart Analytics", icon: HeartHandshake, href: "/admin/analytics/cart", isFuture: false },
     { label: "Reviews", icon: Star, href: "/admin/reviews", isFuture: false },
     { label: "Coupons / Discounts", icon: Ticket, href: "/admin/coupons", isFuture: true },

@@ -19,16 +19,16 @@ const addressSchema = new mongoose.Schema(
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
+    name: { type: String, default: "Valued Customer", trim: true },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      default: null,
+      sparse: true,
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true, select: false },
-    phone: String,
+    password: { type: String, default: null, select: false },
+    phone: { type: String, required: true, unique: true },
     role: {
       type: String,
       enum: ["customer", "admin", "super_admin"],
@@ -51,7 +51,7 @@ userSchema.pre("save", async function hashPasswordAndRole(next) {
     this.role = "admin";
   }
 
-  if (!this.isModified("password")) return next();
+  if (!this.password || !this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();

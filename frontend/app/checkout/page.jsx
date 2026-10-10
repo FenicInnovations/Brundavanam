@@ -2,10 +2,31 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSelector, useDispatch, selectCartItems, selectCartSubtotal, clearCart } from "@/lib/redux/store";
 import { apiClient } from "@/lib/api/apiClient";
+import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, ShieldCheck, MapPin, CheckCircle, AlertCircle, Package, Truck, CreditCard, Sparkles, Check, Info } from "lucide-react";
+import {
+  Loader2,
+  ShieldCheck,
+  MapPin,
+  CheckCircle,
+  CheckCircle2,
+  AlertCircle,
+  Package,
+  Truck,
+  CreditCard,
+  Sparkles,
+  Check,
+  Info,
+  Plus,
+  Home,
+  Briefcase,
+  Building,
+  ArrowRight,
+  ChevronDown,
+} from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -25,17 +46,93 @@ export default function CheckoutPage() {
     postalCode: "",
   });
 
-  // Pre-fill user profile if logged in
+  // Saved addresses state & primary address detection
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedSavedId, setSelectedSavedId] = useState(null);
+  const [deliveryOption, setDeliveryOption] = useState("custom"); // "saved" | "custom"
+  const [loadingSavedAddresses, setLoadingSavedAddresses] = useState(false);
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
+
+  // Pre-fill primary saved address if logged in
   useEffect(() => {
-    if (user) {
-      setAddress((prev) => ({
-        ...prev,
-        fullName: prev.fullName || user.name || "",
-        phone: prev.phone || user.phone || "",
-        email: prev.email || user.email || "",
-      }));
+    let isMounted = true;
+    async function fetchUserAddresses() {
+      if (user) {
+        setLoadingSavedAddresses(true);
+        try {
+          const res = await api.getAddresses();
+          if (isMounted && res.success && Array.isArray(res.addresses) && res.addresses.length > 0) {
+            setSavedAddresses(res.addresses);
+            // Auto-select Primary address (isDefault: true) or fallback to first
+            const primary = res.addresses.find((a) => a.isDefault) || res.addresses[0];
+            setSelectedSavedId(primary._id);
+            setDeliveryOption("saved");
+            setAddress((prev) => ({
+              ...prev,
+              fullName: primary.fullName,
+              phone: primary.phone,
+              email: prev.email || user.email || "",
+              line1: primary.line1,
+              line2: primary.line2 || "",
+              city: primary.city,
+              state: primary.state,
+              postalCode: primary.postalCode,
+            }));
+          } else if (isMounted) {
+            setDeliveryOption("custom");
+            setAddress((prev) => ({
+              ...prev,
+              fullName: prev.fullName || user.name || "",
+              phone: prev.phone || user.phone || "",
+              email: prev.email || user.email || "",
+            }));
+          }
+        } catch (err) {
+          console.warn("[checkout] Could not fetch saved addresses:", err.message);
+          if (isMounted) setDeliveryOption("custom");
+        } finally {
+          if (isMounted) setLoadingSavedAddresses(false);
+        }
+      }
     }
+
+    fetchUserAddresses();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
+
+  const handleSelectSavedAddress = (addr) => {
+    setSelectedSavedId(addr._id);
+    setDeliveryOption("saved");
+    setShowAddressPicker(false);
+    setAddress((prev) => ({
+      ...prev,
+      fullName: addr.fullName,
+      phone: addr.phone,
+      email: prev.email || user?.email || "",
+      line1: addr.line1,
+      line2: addr.line2 || "",
+      city: addr.city,
+      state: addr.state,
+      postalCode: addr.postalCode,
+    }));
+  };
+
+  const handleSelectCustomAddressOption = () => {
+    setDeliveryOption("custom");
+    setShowAddressPicker(false);
+    setAddress((prev) => ({
+      fullName: prev.fullName || user?.name || "",
+      phone: prev.phone || user?.phone || "",
+      email: prev.email || user?.email || "",
+      line1: "",
+      line2: "",
+      city: "",
+      state: "Telangana",
+      postalCode: "",
+    }));
+  };
 
   const [shipping, setShipping] = useState({
     loading: false,
@@ -258,130 +355,329 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* LEFT: Address Form */}
+          {/* LEFT: Address Section */}
           <div className="lg:col-span-3 space-y-6">
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-              <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-emerald-600" />
-                Delivery Address
-              </h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-emerald-600" />
+                  Delivery Address
+                </h2>
+                {user && (
+                  <Link
+                    href="/account/addresses"
+                    className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                  >
+                    <span>Manage Addresses</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                )}
+              </div>
+
+              {/* Mode Toggle: Saved Address vs Different Address */}
+              {savedAddresses.length > 0 && (
+                <div className="flex flex-col sm:flex-row gap-2.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/80 mb-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const selected =
+                        savedAddresses.find((a) => a._id === selectedSavedId) ||
+                        savedAddresses.find((a) => a.isDefault) ||
+                        savedAddresses[0];
+                      if (selected) handleSelectSavedAddress(selected);
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                      deliveryOption === "saved"
+                        ? "bg-white text-emerald-800 shadow-sm border border-slate-200/60"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className={deliveryOption === "saved" ? "text-emerald-600" : "text-slate-400"}
+                    />
+                    <span>Deliver to Saved Address</span>
+                    {savedAddresses.find((a) => a._id === selectedSavedId)?.isDefault && (
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-extrabold">
+                        Primary
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSelectCustomAddressOption}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                      deliveryOption === "custom"
+                        ? "bg-white text-emerald-800 shadow-sm border border-slate-200/60"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Plus
+                      size={15}
+                      className={deliveryOption === "custom" ? "text-emerald-600" : "text-slate-400"}
+                    />
+                    <span>Deliver to a Different Address</span>
+                  </button>
+                </div>
+              )}
 
               <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1.5">Full Name *</label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      required
-                      value={address.fullName}
-                      onChange={handleInputChange}
-                      placeholder="As on government ID"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1.5">Phone Number *</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      pattern="[0-9]{10}"
-                      value={address.phone}
-                      onChange={handleInputChange}
-                      placeholder="10-digit mobile number"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
+                {/* 1. SAVED PRIMARY ADDRESS MODE */}
+                {deliveryOption === "saved" && savedAddresses.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Active Selected Address Showcase */}
+                    {(() => {
+                      const current =
+                        savedAddresses.find((a) => a._id === selectedSavedId) ||
+                        savedAddresses.find((a) => a.isDefault) ||
+                        savedAddresses[0];
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email Address *</label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    value={address.email}
-                    onChange={handleInputChange}
-                    placeholder="For order confirmation & invoice"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                  />
-                </div>
+                      return (
+                        <div className="rounded-2xl border-2 border-emerald-500/70 bg-gradient-to-br from-emerald-50/50 via-white to-white p-5 shadow-xs relative space-y-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                {current.label?.[0]?.toUpperCase() || "H"}
+                              </span>
+                              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                {current.label || "Home"}
+                              </span>
+                            </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 1 *</label>
-                  <input
-                    type="text"
-                    name="line1"
-                    required
-                    value={address.line1}
-                    onChange={handleInputChange}
-                    placeholder="House/Flat No., Building Name, Street"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                  />
-                </div>
+                            <div className="flex items-center gap-2">
+                              {current.isDefault && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 text-[10px] font-extrabold text-emerald-800">
+                                  <Sparkles size={11} className="text-emerald-700" />
+                                  <span>Primary Address</span>
+                                </span>
+                              )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 2</label>
-                  <input
-                    type="text"
-                    name="line2"
-                    value={address.line2}
-                    onChange={handleInputChange}
-                    placeholder="Locality, Landmark (optional)"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                  />
-                </div>
+                              {savedAddresses.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setShowAddressPicker(!showAddressPicker)}
+                                  className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+                                >
+                                  <span>{showAddressPicker ? "Close" : "Change"}</span>
+                                  <ChevronDown
+                                    size={13}
+                                    className={`transition-transform ${showAddressPicker ? "rotate-180" : ""}`}
+                                  />
+                                </button>
+                              )}
+                            </div>
+                          </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1.5">City *</label>
-                    <input
-                      type="text"
-                      name="city"
-                      required
-                      value={address.city}
-                      onChange={handleInputChange}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                    />
+                          {/* Recipient Details */}
+                          <div>
+                            <p className="text-sm font-bold text-slate-900">{current.fullName}</p>
+                            <p className="text-xs font-semibold text-slate-500">+91 {current.phone}</p>
+                          </div>
+
+                          {/* Street Address */}
+                          <div className="text-xs text-slate-700 leading-relaxed font-sans pt-1 border-t border-slate-100">
+                            <p>{current.line1}</p>
+                            {current.line2 && <p>{current.line2}</p>}
+                            <p className="font-semibold text-slate-900 mt-0.5">
+                              {current.city}, {current.state} –{" "}
+                              <span className="font-bold text-emerald-800">{current.postalCode}</span>
+                            </p>
+                          </div>
+
+                          {/* Expandable Picker to switch between other saved addresses */}
+                          {showAddressPicker && savedAddresses.length > 1 && (
+                            <div className="pt-3 border-t border-slate-200/80 space-y-2 animate-in fade-in duration-150">
+                              <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                                Select another saved address:
+                              </p>
+                              <div className="grid grid-cols-1 gap-2">
+                                {savedAddresses
+                                  .filter((a) => a._id !== current._id)
+                                  .map((other) => (
+                                    <div
+                                      key={other._id}
+                                      onClick={() => handleSelectSavedAddress(other)}
+                                      className="p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50/30 cursor-pointer transition-all flex items-center justify-between text-xs"
+                                    >
+                                      <div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-bold text-slate-900">{other.fullName}</span>
+                                          <span className="text-[10px] text-slate-500 uppercase">({other.label})</span>
+                                          {other.isDefault && (
+                                            <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 rounded">Primary</span>
+                                          )}
+                                        </div>
+                                        <p className="text-slate-600 text-[11px] truncate max-w-sm mt-0.5">
+                                          {other.line1}, {other.city} - {other.postalCode}
+                                        </p>
+                                      </div>
+                                      <span className="text-xs font-bold text-emerald-700 whitespace-nowrap">
+                                        Use this
+                                      </span>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Email for invoice & tracking updates */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                        Email Address (for order confirmation &amp; tax invoice) *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        value={address.email}
+                        onChange={handleInputChange}
+                        placeholder="recipient@example.com"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1.5">State *</label>
-                    <input
-                      type="text"
-                      name="state"
-                      required
-                      value={address.state}
-                      onChange={handleInputChange}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                    />
+                ) : (
+                  /* 2. CUSTOM / MANUAL ADDRESS INPUT FORM */
+                  <div className="space-y-4">
+                    {savedAddresses.length > 0 && (
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                        <span>Entering a different address for this order:</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const primary =
+                              savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+                            if (primary) handleSelectSavedAddress(primary);
+                          }}
+                          className="font-bold text-emerald-700 hover:underline"
+                        >
+                          Use Primary Saved Address
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Full Name *</label>
+                        <input
+                          type="text"
+                          name="fullName"
+                          required
+                          value={address.fullName}
+                          onChange={handleInputChange}
+                          placeholder="As on government ID"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Phone Number *</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          required
+                          pattern="[0-9]{10}"
+                          value={address.phone}
+                          onChange={handleInputChange}
+                          placeholder="10-digit mobile number"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email Address *</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        value={address.email}
+                        onChange={handleInputChange}
+                        placeholder="For order confirmation & invoice"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 1 *</label>
+                      <input
+                        type="text"
+                        name="line1"
+                        required
+                        value={address.line1}
+                        onChange={handleInputChange}
+                        placeholder="House/Flat No., Building Name, Street"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">Address Line 2</label>
+                      <input
+                        type="text"
+                        name="line2"
+                        value={address.line2}
+                        onChange={handleInputChange}
+                        placeholder="Locality, Landmark (optional)"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">City *</label>
+                        <input
+                          type="text"
+                          name="city"
+                          required
+                          value={address.city}
+                          onChange={handleInputChange}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">State *</label>
+                        <input
+                          type="text"
+                          name="state"
+                          required
+                          value={address.state}
+                          onChange={handleInputChange}
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                        />
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
+                          <span>PIN Code *</span>
+                          {shipping.loading && (
+                            <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                              <Loader2 className="w-3 h-3 animate-spin" /> Calculating...
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="text"
+                          name="postalCode"
+                          required
+                          maxLength={6}
+                          value={address.postalCode}
+                          onChange={handleInputChange}
+                          placeholder="e.g. 522002"
+                          className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
+                            shipping.error
+                              ? "border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
+                              : shipping.calculated
+                              ? "border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-emerald-50/20"
+                              : "border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                          }`}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
-                      <span>PIN Code *</span>
-                      {shipping.loading && (
-                        <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
-                          <Loader2 className="w-3 h-3 animate-spin" /> Calculating rate...
-                        </span>
-                      )}
-                    </label>
-                    <input
-                      type="text"
-                      name="postalCode"
-                      required
-                      maxLength={6}
-                      value={address.postalCode}
-                      onChange={handleInputChange}
-                      placeholder="e.g. 522002"
-                      className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
-                        shipping.error
-                          ? "border-rose-300 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20"
-                          : shipping.calculated
-                          ? "border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 bg-emerald-50/20"
-                          : "border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                      }`}
-                    />
-                  </div>
-                </div>
+                )}
 
                 {/* Live Shiprocket Price & Courier Status Card */}
                 {shipping.loading && (

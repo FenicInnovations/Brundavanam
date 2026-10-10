@@ -71,10 +71,18 @@ export function normalizeProduct(p) {
     }));
   }
 
+  const categoryId =
+    typeof p.category === "object"
+      ? (p.category?._id?.toString?.() || p.category?._id || "")
+      : (typeof p.category === "string" ? p.category : "");
   const categorySlug =
-    typeof p.category === "object" ? p.category?.slug || p.category?.name : p.category;
+    typeof p.category === "object"
+      ? (p.category?.slug || p.category?.name?.toLowerCase().replace(/\s+/g, "-") || "")
+      : (typeof p.category === "string" ? p.category : "");
   const categoryName =
-    typeof p.category === "object" ? p.category?.name || p.category?.slug : p.category;
+    typeof p.category === "object"
+      ? (p.category?.name || p.category?.slug || "")
+      : (typeof p.category === "string" ? p.category : "");
 
   return {
     ...p,
@@ -95,7 +103,10 @@ export function normalizeProduct(p) {
     variants,
     stock: p.stock !== undefined ? Number(p.stock) : 100,
     category: categorySlug || "general",
+    categoryId,
+    categorySlug,
     categoryName: categoryName || "General",
+    rawCategory: p.category,
     ratingsAverage: p.ratingsAverage || 4.9,
     ratingsCount: p.ratingsCount || 24,
     isFeatured: Boolean(p.isFeatured),
@@ -108,8 +119,9 @@ export function normalizeProduct(p) {
 export async function fetchStorefrontProducts() {
   try {
     const res = await apiClient.get("/products");
-    if (res?.data && Array.isArray(res.data)) {
-      return res.data.map(normalizeProduct);
+    const rawList = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+    if (rawList.length > 0) {
+      return rawList.map(normalizeProduct);
     }
   } catch (err) {
     console.warn("[productUtils] Could not fetch live products from API:", err.message);

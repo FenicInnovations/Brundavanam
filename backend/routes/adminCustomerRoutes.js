@@ -5,11 +5,13 @@ const { adminOnly } = require("../middleware/admin");
 const {
   getAllCustomers,
   toggleCustomerStatus,
+  getCustomerLocationInsights,
 } = require("../controllers/adminCustomerController");
 
 // Secure all admin customer endpoints
 router.use(protect, adminOnly);
 
+router.get("/locations", getCustomerLocationInsights);
 router.get("/", getAllCustomers);
 router.patch("/:id/status", toggleCustomerStatus);
 

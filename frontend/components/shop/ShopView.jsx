@@ -18,11 +18,17 @@ import SortSheet from "@/components/shop/SortSheet";
 import EmptyState from "@/components/ui/EmptyState";
 import { sortProducts, SORT_OPTIONS } from "@/components/shop/sortOptions";
 import { CATEGORIES } from "@/lib/mockCategories";
-import { useSelector, selectCategories } from "@/lib/redux/store";
+import { useDispatch, useSelector, selectCategories, fetchCategories } from "@/lib/redux/store";
+import { fetchStorefrontProducts } from "@/lib/productUtils";
 
 const EMPTY_FILTERS = { categories: [], priceBands: [], inStockOnly: false };
 
-export default function ShopView({ products = [] }) {
+export default function ShopView({ initialProducts = [], products = [] }) {
+  const incoming = initialProducts && initialProducts.length > 0 ? initialProducts : products;
+  const [allProducts, setAllProducts] = useState(incoming || []);
+  const [loading, setLoading] = useState(!incoming || incoming.length === 0);
+  const dispatch = useDispatch();
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -39,11 +45,61 @@ export default function ShopView({ products = [] }) {
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
+  // Client-side fetch effect to guarantee database products always show up
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveProducts() {
+      try {
+        const live = await fetchStorefrontProducts();
+        if (isMounted && Array.isArray(live) && live.length > 0) {
+          setAllProducts(live);
+        }
+      } catch (err) {
+        console.error("Failed to load products in shop view:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadLiveProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Sync if incoming prop changes
+  useEffect(() => {
+    if (incoming && incoming.length > 0) {
+      setAllProducts(incoming);
+      setLoading(false);
+    }
+  }, [incoming]);
+
   const reduxCategories = useSelector(selectCategories);
-  const availableCategories =
-    reduxCategories && reduxCategories.length > 0
-      ? reduxCategories.filter((c) => !c.parent)
-      : CATEGORIES;
+
+  // Load real categories into Redux if not present
+  useEffect(() => {
+    if (!reduxCategories || reduxCategories.length === 0) {
+      dispatch(fetchCategories());
+    }
+  }, [reduxCategories, dispatch]);
+
+  // Derive categories that actually exist on the products in database
+  const availableCategories = useMemo(() => {
+    if (reduxCategories && reduxCategories.length > 0) {
+      return reduxCategories.filter((c) => !c.parent);
+    }
+    const map = new Map();
+    allProducts.forEach((p) => {
+      const slug = p.categorySlug || (typeof p.category === "string" ? p.category : "") || "";
+      const name = p.categoryName || slug;
+      const id = p.categoryId || slug;
+      if (slug && !map.has(slug)) {
+        map.set(slug, { _id: id, slug, name });
+      }
+    });
+    return map.size > 0 ? Array.from(map.values()) : CATEGORIES;
+  }, [reduxCategories, allProducts]);
 
   // Sync state if URL query params change
   useEffect(() => {
@@ -57,7 +113,7 @@ export default function ShopView({ products = [] }) {
 
   // Filter & Sort Pipeline
   const filtered = useMemo(() => {
-    let list = Array.isArray(products) ? [...products] : [];
+    let list = Array.isArray(allProducts) ? [...allProducts] : [];
 
     // Search query filter
     if (searchTerm.trim()) {
@@ -74,9 +130,37 @@ export default function ShopView({ products = [] }) {
     // Category filter
     if (filters.categories.length > 0) {
       list = list.filter((p) => {
-        const catSlug = typeof p.category === "object" ? p.category?.slug : p.category;
-        const catId = typeof p.category === "object" ? p.category?._id : p.category;
-        return filters.categories.includes(catSlug) || filters.categories.includes(catId);
+        const catSlug = (
+          p.categorySlug ||
+          p.category ||
+          (typeof p.rawCategory === "object" ? p.rawCategory?.slug : "") ||
+          ""
+        )
+          .toString()
+          .toLowerCase();
+        const catId = (
+          p.categoryId ||
+          (typeof p.rawCategory === "object" ? p.rawCategory?._id : "") ||
+          (typeof p.category === "string" ? p.category : "") ||
+          ""
+        ).toString();
+        const catName = (
+          p.categoryName ||
+          (typeof p.rawCategory === "object" ? p.rawCategory?.name : "") ||
+          ""
+        )
+          .toString()
+          .toLowerCase();
+
+        return filters.categories.some((f) => {
+          if (!f || f === "all") return true;
+          const filterVal = f.toString().toLowerCase();
+          return (
+            (catSlug && catSlug === filterVal) ||
+            (catId && catId.toLowerCase() === filterVal) ||
+            (catName && catName === filterVal)
+          );
+        });
       });
     }
 
@@ -89,12 +173,12 @@ export default function ShopView({ products = [] }) {
     // Availability filter
     if (filters.inStockOnly) {
       list = list.filter(
-        (p) => p.stock > 0 || p.variants?.some?.((v) => v.stock > 0)
+        (p) => (p.stock !== undefined ? p.stock > 0 : true) || p.variants?.some?.((v) => v.stock > 0)
       );
     }
 
     return sortProducts(list, sort);
-  }, [products, searchTerm, filters, sort]);
+  }, [allProducts, searchTerm, filters, sort]);
 
   const activeFilterCount =
     filters.categories.length +
@@ -149,7 +233,7 @@ export default function ShopView({ products = [] }) {
               : "bg-surface border border-line text-ink-soft hover:text-ink hover:bg-bg"
           }`}
         >
-          All Offerings ({products.length})
+          All Offerings ({allProducts.length})
         </button>
 
         {availableCategories.map((cat) => {
@@ -176,7 +260,11 @@ export default function ShopView({ products = [] }) {
       {/* 3. Main Catalog Layout */}
       <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop Filter Sidebar */}
-        <FilterSidebar filters={filters} onChange={setFilters} />
+        <FilterSidebar
+          filters={filters}
+          onChange={setFilters}
+          categories={availableCategories}
+        />
 
         {/* Products Grid & Controls Container */}
         <div className="flex-1 space-y-6">
@@ -269,17 +357,23 @@ export default function ShopView({ products = [] }) {
                   </button>
                 </span>
               )}
-              {filters.categories.map((c) => (
-                <span
-                  key={c}
-                  className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-accent-deep"
-                >
-                  <span>Category: {c}</span>
-                  <button type="button" onClick={() => handlePillClick(c)}>
-                    <X size={12} />
-                  </button>
-                </span>
-              ))}
+              {filters.categories.map((c) => {
+                const matchedCat = availableCategories.find(
+                  (ac) => ac.slug === c || ac._id === c
+                );
+                const label = matchedCat?.name || c;
+                return (
+                  <span
+                    key={c}
+                    className="inline-flex items-center gap-1 rounded-lg bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-accent-deep"
+                  >
+                    <span>Category: {label}</span>
+                    <button type="button" onClick={() => handlePillClick(c)}>
+                      <X size={12} />
+                    </button>
+                  </span>
+                );
+              })}
               {filters.inStockOnly && (
                 <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 border border-emerald-200 px-2 py-1 text-xs font-medium text-emerald-800">
                   <span>In Stock Only</span>
@@ -301,8 +395,13 @@ export default function ShopView({ products = [] }) {
             </div>
           )}
 
-          {/* Product Grid or Empty State */}
-          {filtered.length === 0 ? (
+          {/* Product Grid or Loading or Empty State */}
+          {loading && allProducts.length === 0 ? (
+            <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3 text-ink-soft py-16">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+              <p className="text-xs font-semibold">Loading Sacred Goshala Offerings...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <EmptyState
               title="No products match your criteria"
               message="Try broadening your search term or clearing one of the filters to view available products."
@@ -312,7 +411,7 @@ export default function ShopView({ products = [] }) {
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-6">
               {filtered.map((product) => (
-                <ProductCard key={product.slug || product._id} product={product} />
+                <ProductCard key={product.slug || product._id || product.id} product={product} />
               ))}
             </div>
           )}
@@ -326,6 +425,7 @@ export default function ShopView({ products = [] }) {
         filters={filters}
         onChange={setFilters}
         resultCount={filtered.length}
+        categories={availableCategories}
       />
       <SortSheet
         open={sortSheetOpen}

@@ -3,11 +3,11 @@ const Product = require("../models/Product");
 // GET /api/products
 async function getPublicProducts(req, res, next) {
   try {
-    const { category, search, featured, limit = 50 } = req.query;
+    const { category, search, featured, limit = 200 } = req.query;
 
-    const filter = { isActive: true, isDeleted: false };
+    const filter = { isActive: { $ne: false }, isDeleted: { $ne: true } };
 
-    if (category) {
+    if (category && category !== "all") {
       filter.category = category;
     }
 
@@ -43,8 +43,8 @@ async function getPublicProductBySlug(req, res, next) {
 
     let product = await Product.findOne({
       slug: slugOrId,
-      isActive: true,
-      isDeleted: false,
+      isActive: { $ne: false },
+      isDeleted: { $ne: true },
     })
       .populate("category", "name slug")
       .populate("subcategory", "name slug")
@@ -53,8 +53,8 @@ async function getPublicProductBySlug(req, res, next) {
     if (!product && slugOrId.match(/^[0-9a-fA-F]{24}$/)) {
       product = await Product.findOne({
         _id: slugOrId,
-        isActive: true,
-        isDeleted: false,
+        isActive: { $ne: false },
+        isDeleted: { $ne: true },
       })
         .populate("category", "name slug")
         .populate("subcategory", "name slug")
@@ -71,8 +71,8 @@ async function getPublicProductBySlug(req, res, next) {
     const related = await Product.find({
       category: product.category?._id || product.category,
       _id: { $ne: product._id },
-      isActive: true,
-      isDeleted: false,
+      isActive: { $ne: false },
+      isDeleted: { $ne: true },
     })
       .populate("category", "name slug")
       .limit(4)
