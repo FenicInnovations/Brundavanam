@@ -2,14 +2,23 @@ const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/env");
 const User = require("../models/User");
 
+function extractToken(req) {
+  if (req.cookies?.accessToken) {
+    return req.cookies.accessToken;
+  }
+  const authHeader = req.headers?.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7).trim();
+  }
+  return null;
+}
+
 /**
- * Reads the `accessToken` HttpOnly cookie set at OTP verification,
- * verifies it, and attaches the user to req.user. The frontend never
- * reads or decodes this token itself — GET /api/auth/me is the source
- * of truth for auth state.
+ * Reads the `accessToken` from either the Authorization header (Bearer) or
+ * HttpOnly cookie, verifies it, and attaches the user to req.user.
  */
 async function protect(req, res, next) {
-  const token = req.cookies?.accessToken;
+  const token = extractToken(req);
 
   if (!token) {
     const err = new Error("Unauthorized");
@@ -30,7 +39,7 @@ async function protect(req, res, next) {
 }
 
 async function optionalAuth(req, res, next) {
-  const token = req.cookies?.accessToken;
+  const token = extractToken(req);
   if (!token) {
     req.user = null;
     return next();
@@ -45,4 +54,4 @@ async function optionalAuth(req, res, next) {
   next();
 }
 
-module.exports = { protect, optionalAuth };
+module.exports = { protect, optionalAuth, extractToken };

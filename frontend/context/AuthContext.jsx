@@ -20,6 +20,9 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       setStatus("authenticated");
     } catch {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
       setUser(null);
       setStatus("unauthenticated");
     }
@@ -33,6 +36,9 @@ export function AuthProvider({ children }) {
     try {
       await api.logout();
     } finally {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+      }
       setUser(null);
       setStatus("unauthenticated");
     }

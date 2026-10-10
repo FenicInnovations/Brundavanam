@@ -6,11 +6,23 @@ function getApiUrl() {
   return envUrl;
 }
 
+function getAuthHeaders() {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
 async function request(path, options = {}) {
   const baseUrl = getApiUrl();
   const res = await fetch(`${baseUrl}${path}`, {
-    credentials: "include", // sends/receives the HttpOnly accessToken cookie
-    headers: { "Content-Type": "application/json", ...options.headers },
+    credentials: "include", // sends/receives the HttpOnly accessToken cookie when supported
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+      ...options.headers,
+    },
     cache: options.cache || "no-store",
     ...options,
   });

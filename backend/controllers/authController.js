@@ -7,10 +7,11 @@ const { jwtSecret, jwtExpiresIn, nodeEnv } = require("../config/env");
 const COOKIE_NAME = "accessToken";
 
 function cookieOptions() {
+  const isProd = nodeEnv === "production";
   return {
     httpOnly: true,
-    secure: nodeEnv === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
   };
 }
@@ -85,6 +86,7 @@ async function verifyOtp(req, res, next) {
 
     res.json({
       success: true,
+      token,
       user: {
         id: user._id,
         phone: user.phone,

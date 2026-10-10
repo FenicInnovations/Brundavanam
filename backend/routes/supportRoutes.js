@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/env");
 const User = require("../models/User");
-const { protect } = require("../middleware/auth");
+const { protect, optionalAuth } = require("../middleware/auth");
 const { adminOnly } = require("../middleware/admin");
 const {
   createTicket,
@@ -26,22 +26,6 @@ const {
   getAdminSmtpStatus,
   sendAdminTestEmail,
 } = require("../controllers/supportController");
-
-/**
- * Optional authentication helper: if cookie exists, resolves req.user,
- * otherwise allows guest submission without throwing.
- */
-async function optionalAuth(req, res, next) {
-  const token = req.cookies?.accessToken;
-  if (!token) return next();
-  try {
-    const decoded = jwt.verify(token, jwtSecret);
-    req.user = await User.findById(decoded.userId);
-  } catch {
-    // Continue as guest if token is missing or expired
-  }
-  next();
-}
 
 // ----------------------------------------------------
 // Public / Guest Routes

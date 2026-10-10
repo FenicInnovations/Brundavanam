@@ -86,6 +86,9 @@ export const logoutUser = () => async (dispatch) => {
   } catch (e) {
     console.error("Logout error:", e);
   } finally {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("accessToken");
+    }
     dispatch({ type: authSliceActions.LOGOUT });
     // Reset cart and wishlist states to prevent data leaks between users
     dispatch({ type: cartSliceActions.CLEAR_CART_LOCAL });

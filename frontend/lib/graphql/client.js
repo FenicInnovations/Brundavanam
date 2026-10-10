@@ -12,6 +12,14 @@ function getGraphqlEndpoint() {
   return `${baseUrl}/api/graphql`;
 }
 
+function getAuthHeaders() {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
 /**
  * Lightweight, zero-dependency GraphQL request client.
  * Sends optimized POST requests with HttpOnly cookie credentials and parses errors.
@@ -24,6 +32,7 @@ export async function gqlRequest(query, variables = {}, options = {}) {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...getAuthHeaders(),
       ...options.headers,
     },
     credentials: "include",

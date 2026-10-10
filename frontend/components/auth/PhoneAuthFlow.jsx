@@ -92,7 +92,10 @@ export default function PhoneAuthFlow() {
     setError("");
     setLoading(true);
     try {
-      await api.verifyOtp(phone, otp);
+      const res = await api.verifyOtp(phone, otp);
+      if (res?.token && typeof window !== "undefined") {
+        localStorage.setItem("accessToken", res.token);
+      }
       await refresh();
       router.push("/");
     } catch (err) {

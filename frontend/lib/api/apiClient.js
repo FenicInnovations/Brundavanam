@@ -8,6 +8,14 @@ function getApiBaseUrl() {
   return envUrl;
 }
 
+function getAuthHeaders() {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("accessToken");
+    if (token) return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
 /**
  * Custom fetch wrapper with credentials and error parsing
  */
@@ -17,6 +25,7 @@ async function request(endpoint, options = {}) {
 
   const defaultHeaders = {
     "Content-Type": "application/json",
+    ...getAuthHeaders(),
   };
 
   const config = {
