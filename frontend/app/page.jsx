@@ -56,46 +56,56 @@ const TRUST_BADGES = [
 
 const HERO_SLIDES = [
   {
-    badge: "Traditional • Ayurvedic • Natural • Sustainable",
-    supertitle: "Brundavanam Goshala — Nature's Essence, A Brighter Tomorrow",
-    title: "Rooted in Tradition. Made for a Kinder Tomorrow.",
+    badge: "Brundavanam Goshala • Sacred Sanctuary",
+    supertitle: "Traditional Ahimsa Cow Care & Ayurvedic Living",
+    title: "Rooted in Tradition. Made for Tomorrow.",
     subtitle:
-      "Natural. Thoughtful. Meaningful. Pure, honest wellness rooted in timeless Ayurvedic wisdom, promoting holistic vitality through our sacred bond with Gaumata.",
-    quote: "“When we care for Gaumata, we care for a healthier, kinder world.”",
-    tags: ["People", "Cows", "Planet", "Together"],
+      "Pure Ayurvedic wellness handcrafted with care for our indigenous Gir cows and your family.",
+    tags: ["Ahimsa Care", "Pure A2 Gir Herd", "100% Chemical-Free"],
     buttonText: "Shop Sacred Offerings",
     buttonHref: "/shop",
-    secondaryText: "Our Story & Purpose",
+    secondaryText: "Our Sanctuary",
     secondaryHref: "/about",
-    image: "/images/brochure/hero_gaumata_calf.jpg",
+    image: "/images/banners/banner_goshala_sanctuary.jpg",
   },
   {
-    badge: "Pure Ayurveda for Everyday Wellness • Goodness in Every Drop",
-    supertitle: "Sacred Cow-Based Formulations",
-    title: "Simple. Natural. Meaningful.",
+    badge: "Pure Ayurveda • Goodness in Every Drop",
+    supertitle: "Amrutha Dhara — అమృత ధార",
+    title: "Amrutha Dhara Ayurvedic Drops",
     subtitle:
-      "Handcrafted pure Ayurvedic wellness derived from cow-based ingredients: Sahaja Kunkuma (సహజ కుంకుమ), Amrutha Dhara (అమృత ధార), and Gau Dhara (గౌ ధార) Universal Pain Relief Oil. 100% chemical-free.",
-    quote: "“Trust Nature. Choose Brundavanam.”",
-    tags: ["Sahaja Kunkuma", "Amrutha Dhara", "Gau Dhara Oil", "100% Chemical-Free"],
-    buttonText: "Explore Ayurvedic Wellness",
+      "Traditional herbal remedy for cold, headache relief & respiratory soothing. 100% natural.",
+    tags: ["Cold & Headache Relief", "100% Chemical-Free", "Pure Cow Ingredients"],
+    buttonText: "Shop Amrutha Dhara",
     buttonHref: "/shop",
-    secondaryText: "Read Product Lineage",
+    secondaryText: "Learn More",
     secondaryHref: "/about",
-    image: "/images/brochure/ayurvedic_products_trio.jpg",
+    image: "/images/banners/banner_amrutha_dhara.jpg",
   },
   {
-    badge: "Care Today for a Brighter Tomorrow • A Deeper Purpose",
-    supertitle: "Holistic Wellness & Gaumata Seva",
-    title: "Goodness for People. Care for Cows. Harmony for Planet.",
+    badge: "Sacred Purity for Daily Puja",
+    supertitle: "Sahaja Kunkuma — సహజ కుంకుమ",
+    title: "Sahaja Kunkuma Sacred Kumkum",
     subtitle:
-      "Brundavanam Goshala is more than a brand — it is a heartfelt initiative to bring the timeless wisdom of Ayurveda to modern lives while supporting the care, protection, and well-being of cows.",
-    quote: "“Our journey is driven by a simple belief — when we care for nature, it cares for us.”",
-    tags: ["Natural Living", "Ayurvedic Heritage", "Gaumata Care", "Sustainable Future"],
-    buttonText: "Discover Our Story",
-    buttonHref: "/about",
-    secondaryText: "Visit Goshala Sanctuary",
-    secondaryHref: "/contact",
-    image: "/images/brochure/pastoral_sanctuary_sunset.jpg",
+      "Handcrafted natural cow-based sacred kunkuma. Completely free from harmful chemicals & lead.",
+    tags: ["100% Cow-Based", "Zero Harsh Chemicals", "Sacred Puja Purity"],
+    buttonText: "Shop Sahaja Kunkuma",
+    buttonHref: "/shop",
+    secondaryText: "Learn More",
+    secondaryHref: "/about",
+    image: "/images/banners/banner_sahaja_kunkuma.jpg",
+  },
+  {
+    badge: "Universal Pain Relief Oil",
+    supertitle: "Gau Dhara — గౌ ధార",
+    title: "Gau Dhara Healing Herbal Oil",
+    subtitle:
+      "Ancient Ayurvedic botanical oil for joint soothing, muscle stiffness & energized mobility.",
+    tags: ["Joint & Knee Comfort", "Muscle Relief", "Quick Absorption"],
+    buttonText: "Shop Gau Dhara Oil",
+    buttonHref: "/shop",
+    secondaryText: "Learn More",
+    secondaryHref: "/about",
+    image: "/images/banners/banner_gau_dhara.jpg",
   },
 ];
 
@@ -134,6 +144,7 @@ const BROCHURE_SIGNATURE_PRODUCTS = [
     border: "border-rose-200",
     badgeColor: "bg-rose-100 text-rose-800",
     icon: "🔴",
+    image: "/images/sahaja_kunkuma.jpg",
     href: "/shop",
   },
   {
@@ -147,6 +158,7 @@ const BROCHURE_SIGNATURE_PRODUCTS = [
     border: "border-amber-200",
     badgeColor: "bg-amber-100 text-amber-900",
     icon: "💧",
+    image: "/images/amrutha_dhara.jpg",
     href: "/shop",
   },
   {
@@ -160,6 +172,7 @@ const BROCHURE_SIGNATURE_PRODUCTS = [
     border: "border-emerald-200",
     badgeColor: "bg-emerald-100 text-emerald-800",
     icon: "🌿",
+    image: "/images/gau_dhara.jpg",
     href: "/shop",
   },
 ];
@@ -235,71 +248,66 @@ export default function HomePage() {
 
   return (
     <div className="space-y-10 sm:space-y-16 pb-12 sm:pb-16">
-      {/* 1. Hero Promotional Showcase Banner - Subtle Warm Dark Theme */}
-      <section className="relative overflow-hidden bg-[#1d1711] text-amber-50 border-b border-amber-900/40">
-        <div className="relative min-h-[440px] sm:min-h-[540px] lg:min-h-[600px] flex items-center">
-          {/* Background Slide Image with Warm Subtle Dark Lighting */}
+      {/* 1. Hero Full-Width Panoramic Banner Showcase */}
+      <section className="relative overflow-hidden bg-black text-white border-b border-amber-900/40">
+        <div className="relative min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] flex items-center">
+          {/* Full-Width Panoramic Banner Slide Image */}
           <div className="absolute inset-0">
             <img
               src={HERO_SLIDES[currentSlide].image}
-              alt="Brundavanam Goshala"
+              alt={HERO_SLIDES[currentSlide].title}
               className="h-full w-full object-cover object-right md:object-center transition-all duration-700"
             />
-            {/* Soft Warm Dark Overlay - Preserves rich photography while ensuring crystal clear readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#18130e]/95 via-[#201811]/85 sm:via-[#201811]/70 md:via-[#201811]/50 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#18130e]/80 via-transparent to-transparent" />
+            {/* Subtle Directional Gradient: Dark on text side only; product & cows stay 100% visible and un-tinted */}
+            <div className="absolute inset-y-0 left-0 w-full sm:w-3/5 lg:w-1/2 bg-gradient-to-r from-black/90 via-black/55 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent sm:hidden pointer-events-none" />
           </div>
 
-          {/* Hero Content Container */}
+          {/* Compact, High-Legibility Text Overlay Container (Leaves remainder of banner uncovered) */}
           <div className="relative mx-auto max-w-content px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 w-full">
-            <div className="max-w-2xl space-y-3 sm:space-y-4 animate-in fade-in slide-in-from-left duration-700">
+            <div className="max-w-lg lg:max-w-xl space-y-3 sm:space-y-4 animate-in fade-in duration-500">
               {/* Sacred Badge */}
-              <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[11px] sm:text-xs font-bold text-amber-300 shadow-xs backdrop-blur-xs">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-400/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] sm:text-xs font-bold text-amber-300 shadow-md">
                 <Sparkles size={13} className="text-amber-400 shrink-0" />
-                <span className="truncate max-w-[280px] sm:max-w-none">{HERO_SLIDES[currentSlide].badge}</span>
+                <span className="truncate max-w-[280px] sm:max-w-none">
+                  {HERO_SLIDES[currentSlide].badge}
+                </span>
               </div>
 
               {HERO_SLIDES[currentSlide].supertitle && (
-                <p className="text-[10px] sm:text-[11px] uppercase tracking-widest font-extrabold text-amber-400">
+                <p className="text-[10px] sm:text-xs uppercase tracking-widest font-extrabold text-amber-400 drop-shadow-sm">
                   {HERO_SLIDES[currentSlide].supertitle}
                 </p>
               )}
 
-              {/* Title - Responsive sizing prevents massive mobile stretching */}
-              <h1 className="font-display text-2xl sm:text-4xl lg:text-6xl font-bold leading-[1.2] text-white tracking-tight drop-shadow-xs">
+              {/* Title - Bold, Highly Legible */}
+              <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold leading-[1.2] text-white tracking-tight drop-shadow-md">
                 {HERO_SLIDES[currentSlide].title}
               </h1>
 
-              {/* Subtitle - Clamped on mobile to prevent excessive scrolling */}
-              <p className="text-xs sm:text-base leading-relaxed text-[#ded4be] font-sans max-w-xl line-clamp-2 sm:line-clamp-none">
+              {/* Subtitle - Short & Crisp */}
+              <p className="text-xs sm:text-sm lg:text-base leading-relaxed text-amber-50/95 font-sans max-w-lg drop-shadow-sm line-clamp-3 sm:line-clamp-none">
                 {HERO_SLIDES[currentSlide].subtitle}
               </p>
 
-              {/* Holy Quote Callout - Desktop and Tablet Only */}
-              {HERO_SLIDES[currentSlide].quote && (
-                <div className="hidden sm:block rounded-xl border-l-4 border-amber-500 bg-amber-500/15 px-4 py-2.5 text-xs sm:text-sm italic font-serif text-amber-200 max-w-xl shadow-xs backdrop-blur-xs">
-                  {HERO_SLIDES[currentSlide].quote}
-                </div>
-              )}
-
-              {/* Badges List - Desktop and Tablet Only */}
-              <div className="hidden sm:flex flex-wrap gap-2.5 pt-1">
+              {/* Pill Badges List - Compact */}
+              <div className="flex flex-wrap gap-2 pt-1">
                 {HERO_SLIDES[currentSlide].tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/25 bg-white/10 px-3 py-1 text-xs font-semibold text-amber-100 shadow-xs backdrop-blur-xs"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-black/50 backdrop-blur-md px-2.5 py-1 text-[11px] sm:text-xs font-semibold text-amber-100 shadow-sm"
                   >
-                    <CheckCircle2 size={13} className="text-amber-400" />
+                    <CheckCircle2 size={12} className="text-amber-400" />
                     <span>{tag}</span>
                   </span>
                 ))}
               </div>
 
-              {/* Hero Action Buttons - Full-width stacked on mobile for thumb accessibility */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4 pt-2 sm:pt-3">
+              {/* Hero Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3.5 pt-2">
                 <Link
                   href={HERO_SLIDES[currentSlide].buttonHref}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold text-stone-950 shadow-lg shadow-amber-950/40 hover:brightness-110 active:scale-95 transition-all text-center"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-5 py-3 sm:px-6 sm:py-3.5 text-xs sm:text-sm font-bold text-stone-950 shadow-lg shadow-black/50 hover:brightness-110 active:scale-95 transition-all text-center"
                 >
                   <ShoppingBag size={16} />
                   <span>{HERO_SLIDES[currentSlide].buttonText}</span>
@@ -308,9 +316,9 @@ export default function HomePage() {
 
                 <Link
                   href={HERO_SLIDES[currentSlide].secondaryHref || "/about"}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-300/40 bg-white/10 px-4 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-sm font-semibold text-amber-100 hover:bg-white/20 hover:text-white transition-all shadow-xs backdrop-blur-xs text-center"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-amber-300/40 bg-black/40 backdrop-blur-md px-4 py-2.5 sm:px-5 sm:py-3.5 text-xs sm:text-sm font-semibold text-amber-100 hover:bg-black/60 hover:text-white transition-all shadow-sm text-center"
                 >
-                  <span>{HERO_SLIDES[currentSlide].secondaryText || "Our Story & Heritage"}</span>
+                  <span>{HERO_SLIDES[currentSlide].secondaryText || "Our Story"}</span>
                 </Link>
               </div>
             </div>
@@ -323,7 +331,7 @@ export default function HomePage() {
             onClick={() =>
               setCurrentSlide((prev) => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1))
             }
-            className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white border border-white/20 hover:bg-accent hover:border-amber-400 transition-all shadow-md backdrop-blur-xs"
+            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white border border-amber-400/30 hover:bg-amber-500 hover:text-stone-950 transition-all shadow-lg backdrop-blur-md"
           >
             <ChevronLeft size={22} />
           </button>
@@ -333,13 +341,13 @@ export default function HomePage() {
             onClick={() =>
               setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length)
             }
-            className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white border border-white/20 hover:bg-accent hover:border-amber-400 transition-all shadow-md backdrop-blur-xs"
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white border border-amber-400/30 hover:bg-amber-500 hover:text-stone-950 transition-all shadow-lg backdrop-blur-md"
           >
             <ChevronRight size={22} />
           </button>
 
           {/* Slide Indicator Dots */}
-          <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2">
+          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2">
             {HERO_SLIDES.map((_, idx) => (
               <button
                 key={idx}
@@ -347,7 +355,7 @@ export default function HomePage() {
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
                 className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
-                  currentSlide === idx ? "w-6 sm:w-8 bg-amber-400" : "w-2 sm:w-2.5 bg-white/40 hover:bg-white/70"
+                  currentSlide === idx ? "w-7 sm:w-9 bg-amber-400 shadow-md" : "w-2 sm:w-2.5 bg-white/50 hover:bg-white/80"
                 }`}
               />
             ))}
@@ -500,18 +508,29 @@ export default function HomePage() {
             {BROCHURE_SIGNATURE_PRODUCTS.map((prod) => (
               <div
                 key={prod.id}
-                className={`relative flex flex-col justify-between rounded-xl sm:rounded-2xl border ${prod.border} bg-surface p-4 sm:p-6 shadow-2xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
+                className={`group relative flex flex-col justify-between rounded-2xl border ${prod.border} bg-surface p-4 sm:p-5 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-                    <span className="text-2xl sm:text-3xl">{prod.icon}</span>
-                    <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${prod.badgeColor}`}>
-                      {prod.badge}
-                    </span>
+                  {/* Real Product Image Showcase */}
+                  <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-amber-200/80 mb-3 sm:mb-4 shadow-2xs group-hover:border-accent group-hover:shadow-md transition-all">
+                    <img
+                      src={prod.image}
+                      alt={prod.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-2.5 right-2.5">
+                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs backdrop-blur-xs ${prod.badgeColor}`}>
+                        {prod.badge}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="font-display text-base sm:text-lg font-bold text-ink">
-                    {prod.title}
-                  </h3>
+
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xl">{prod.icon}</span>
+                    <h3 className="font-display text-base sm:text-lg font-bold text-ink group-hover:text-accent transition-colors">
+                      {prod.title}
+                    </h3>
+                  </div>
                   <p className="text-xs font-bold text-accent-deep font-sans mb-1">
                     {prod.teluguTitle}
                   </p>
@@ -523,7 +542,7 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                <div className="pt-4 mt-3 border-t border-line/60">
+                <div className="pt-3.5 mt-3 border-t border-line/60">
                   <Link
                     href={prod.href}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-deep transition-colors"
@@ -620,11 +639,11 @@ export default function HomePage() {
                     </span>
                     <span>+91 94926 02499</span>
                   </a>
-                  <a href="mailto:gokarni@yahoo.com" className="flex items-center gap-2 hover:text-amber-300 transition-colors truncate">
+                  <a href="mailto:brundavanamgaushala@gmail.com" className="flex items-center gap-2 hover:text-amber-300 transition-colors truncate">
                     <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
                       <Mail size={12} />
                     </span>
-                    <span className="truncate">gokarni@yahoo.com</span>
+                    <span className="truncate">brundavanamgaushala@gmail.com</span>
                   </a>
                   <div className="flex items-center gap-2 truncate">
                     <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">

@@ -18,6 +18,7 @@ import {
   LifeBuoy,
   Home,
   Mail,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useDispatch, useSelector, selectDashboardStats } from "@/lib/redux/store";
 import { fetchDashboardStats } from "@/lib/redux/slices/adminSlice";
@@ -214,6 +215,21 @@ export default function AdminDashboardPage() {
             </div>
             <div className="text-3xl font-extrabold text-slate-900">{orders?.total ?? 0}</div>
             <p className="text-xs text-emerald-600 font-medium">Shipment tracking & orders &rarr;</p>
+          </Link>
+
+          {/* Gallery Manager */}
+          <Link
+            href="/admin/gallery"
+            className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-3 relative overflow-hidden hover:border-amber-400 transition-all block group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-500">Gallery Manager</span>
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-extrabold text-slate-900">Media</div>
+            <p className="text-xs text-amber-600 font-medium">Images, videos &amp; YouTube &rarr;</p>
           </Link>
         </div>
       </div>

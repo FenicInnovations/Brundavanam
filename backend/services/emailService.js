@@ -158,7 +158,7 @@ function renderEmailShell({ title, preheader, content, actionUrl, actionText }) 
     </div>
     <div class="footer">
       <p style="margin: 0 0 8px 0;"><strong>Brundavanam Goshala Customer Care</strong></p>
-      <p style="margin: 0 0 12px 0;">Questions? Reply directly to this email or call us at +91 90000 00000 (Mon–Sat, 9:30 AM – 6:00 PM IST).</p>
+      <p style="margin: 0 0 12px 0;">Questions? Reply directly to this email or call/WhatsApp us at +91 94926 02499 (Mon–Sat, 9:30 AM – 6:00 PM IST).</p>
       <div class="footer-links">
         <a href="${frontendUrl}/contact">Support Desk</a>
         <a href="${frontendUrl}/shop">Storefront</a>

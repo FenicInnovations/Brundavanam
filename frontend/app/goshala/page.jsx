@@ -507,7 +507,7 @@ export default function GoshalaPage() {
                   </a>
 
                   <a
-                    href="mailto:gokarni@yahoo.com"
+                    href="mailto:brundavanamgaushala@gmail.com"
                     className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 hover:text-amber-300 transition-all border border-amber-500/20"
                   >
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
@@ -515,7 +515,7 @@ export default function GoshalaPage() {
                     </span>
                     <span className="flex flex-col">
                       <span className="block text-[10px] text-amber-300/80 font-bold">Official Email</span>
-                      <span className="font-bold text-white">gokarni@yahoo.com</span>
+                      <span className="font-bold text-white">brundavanamgaushala@gmail.com</span>
                     </span>
                   </a>
 

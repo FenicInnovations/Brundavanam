@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   ExternalLink,
 } from "lucide-react";
+import AboutGallerySection from "@/components/home/AboutGallerySection";
 
 export const metadata = {
   title: "About Us | Brundavanam Goshala",
@@ -320,14 +321,63 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Right Image */}
-            <div className="lg:col-span-6 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border border-amber-200 shadow-xl bg-white">
-              <Image
-                src="/images/brochure/ayurvedic_products_trio.jpg"
-                alt="Brundavanam Ayurvedic Products: Sahaja Kunkuma, Amrutha Dhara, Gau Dhara"
-                fill
-                className="object-cover"
-              />
+            {/* Right Image - Product Images Grid with labels */}
+            <div className="lg:col-span-6 grid grid-cols-2 gap-3.5">
+              <div className="group relative aspect-square rounded-2xl overflow-hidden border border-amber-200/90 shadow-md bg-white p-2.5 flex flex-col items-center justify-center">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/images/amrutha_dhara.jpg"
+                    alt="Amrutha Dhara - Traditional Ayurvedic Drops"
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-2 left-2 right-2 bg-stone-950/80 backdrop-blur-xs text-amber-200 text-[10px] font-bold px-2 py-1 rounded-md text-center truncate">
+                  Amrutha Dhara • అమృత ధార
+                </div>
+              </div>
+
+              <div className="group relative aspect-square rounded-2xl overflow-hidden border border-amber-200/90 shadow-md bg-white p-2.5 flex flex-col items-center justify-center">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/images/sahaja_kunkuma.jpg"
+                    alt="Sahaja Kunkuma - Natural Sacred Kunkuma"
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-2 left-2 right-2 bg-stone-950/80 backdrop-blur-xs text-amber-200 text-[10px] font-bold px-2 py-1 rounded-md text-center truncate">
+                  Sahaja Kunkuma • సహజ కుంకుమ
+                </div>
+              </div>
+
+              <div className="group relative aspect-square rounded-2xl overflow-hidden border border-amber-200/90 shadow-md bg-white p-2.5 flex flex-col items-center justify-center">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/images/gau_dhara.jpg"
+                    alt="Gau Dhara - Universal Pain Relief Oil"
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-2 left-2 right-2 bg-stone-950/80 backdrop-blur-xs text-amber-200 text-[10px] font-bold px-2 py-1 rounded-md text-center truncate">
+                  Gau Dhara Oil • గౌ ధార
+                </div>
+              </div>
+
+              <div className="group relative aspect-square rounded-2xl overflow-hidden border border-amber-200/90 shadow-md bg-white p-2.5 flex flex-col items-center justify-center">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/images/kunkuma_benefits1.jpg"
+                    alt="Advantages of Sahaja Kunkuma"
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="absolute bottom-2 left-2 right-2 bg-stone-950/80 backdrop-blur-xs text-amber-200 text-[10px] font-bold px-2 py-1 rounded-md text-center truncate">
+                  100% Chemical-Free Grace
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -376,7 +426,7 @@ export default function AboutPage() {
                   </a>
 
                   <a
-                    href="mailto:gokarni@yahoo.com"
+                    href="mailto:brundavanamgaushala@gmail.com"
                     className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 hover:text-amber-300 transition-all border border-amber-500/20"
                   >
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
@@ -384,7 +434,7 @@ export default function AboutPage() {
                     </span>
                     <span className="flex flex-col">
                       <span className="block text-[10px] text-amber-300/80 font-bold">Official Email</span>
-                      <span className="font-bold text-white">gokarni@yahoo.com</span>
+                      <span className="font-bold text-white">brundavanamgaushala@gmail.com</span>
                     </span>
                   </a>
 
@@ -438,6 +488,26 @@ export default function AboutPage() {
               />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 6. Gallery: Photos & Videos from Brundavanam */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#1d1711] via-[#231c15] to-[#1a1309] py-14 border-y border-amber-900/30">
+        <div className="mx-auto max-w-content px-6 md:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 bg-amber-500/20 px-3.5 py-1 rounded-full border border-amber-400/40">
+              <Sparkles size={12} className="text-amber-400" />
+              <span>Gallery</span>
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mt-3">
+              Photos &amp; Videos from Our Goshala
+            </h2>
+            <p className="text-sm text-amber-200/70 mt-2 leading-relaxed">
+              A glimpse into our sacred sanctuary, our products, and the people behind Brundavanam Goshala.
+            </p>
+          </div>
+
+          <AboutGallerySection />
         </div>
       </section>
     </div>

@@ -55,11 +55,8 @@ module.exports = {
 
   paymentProvider: process.env.PAYMENT_PROVIDER || "razorpay",
   razorpay: {
-    // keyId: process.env.RAZORPAY_KEY_ID || "",
-    // keySecret: process.env.RAZORPAY_KEY_SECRET || "",
-    // webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || "",
-    keyId: "rzp_test_TkvXHtDKpt4OBC" || "",
-    keySecret: "V533DXVf9vcy8MCip4lIRBZe" || "",
+    keyId: process.env.RAZORPAY_KEY_ID || "rzp_test_TkvXHtDKpt4OBC",
+    keySecret: process.env.RAZORPAY_KEY_SECRET || "V533DXVf9vcy8MCip4lIRBZe",
     webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || "",
   },
 

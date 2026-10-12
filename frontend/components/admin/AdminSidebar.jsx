@@ -90,6 +90,7 @@ export default function AdminSidebar() {
     },
     { label: "Wishlist / Cart Analytics", icon: HeartHandshake, href: "/admin/analytics/cart", isFuture: false },
     { label: "Reviews", icon: Star, href: "/admin/reviews", isFuture: false },
+    { label: "Gallery", icon: ImageIcon, href: "/admin/gallery", isFuture: false },
     { label: "Coupons / Discounts", icon: Ticket, href: "/admin/coupons", isFuture: true },
     { label: "Payments", icon: CreditCard, href: "/admin/payments", isFuture: true },
     { label: "Shipping", icon: Truck, href: "/admin/shipping", isFuture: false },

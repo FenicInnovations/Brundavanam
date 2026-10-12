@@ -13,12 +13,23 @@ export const metadata = {
   },
   description:
     "Traditional bilona-churned ghee and panchagavya products from Brundavanam Goshala, made with care for our cows and our customers.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo.png" },
+    ],
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     title: SITE_NAME,
     description:
       "Traditional bilona-churned ghee and panchagavya products from Brundavanam Goshala.",
     siteName: SITE_NAME,
     type: "website",
+    images: [{ url: "/images/logo.png" }],
   },
 };
 

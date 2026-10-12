@@ -352,7 +352,7 @@ export default function CustomerConversationPage() {
           <div className="rounded-2xl border border-line bg-surface/70 p-5 text-xs text-ink-soft">
             <p className="font-semibold text-ink">Immediate Support</p>
             <p className="mt-1 leading-relaxed">
-              If your request requires urgent escalation, call us directly at +91 90000 00000.
+              If your request requires urgent escalation, call us directly at +91 94926 02499.
             </p>
           </div>
         </div>

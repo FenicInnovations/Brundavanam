@@ -100,6 +100,10 @@ app.use("/api/newsletter", require("./routes/newsletterRoutes"));
 app.use("/api/graphql", require("./routes/graphqlRoutes"));
 app.use("/graphql", require("./routes/graphqlRoutes"));
 
+// Gallery (About Us page media)
+app.use("/api/gallery", require("./routes/galleryRoutes"));
+
+
 app.use(notFound);
 app.use(errorHandler);
 
