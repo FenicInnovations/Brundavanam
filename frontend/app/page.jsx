@@ -366,7 +366,7 @@ export default function HomePage() {
         <div className="border-t border-amber-900/40 bg-[#16120d] px-4 py-3.5 sm:px-6 sm:py-4 shadow-inner-xs text-amber-100">
           <div className="mx-auto max-w-content grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 text-center">
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
-              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">500+</span>
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">100+</span>
               <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Indigenous Gir Cows</span>
             </div>
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
@@ -374,7 +374,7 @@ export default function HomePage() {
               <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Bilona Churned Ghee</span>
             </div>
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
-              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">15,000+</span>
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">5000+</span>
               <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Happy Families</span>
             </div>
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">

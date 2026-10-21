@@ -251,19 +251,27 @@ export default function AdminSidebar() {
       <div className="p-3 border-t border-slate-800 bg-slate-950/60">
         {sidebarExpanded ? (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 border border-slate-600">
-                {user?.name ? user.name[0].toUpperCase() : "A"}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-white truncate">
-                  {user?.name || "Administrator"}
-                </span>
-                <span className="text-[10px] text-slate-400 truncate capitalize">
-                  {user?.role || "Admin"}
-                </span>
-              </div>
-            </div>
+            {(() => {
+              const hasValidName = user?.name && user.name.trim() !== "" && user.name.trim() !== "Valued Customer";
+              const adminDisplayName = hasValidName ? user.name.trim() : (user?.phone ? `+91 ${user.phone}` : (user?.email || "Administrator"));
+              const adminInitial = hasValidName ? user.name.trim()[0].toUpperCase() : (user?.phone ? user.phone.slice(-1) : "A");
+
+              return (
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400 border border-slate-600 shrink-0">
+                    {adminInitial}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-semibold text-white truncate" title={adminDisplayName}>
+                      {adminDisplayName}
+                    </span>
+                    <span className="text-[10px] text-slate-400 truncate">
+                      {user?.phone ? `+91 ${user.phone}` : (user?.role || "Admin")}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
             <button
               onClick={handleLogout}
               className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/40 transition-colors"

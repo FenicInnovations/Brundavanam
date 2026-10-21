@@ -4,6 +4,8 @@ const { protect } = require("../middleware/auth");
 const { adminOnly } = require("../middleware/admin");
 const {
   getAllCustomers,
+  getCustomerById,
+  updateCustomer,
   toggleCustomerStatus,
   getCustomerLocationInsights,
 } = require("../controllers/adminCustomerController");
@@ -13,6 +15,8 @@ router.use(protect, adminOnly);
 
 router.get("/locations", getCustomerLocationInsights);
 router.get("/", getAllCustomers);
+router.get("/:id", getCustomerById);
+router.patch("/:id", updateCustomer);
 router.patch("/:id/status", toggleCustomerStatus);
 
 module.exports = router;

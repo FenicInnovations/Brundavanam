@@ -47,8 +47,16 @@ export default function MobileMenuDrawer({ open, onClose }) {
   const addresses = user?.addresses || [];
   const selectedAddress =
     addresses.find((a) => a.isDefault) || (addresses.length > 0 ? addresses[0] : null);
-  const selectedPersonName = selectedAddress?.fullName?.trim();
-  const customerDisplayName = selectedPersonName || "Valued Customer";
+  const selectedPersonName = (selectedAddress?.fullName?.trim() && selectedAddress.fullName.trim() !== "Valued Customer")
+    ? selectedAddress.fullName.trim()
+    : null;
+  const validUserName = (user?.name?.trim() && user.name.trim() !== "Valued Customer")
+    ? user.name.trim()
+    : null;
+  const customerDisplayName =
+    validUserName ||
+    selectedPersonName ||
+    (user?.phone ? `+91 ${user.phone}` : (user?.email || "Devotee"));
 
   const isLinkActive = (href) => {
     if (href === "/") return pathname === "/";

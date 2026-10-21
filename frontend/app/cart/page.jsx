@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -23,12 +23,27 @@ import {
   removeFromCart,
 } from "@/lib/redux/store";
 import { resolveProductImage } from "@/lib/productUtils";
+import { apiClient } from "@/lib/api/apiClient";
 
 export default function CartPage() {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const subtotal = useSelector(selectCartSubtotal);
   const totalCount = useSelector(selectCartTotalCount);
+
+  const [shippingConfig, setShippingConfig] = useState({
+    freeShippingThreshold: 800,
+    isFreeShippingEnabled: true,
+  });
+
+  useEffect(() => {
+    apiClient
+      .get("/orders/shipping/config")
+      .then((res) => {
+        if (res?.success && res.config) setShippingConfig(res.config);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -172,8 +187,10 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between items-center text-slate-600">
                   <span>Estimated Shipping</span>
-                  {subtotal >= 800 ? (
-                    <span className="text-emerald-600 font-bold text-xs uppercase tracking-wide">FREE (Above ₹800)</span>
+                  {shippingConfig.isFreeShippingEnabled && subtotal >= (shippingConfig.freeShippingThreshold || 800) ? (
+                    <span className="text-emerald-600 font-bold text-xs uppercase tracking-wide">
+                      FREE (Above ₹{shippingConfig.freeShippingThreshold || 800})
+                    </span>
                   ) : (
                     <span className="text-slate-500 font-medium text-xs">Calculated by PIN at Checkout</span>
                   )}

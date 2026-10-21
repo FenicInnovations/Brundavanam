@@ -104,6 +104,12 @@ const productSchema = new mongoose.Schema(
 
     ratingsAverage: { type: Number, default: 0, min: 0, max: 5 },
     ratingsCount: { type: Number, default: 0 },
+
+    // Admin audit tracking
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    createdByName: { type: String, default: "" },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    updatedByName: { type: String, default: "" },
   },
   { timestamps: true }
 );

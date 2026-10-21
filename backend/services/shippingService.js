@@ -86,86 +86,102 @@ class ShippingService {
     const extraWeightUnits = Math.max(0, Math.ceil((weight - 0.5) / 0.5));
 
     let zone = "D"; // Default Rest of India
-    let courier1 = "Shiprocket Surface (Delhivery)";
-    let courier2 = "Shiprocket Express (Blue Dart)";
-    let baseRate = 95;
-    let extraRate = 28;
-    let etd1 = "3-5 business days";
+    let courier1 = "Delhivery Surface Eco";
+    let courier2 = "Blue Dart Priority Air";
+    let baseRate = 49;
+    let extraRate = 12;
+    let etd1 = "5-8 business days";
     let etd2 = "2-3 business days";
+    let days1 = 6;
+    let days2 = 2;
 
     // Zone A: Local Hyderabad / Guntur intra-city
     if ([500, 501, 502, 520, 521, 522].includes(pin3)) {
       zone = "A";
-      baseRate = 48;
-      extraRate = 16;
-      courier1 = "Shiprocket Local (Blue Dart)";
-      courier2 = "Shiprocket Express (Delhivery)";
-      etd1 = "1-2 business days";
+      baseRate = 35;
+      extraRate = 8;
+      courier1 = "Delhivery Local Surface";
+      courier2 = "Blue Dart Express Air";
+      etd1 = "3-5 business days";
       etd2 = "1-2 business days";
+      days1 = 4;
+      days2 = 1;
     }
     // Zone B: Intra-state Andhra Pradesh & Telangana (50, 51, 52, 53)
     else if ([50, 51, 52, 53].includes(pin2)) {
       zone = "B";
-      baseRate = 58;
-      extraRate = 20;
-      courier1 = "Shiprocket Surface (Delhivery)";
-      courier2 = "Shiprocket Air (Bluedart)";
-      etd1 = "2-3 business days";
+      baseRate = 40;
+      extraRate = 10;
+      courier1 = "Delhivery Surface Eco";
+      courier2 = "Blue Dart Priority Air";
+      etd1 = "4-6 business days";
       etd2 = "1-2 business days";
+      days1 = 5;
+      days2 = 2;
     }
     // Zone C: South Region (Karnataka 56-59, Tamil Nadu 60-64, Kerala 67-69)
     else if (pin2 >= 56 && pin2 <= 69) {
       zone = "C";
-      baseRate = 78;
-      extraRate = 25;
-      courier1 = "Shiprocket Surface (DTDC Express)";
-      courier2 = "Shiprocket Air (Delhivery)";
-      etd1 = "2-4 business days";
+      baseRate = 45;
+      extraRate = 12;
+      courier1 = "DTDC Surface Eco";
+      courier2 = "Delhivery Express Air";
+      etd1 = "5-7 business days";
       etd2 = "2-3 business days";
+      days1 = 6;
+      days2 = 2;
     }
     // Zone D: Western & Central (Maharashtra 40-49, Gujarat 36-39, MP 45-48, Goa 403)
     else if ((pin2 >= 40 && pin2 <= 49) || (pin2 >= 36 && pin2 <= 39)) {
       zone = "D";
-      baseRate = 98;
-      extraRate = 30;
-      courier1 = "Shiprocket Surface (Shadowfax)";
-      courier2 = "Shiprocket Express (Bluedart)";
-      etd1 = "3-5 business days";
-      etd2 = "2-4 business days";
+      baseRate = 49;
+      extraRate = 14;
+      courier1 = "Shadowfax Surface Eco";
+      courier2 = "Blue Dart Express Air";
+      etd1 = "5-8 business days";
+      etd2 = "2-3 business days";
+      days1 = 6;
+      days2 = 2;
     }
     // Zone E: Northern (Delhi 11, Haryana 12-13, Punjab 14-15, HP 17, UP 20-28, Rajasthan 30-34)
     else if (pin2 >= 11 && pin2 <= 34) {
       zone = "E";
-      baseRate = 115;
-      extraRate = 32;
-      courier1 = "Shiprocket Surface (Delhivery)";
-      courier2 = "Shiprocket Air (DTDC)";
-      etd1 = "4-6 business days";
-      etd2 = "3-4 business days";
+      baseRate = 55;
+      extraRate = 15;
+      courier1 = "Delhivery Surface Eco";
+      courier2 = "DTDC Express Air";
+      etd1 = "6-8 business days";
+      etd2 = "2-3 business days";
+      days1 = 7;
+      days2 = 2;
     }
     // Zone F: Eastern & North-Eastern (WB 70-74, Odisha 75-77, Bihar/Jharkhand 80-85, Assam/NE 78-79)
     else if (pin2 >= 70 && pin2 <= 85) {
       zone = "F";
-      baseRate = 135;
-      extraRate = 35;
-      courier1 = "Shiprocket Surface (Ecom Express)";
-      courier2 = "Shiprocket Air (Delhivery)";
-      etd1 = "5-7 business days";
-      etd2 = "3-5 business days";
+      baseRate = 59;
+      extraRate = 16;
+      courier1 = "Ecom Express Surface";
+      courier2 = "Delhivery Priority Air";
+      etd1 = "6-9 business days";
+      etd2 = "2-4 business days";
+      days1 = 8;
+      days2 = 3;
     }
     // Zone G: Special / Remote (J&K 18-19, Islands 744, remote NE 79)
     else if ([18, 19].includes(pin2) || pin3 === 744) {
       zone = "G";
-      baseRate = 165;
-      extraRate = 45;
-      courier1 = "Shiprocket Surface (Speed Post)";
-      courier2 = "Shiprocket Air (Blue Dart)";
-      etd1 = "6-8 business days";
-      etd2 = "4-6 business days";
+      baseRate = 65;
+      extraRate = 18;
+      courier1 = "India Post Speed Surface";
+      courier2 = "Blue Dart Priority Air";
+      etd1 = "7-10 business days";
+      etd2 = "3-5 business days";
+      days1 = 9;
+      days2 = 4;
     }
 
-    const rate1 = Math.round(baseRate + extraWeightUnits * extraRate);
-    const rate2 = Math.round(baseRate * 1.35 + extraWeightUnits * (extraRate * 1.25));
+    const rate1 = Math.min(69, Math.round(baseRate + extraWeightUnits * extraRate));
+    const rate2 = Math.min(99, Math.round(baseRate * 1.35 + extraWeightUnits * (extraRate * 1.25)));
 
     return [
       {
@@ -173,6 +189,8 @@ class ShippingService {
         courier_company_id: 10,
         rate: rate1,
         etd: etd1,
+        estimated_delivery_days: days1,
+        is_air: false,
         zone,
       },
       {
@@ -180,6 +198,8 @@ class ShippingService {
         courier_company_id: 12,
         rate: rate2,
         etd: etd2,
+        estimated_delivery_days: days2,
+        is_air: true,
         zone,
       },
     ];
@@ -211,12 +231,22 @@ class ShippingService {
         });
 
         if (ok && data?.data?.available_courier_companies?.length > 0) {
-          return data.data.available_courier_companies.map((c) => ({
-            courier_name: c.courier_name,
-            courier_company_id: c.courier_company_id,
-            rate: parseFloat(c.rate) || 65,
-            etd: c.etd || `${c.estimated_delivery_days || 3} business days`,
-          }));
+          return data.data.available_courier_companies.map((c) => {
+            const rawEtd = c.etd || c.estimated_delivery_days || 3;
+            const daysNum = parseInt(rawEtd, 10) || 3;
+            const etdLabel = String(rawEtd).toLowerCase().includes("day")
+              ? String(rawEtd).trim()
+              : `${daysNum} business days`;
+
+            return {
+              courier_name: c.courier_name || "Shiprocket Courier",
+              courier_company_id: c.courier_company_id || 10,
+              rate: Math.round(parseFloat(c.rate) || 60),
+              etd: etdLabel,
+              estimated_delivery_days: daysNum,
+              is_air: c.is_air === 1 || c.mode === "air" || /air|express|priority/i.test(c.courier_name || ""),
+            };
+          });
         }
       } catch (err) {
         console.warn("[ShippingService] Live serviceability query failed, using tariff zone calculation:", err.message);
@@ -300,10 +330,28 @@ class ShippingService {
       const shiprocketOrderId = data.order_id;
       const shipmentId = data.shipment_id;
 
-      // Auto-assign AWB
+      // Auto-assign AWB with the cheapest courier (or customer chosen courier) to save money
+      let targetCourierId = order.shipping?.courierCompanyId || null;
+      if (!targetCourierId && !this.isMock) {
+        try {
+          const available = await this.calculateShippingRates({
+            deliveryPincode: order.shippingAddress.postalCode,
+            weight: order.shipping?.weight || 0.5,
+            declaredValue: order.pricing.grandTotal,
+          });
+          if (available && available.length > 0) {
+            const cheapest = [...available].sort((a, b) => a.rate - b.rate)[0];
+            targetCourierId = cheapest.courier_company_id;
+            console.log(`[ShippingService] Auto-selected cheapest courier ${cheapest.courier_name} (ID: ${targetCourierId}, ₹${cheapest.rate}) for order ${order.orderNumber}`);
+          }
+        } catch (cErr) {
+          console.warn("[ShippingService] Could not resolve cheapest courier:", cErr.message);
+        }
+      }
+
       let awbData = null;
       try {
-        awbData = await this.generateAWB({ shipmentId });
+        awbData = await this.generateAWB({ shipmentId, courierId: targetCourierId });
       } catch (awbErr) {
         console.warn("[ShippingService] AWB auto-assignment deferred:", awbErr.message);
       }
@@ -312,8 +360,8 @@ class ShippingService {
         shiprocketOrderId,
         shipmentId,
         awbCode: awbData?.awbCode || "",
-        courierName: awbData?.courierName || "Delhivery",
-        courierCompanyId: awbData?.courierCompanyId || null,
+        courierName: awbData?.courierName || order.shipping?.courierName || "Delhivery Surface",
+        courierCompanyId: awbData?.courierCompanyId || targetCourierId || 10,
         trackingUrl: awbData?.awbCode ? `https://shiprocket.co/tracking/${awbData.awbCode}` : "",
         currentStatus: awbData?.awbCode ? "AWB Assigned" : "Order Created",
       };

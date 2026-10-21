@@ -19,6 +19,7 @@ import {
   Sparkles,
   ArrowRight,
   ExternalLink,
+  Truck,
 } from "lucide-react";
 import {
   SITE_NAME,
@@ -120,8 +121,16 @@ export default function Header() {
   const selectedAddress =
     effectiveAddresses.find((a) => a.isDefault) ||
     (effectiveAddresses.length > 0 ? effectiveAddresses[0] : null);
-  const selectedPersonName = selectedAddress?.fullName?.trim();
-  const customerDisplayName = selectedPersonName || "Valued Customer";
+  const selectedPersonName = (selectedAddress?.fullName?.trim() && selectedAddress.fullName.trim() !== "Valued Customer")
+    ? selectedAddress.fullName.trim()
+    : null;
+  const validUserName = (currentUser?.name?.trim() && currentUser.name.trim() !== "Valued Customer")
+    ? currentUser.name.trim()
+    : null;
+  const customerDisplayName =
+    validUserName ||
+    selectedPersonName ||
+    (currentUser?.phone ? `+91 ${currentUser.phone}` : (currentUser?.email || "Devotee"));
 
   // Clean up legacy stale localStorage keys on initial mount
   useEffect(() => {
@@ -208,10 +217,13 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-6">
-          <p className="hidden lg:flex items-center gap-1.5 text-amber-200/90 font-medium">
-            <Sparkles size={13} className="text-amber-400" />
-            <span>Pure Vedic Bilona A2 Desi Cow Products</span>
-          </p>
+          <Link
+            href="/track-order"
+            className="flex items-center gap-1.5 text-[#faf3e0] hover:text-amber-300 transition-colors text-xs font-semibold"
+          >
+            <Truck size={13} className="text-amber-400" />
+            <span>Track Order</span>
+          </Link>
           <a
             href={`tel:${CONTACT_PHONE.replace(/\s+/g, "")}`}
             className="flex items-center gap-1.5 text-[#faf3e0] hover:text-amber-300 transition-colors"

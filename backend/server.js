@@ -84,6 +84,7 @@ app.use("/api/wishlist", require("./routes/wishlistRoutes"));
 // Order & Payment Pipeline Routes
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/admin/orders", require("./routes/adminOrderRoutes"));
+app.use("/api/admin/shipping", require("./routes/adminShippingRoutes"));
 app.use("/api/admin/customers", require("./routes/adminCustomerRoutes"));
 app.use("/api/admin/analytics", require("./routes/adminAnalyticsRoutes"));
 app.use("/api/admin/reviews", require("./routes/adminReviewRoutes"));

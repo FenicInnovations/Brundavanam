@@ -8,7 +8,7 @@ const invoiceService = require("../services/invoiceService");
  */
 async function checkout(req, res, next) {
   try {
-    const { items, shippingAddress, billingAddress, customerNotes, couponCode } = req.body;
+    const { items, shippingAddress, billingAddress, customerNotes, couponCode, deliverySpeed } = req.body;
 
     const result = await orderService.createCheckoutOrder({
       user: req.user,
@@ -17,6 +17,7 @@ async function checkout(req, res, next) {
       billingAddress,
       customerNotes,
       couponCode,
+      deliverySpeed,
     });
 
     res.status(201).json({
@@ -33,11 +34,11 @@ async function checkout(req, res, next) {
 
 /**
  * POST /api/orders/shipping/calculate
- * Calculate dynamic shipping cost via Shiprocket API based on user cart and pincode
+ * Calculate dynamic shipping cost with fast vs eco speed options & promotional subsidies
  */
 async function calculateShipping(req, res, next) {
   try {
-    const { pincode, items } = req.body;
+    const { pincode, items, deliverySpeed } = req.body;
 
     if (!pincode) {
       return res.status(400).json({ success: false, message: "Pincode is required" });
@@ -47,11 +48,42 @@ async function calculateShipping(req, res, next) {
       user: req.user,
       items,
       pincode,
+      deliverySpeed: deliverySpeed || "standard",
     });
 
     res.json({
       success: true,
       shipping: shippingInfo,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/orders/shipping/config
+ * Public endpoint to fetch store shipping rules, threshold & promotional offers
+ */
+async function getShippingConfig(req, res, next) {
+  try {
+    const ShippingSettings = require("../models/ShippingSettings");
+    const settings = await ShippingSettings.getSettings();
+    res.json({
+      success: true,
+      config: {
+        freeShippingThreshold: settings.freeShippingThreshold,
+        isFreeShippingEnabled: settings.isFreeShippingEnabled,
+        standardBaseRate: settings.standardBaseRate,
+        standardLocalRate: settings.standardLocalRate,
+        standardEstimatedDays: settings.standardEstimatedDays,
+        expressBaseRate: settings.expressBaseRate,
+        expressLocalRate: settings.expressLocalRate,
+        expressEstimatedDays: settings.expressEstimatedDays,
+        shippingDiscountOffer: settings.shippingDiscountOffer,
+        isOfferActive: settings.isOfferActive,
+        offerLabel: settings.offerLabel,
+        offerBannerText: settings.offerBannerText,
+      },
     });
   } catch (err) {
     next(err);
@@ -148,8 +180,70 @@ async function getMyOrders(req, res, next) {
 }
 
 /**
+/**
+ * GET /api/orders/track
+ * Public shipping & order tracking for guests and registered users
+ * Query: orderNumber (or orderId), and email or phone
+ */
+async function trackOrder(req, res, next) {
+  try {
+    const { orderNumber, orderId, email, phone } = req.query;
+
+    if (!orderNumber && !orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order number or order ID is required for tracking",
+      });
+    }
+
+    let query = {};
+    if (orderNumber) {
+      query.orderNumber = orderNumber.trim().toUpperCase();
+    } else if (orderId) {
+      query._id = orderId;
+    }
+
+    const order = await Order.findOne(query);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "No order found with the provided details. Please verify your order number.",
+      });
+    }
+
+    const isOwner = req.user && order.user && order.user.toString() === req.user._id.toString();
+    const isAdmin = req.user && req.user.isAdmin;
+
+    if (!isOwner && !isAdmin) {
+      const inputEmail = (email || "").trim().toLowerCase();
+      const inputPhone = (phone || "").trim().replace(/\D/g, "");
+
+      const orderEmail = (order.shippingAddress?.email || order.guestEmail || order.billingAddress?.email || "").toLowerCase();
+      const orderPhone = (order.shippingAddress?.phone || order.guestPhone || order.billingAddress?.phone || "").replace(/\D/g, "");
+
+      const emailValid = inputEmail && (inputEmail === orderEmail);
+      const phoneValid = inputPhone && inputPhone.length >= 6 && (orderPhone.endsWith(inputPhone) || inputPhone.endsWith(orderPhone));
+
+      if (!emailValid && !phoneValid) {
+        return res.status(403).json({
+          success: false,
+          message: "Please enter the email address or phone number used when placing this order.",
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      order,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * GET /api/orders/:id
- * Get single order by ID
+ * Get single order by ID (supports authenticated user or verified guest)
  */
 async function getOrderById(req, res, next) {
   try {
@@ -159,8 +253,20 @@ async function getOrderById(req, res, next) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // Only allow owner or admin
-    if (order.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    const isOwner = req.user && order.user && order.user.toString() === req.user._id.toString();
+    const isAdmin = req.user && req.user.isAdmin;
+
+    const queryEmail = (req.query.email || "").trim().toLowerCase();
+    const queryPhone = (req.query.phone || "").trim().replace(/\D/g, "");
+
+    const orderEmail = (order.shippingAddress?.email || order.guestEmail || order.billingAddress?.email || "").toLowerCase();
+    const orderPhone = (order.shippingAddress?.phone || order.guestPhone || order.billingAddress?.phone || "").replace(/\D/g, "");
+
+    const emailMatch = queryEmail && (queryEmail === orderEmail);
+    const phoneMatch = queryPhone && queryPhone.length >= 6 && (orderPhone.endsWith(queryPhone) || queryPhone.endsWith(orderPhone));
+
+    // If order has no user (guest order) and is requested right after checkout, or matches email/phone
+    if (!isOwner && !isAdmin && !emailMatch && !phoneMatch && order.user) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
@@ -205,7 +311,13 @@ async function downloadInvoice(req, res, next) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if (order.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    const isOwner = req.user && order.user && order.user.toString() === req.user._id.toString();
+    const isAdmin = req.user && req.user.isAdmin;
+    const queryEmail = (req.query.email || "").trim().toLowerCase();
+    const orderEmail = (order.shippingAddress?.email || order.guestEmail || "").toLowerCase();
+    const isGuestOwner = queryEmail && queryEmail === orderEmail;
+
+    if (!isOwner && !isAdmin && !isGuestOwner && order.user) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
@@ -254,10 +366,12 @@ async function requestReturn(req, res, next) {
 module.exports = {
   checkout,
   calculateShipping,
+  getShippingConfig,
   verifyPayment,
   paymentFailed,
   getMyOrders,
   getOrderById,
+  trackOrder,
   cancelMyOrder,
   requestReturn,
   downloadInvoice,

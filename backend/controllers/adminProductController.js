@@ -283,6 +283,14 @@ async function createProduct(req, res, next) {
       isActive: Boolean(isActive),
       seoTitle: seoTitle || name,
       seoDescription: seoDescription || shortDescription || "",
+      createdBy: req.user?._id || null,
+      createdByName:
+        (req.user?.name && req.user.name !== "Valued Customer" ? req.user.name : null) ||
+        (req.user?.phone ? `+91 ${req.user.phone}` : (req.user?.email || "Admin")),
+      updatedBy: req.user?._id || null,
+      updatedByName:
+        (req.user?.name && req.user.name !== "Valued Customer" ? req.user.name : null) ||
+        (req.user?.phone ? `+91 ${req.user.phone}` : (req.user?.email || "Admin")),
     });
 
     await product.save();
@@ -437,6 +445,11 @@ async function updateProduct(req, res, next) {
     if (isActive !== undefined) existingProduct.isActive = Boolean(isActive);
     if (seoTitle !== undefined) existingProduct.seoTitle = seoTitle;
     if (seoDescription !== undefined) existingProduct.seoDescription = seoDescription;
+
+    existingProduct.updatedBy = req.user?._id || null;
+    existingProduct.updatedByName =
+      (req.user?.name && req.user.name !== "Valued Customer" ? req.user.name : null) ||
+      (req.user?.phone ? `+91 ${req.user.phone}` : (req.user?.email || "Admin"));
 
     await existingProduct.save();
     invalidateCache("gql:*").catch(() => {});

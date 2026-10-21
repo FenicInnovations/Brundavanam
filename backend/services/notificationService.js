@@ -109,7 +109,9 @@ class NotificationService {
     if (!to) return;
 
     const subject = `Order Confirmed: #${order.orderNumber} — ${BRAND_NAME}`;
-    const orderUrl = `${frontendUrl}/account/orders/${order._id}`;
+    const orderUrl = order.isGuest || !order.user
+      ? `${frontendUrl}/track-order?orderNumber=${order.orderNumber}&email=${encodeURIComponent(to)}`
+      : `${frontendUrl}/account/orders/${order._id}`;
 
     const itemsHtml = order.items
       .map(
@@ -183,7 +185,11 @@ class NotificationService {
     if (!to) return;
 
     const subject = `Shipped! Order #${order.orderNumber} is on its way — ${BRAND_NAME}`;
-    const trackingUrl = order.shipping.trackingUrl || `${frontendUrl}/account/orders/${order._id}`;
+    const trackingUrl =
+      order.shipping.trackingUrl ||
+      (order.isGuest || !order.user
+        ? `${frontendUrl}/track-order?orderNumber=${order.orderNumber}&email=${encodeURIComponent(to)}`
+        : `${frontendUrl}/account/orders/${order._id}`);
 
     const content = `
       <div class="greeting">Great news, ${order.shippingAddress.fullName}!</div>

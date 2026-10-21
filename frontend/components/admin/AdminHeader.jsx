@@ -74,15 +74,25 @@ export default function AdminHeader() {
         </Link>
 
         {/* User Badge */}
-        <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-          <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-            {user?.name ? user.name[0].toUpperCase() : "A"}
-          </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="text-xs font-semibold text-slate-900">{user?.name || "Admin"}</span>
-            <span className="text-[10px] text-slate-500 capitalize">{user?.role || "Administrator"}</span>
-          </div>
-        </div>
+        {(() => {
+          const hasValidName = user?.name && user.name.trim() !== "" && user.name.trim() !== "Valued Customer";
+          const adminDisplayName = hasValidName ? user.name.trim() : (user?.phone ? `+91 ${user.phone}` : (user?.email || "Admin"));
+          const adminInitial = hasValidName ? user.name.trim()[0].toUpperCase() : (user?.phone ? user.phone.slice(-1) : "A");
+
+          return (
+            <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+              <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                {adminInitial}
+              </div>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-xs font-semibold text-slate-900">{adminDisplayName}</span>
+                <span className="text-[10px] text-slate-500 capitalize">
+                  {user?.role || "Administrator"} {hasValidName && user?.phone ? `• +91 ${user.phone}` : ""}
+                </span>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </header>
   );

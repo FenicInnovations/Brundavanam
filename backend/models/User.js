@@ -19,7 +19,7 @@ const addressSchema = new mongoose.Schema(
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, default: "Valued Customer", trim: true },
+    name: { type: String, default: "", trim: true },
     email: {
       type: String,
       lowercase: true,

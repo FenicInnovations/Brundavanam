@@ -3,15 +3,21 @@ const Order = require("../models/Order");
 
 /**
  * GET /api/admin/customers
- * Get all customers with pagination and search
+ * Get all customers with pagination, search, status filter, and order stats
  */
 async function getAllCustomers(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
-    const { search } = req.query;
+    const { search, status } = req.query;
 
     const filter = { role: "customer" }; // Only fetch customers
+
+    if (status === "active") {
+      filter.isActive = true;
+    } else if (status === "inactive") {
+      filter.isActive = false;
+    }
 
     if (search) {
       const searchRegex = new RegExp(search.trim(), "i");
@@ -22,24 +28,213 @@ async function getAllCustomers(req, res, next) {
       ];
     }
 
-    const [customers, total] = await Promise.all([
+    const [customersRaw, total, totalCustomers, activeCustomers, inactiveCustomers] = await Promise.all([
       User.find(filter)
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .select("-password -resetPasswordToken -resetPasswordExpires"), // Exclude sensitive info
+        .select("-password -resetPasswordToken -resetPasswordExpires")
+        .lean(),
       User.countDocuments(filter),
+      User.countDocuments({ role: "customer" }),
+      User.countDocuments({ role: "customer", isActive: true }),
+      User.countDocuments({ role: "customer", isActive: false }),
     ]);
+
+    // Attach order count, lifetime spend, and recipient name for returned customers
+    const customerIds = customersRaw.map((c) => c._id);
+    const orderAggregates = await Order.aggregate([
+      { $match: { user: { $in: customerIds } } },
+      { $sort: { createdAt: 1 } },
+      {
+        $group: {
+          _id: "$user",
+          orderCount: { $sum: 1 },
+          totalSpent: {
+            $sum: {
+              $ifNull: [
+                "$pricing.grandTotal",
+                { $ifNull: ["$payableAmount", { $ifNull: ["$total", 0] }] },
+              ],
+            },
+          },
+          lastOrderDate: { $max: "$createdAt" },
+          recentFullName: { $last: "$shippingAddress.fullName" },
+        },
+      },
+    ]);
+
+    const statsMap = new Map();
+    orderAggregates.forEach((agg) => {
+      statsMap.set(agg._id.toString(), {
+        orderCount: agg.orderCount || 0,
+        totalSpent: Math.round(agg.totalSpent || 0),
+        lastOrderDate: agg.lastOrderDate,
+        recentFullName: agg.recentFullName || "",
+      });
+    });
+
+    const customers = customersRaw.map((c) => {
+      const stats = statsMap.get(c._id.toString()) || {
+        orderCount: 0,
+        totalSpent: 0,
+        lastOrderDate: null,
+        recentFullName: "",
+      };
+
+      // Resolve Real Name: if name is empty or "Valued Customer", check saved addresses or order full name
+      let resolvedName = c.name?.trim() || "";
+      if (!resolvedName || resolvedName.toLowerCase() === "valued customer") {
+        if (stats.recentFullName && stats.recentFullName.trim().toLowerCase() !== "valued customer") {
+          resolvedName = stats.recentFullName.trim();
+        } else if (Array.isArray(c.addresses) && c.addresses.length > 0) {
+          const validAddr = c.addresses.find(
+            (a) => a.fullName && a.fullName.trim().toLowerCase() !== "valued customer"
+          );
+          if (validAddr) resolvedName = validAddr.fullName.trim();
+        }
+      }
+
+      // If a real name was found from address or order, persist it back to database
+      if (resolvedName && resolvedName.toLowerCase() !== "valued customer" && c.name !== resolvedName) {
+        User.updateOne({ _id: c._id }, { name: resolvedName }).catch(() => {});
+      }
+
+      // Fallback if no name exists anywhere - NEVER display "Valued Customer"
+      if (!resolvedName || resolvedName.toLowerCase() === "valued customer") {
+        resolvedName = c.phone ? `Customer (+91 ${c.phone})` : "Devotee";
+      }
+
+      return {
+        ...c,
+        name: resolvedName,
+        orderCount: stats.orderCount,
+        totalSpent: stats.totalSpent,
+        lastOrderDate: stats.lastOrderDate,
+      };
+    });
 
     res.json({
       success: true,
       customers,
+      overview: {
+        totalCustomers,
+        activeCustomers,
+        inactiveCustomers,
+      },
       pagination: {
         page,
         limit,
         total,
         pages: Math.ceil(total / limit),
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * GET /api/admin/customers/:id
+ * Get complete customer profile including addresses and order history
+ */
+async function getCustomerById(req, res, next) {
+  try {
+    const customer = await User.findById(req.params.id)
+      .select("-password -resetPasswordToken -resetPasswordExpires")
+      .lean();
+
+    if (!customer) {
+      return res.status(404).json({ success: false, message: "Customer not found" });
+    }
+
+    // Find orders placed with this user ID or matching phone/email
+    const queryConditions = [{ user: customer._id }];
+    if (customer.phone) {
+      queryConditions.push({ "shippingAddress.phone": customer.phone });
+    }
+    if (customer.email) {
+      queryConditions.push({ "shippingAddress.email": customer.email });
+    }
+
+    const ordersRaw = await Order.find({ $or: queryConditions })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Deduplicate orders
+    const orderMap = new Map();
+    ordersRaw.forEach((o) => {
+      orderMap.set(o._id.toString(), o);
+    });
+    const orders = Array.from(orderMap.values());
+
+    // Resolve customer real name
+    let resolvedName = customer.name?.trim() || "";
+    if (!resolvedName || resolvedName.toLowerCase() === "valued customer") {
+      const orderWithName = orders.find(
+        (o) => o.shippingAddress?.fullName && o.shippingAddress.fullName.toLowerCase() !== "valued customer"
+      );
+      if (orderWithName) {
+        resolvedName = orderWithName.shippingAddress.fullName.trim();
+      } else if (Array.isArray(customer.addresses)) {
+        const validAddr = customer.addresses.find(
+          (a) => a.fullName && a.fullName.trim().toLowerCase() !== "valued customer"
+        );
+        if (validAddr) resolvedName = validAddr.fullName.trim();
+      }
+      if (!resolvedName || resolvedName.toLowerCase() === "valued customer") {
+        resolvedName = customer.phone ? `Customer (+91 ${customer.phone})` : "Devotee";
+      }
+      customer.name = resolvedName;
+    }
+
+    const totalSpent = orders.reduce((sum, o) => {
+      const amt = o.pricing?.grandTotal ?? o.payableAmount ?? o.total ?? 0;
+      return sum + Number(amt);
+    }, 0);
+
+    const stats = {
+      orderCount: orders.length,
+      totalSpent: Math.round(totalSpent),
+      averageOrderValue: orders.length > 0 ? Math.round(totalSpent / orders.length) : 0,
+      lastOrderDate: orders[0]?.createdAt || null,
+    };
+
+    res.json({
+      success: true,
+      customer,
+      stats,
+      orders,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PATCH /api/admin/customers/:id
+ * Update customer profile details
+ */
+async function updateCustomer(req, res, next) {
+  try {
+    const { name, email, phone, isActive } = req.body;
+    const customer = await User.findById(req.params.id);
+
+    if (!customer) {
+      return res.status(404).json({ success: false, message: "Customer not found" });
+    }
+
+    if (typeof name === "string") customer.name = name.trim();
+    if (typeof email === "string") customer.email = email.trim() ? email.trim().toLowerCase() : undefined;
+    if (typeof phone === "string" && phone.trim()) customer.phone = phone.trim();
+    if (typeof isActive === "boolean") customer.isActive = isActive;
+
+    await customer.save();
+
+    res.json({
+      success: true,
+      message: "Customer profile updated successfully",
+      customer,
     });
   } catch (err) {
     next(err);
@@ -296,6 +491,8 @@ async function getCustomerLocationInsights(req, res, next) {
 
 module.exports = {
   getAllCustomers,
+  getCustomerById,
+  updateCustomer,
   toggleCustomerStatus,
   getCustomerLocationInsights,
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Sparkles,
   ShieldCheck,
+  CheckCircle,
 } from "lucide-react";
 import {
   useDispatch,
@@ -20,8 +21,10 @@ import {
   selectCartTotalCount,
   updateCartQuantity,
   removeFromCart,
+  getItemEffectivePrice,
 } from "@/lib/redux/store";
 import { resolveProductImage } from "@/lib/productUtils";
+import { apiClient } from "@/lib/api/apiClient";
 
 export default function CartDrawer({ isOpen, onClose }) {
   const dispatch = useDispatch();
@@ -29,7 +32,28 @@ export default function CartDrawer({ isOpen, onClose }) {
   const subtotal = useSelector(selectCartSubtotal);
   const totalCount = useSelector(selectCartTotalCount);
 
+  const [shippingConfig, setShippingConfig] = useState({
+    freeShippingThreshold: 800,
+    isFreeShippingEnabled: true,
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      apiClient
+        .get("/orders/shipping/config")
+        .then((res) => {
+          if (res?.success && res.config) setShippingConfig(res.config);
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const threshold = shippingConfig.freeShippingThreshold || 800;
+  const isFreeEligible = shippingConfig.isFreeShippingEnabled && subtotal >= threshold;
+  const shortfall = Math.max(0, threshold - subtotal);
+  const progressPercent = Math.min(100, Math.round((subtotal / threshold) * 100));
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -61,6 +85,34 @@ export default function CartDrawer({ isOpen, onClose }) {
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Dynamic Free Shipping Progress Nudge */}
+          {shippingConfig.isFreeShippingEnabled && cartItems.length > 0 && (
+            <div className="px-6 py-3 bg-emerald-50/70 border-b border-emerald-100 text-xs">
+              {isFreeEligible ? (
+                <div className="flex items-center gap-2 text-emerald-800 font-bold">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>🎉 Your order qualifies for <strong>FREE Delivery</strong>!</span>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-emerald-900 font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      Add ₹{shortfall} more for FREE Delivery!
+                    </span>
+                    <span className="font-bold text-emerald-700">{progressPercent}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-emerald-200/60 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-600 transition-all duration-300 rounded-full"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Cart Item List */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4 divide-y divide-slate-100">
@@ -107,14 +159,20 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {item.variantLabel && (
                         <span className="text-[10px] text-slate-500 font-medium">Variant: {item.variantLabel}</span>
                       )}
-                      <div className="text-xs font-extrabold text-emerald-700 mt-1">
-                        ₹{product.price}{" "}
-                        {product.discountPrice > 0 && (
-                          <span className="text-[10px] text-slate-400 line-through ml-1 font-normal">
-                            ₹{product.discountPrice}
-                          </span>
-                        )}
-                      </div>
+                      {(() => {
+                        const unitPrice = getItemEffectivePrice(item);
+                        const regularPrice = Number(product.price) || 0;
+                        return (
+                          <div className="text-xs font-extrabold text-emerald-700 mt-1">
+                            ₹{unitPrice.toFixed(2)}{" "}
+                            {regularPrice > unitPrice && (
+                              <span className="text-[10px] text-slate-400 line-through ml-1 font-normal">
+                                ₹{regularPrice.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Quantity Controls */}

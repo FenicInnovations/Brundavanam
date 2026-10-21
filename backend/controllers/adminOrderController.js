@@ -12,11 +12,12 @@ async function getAllOrders(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
-    const { status, search, paymentStatus } = req.query;
+    const { status, search, paymentStatus, state } = req.query;
 
     const filter = {};
     if (status) filter.status = status;
     if (paymentStatus) filter["payment.status"] = paymentStatus;
+    if (state) filter["shippingAddress.state"] = state;
 
     if (search) {
       const searchRegex = new RegExp(search.trim(), "i");
@@ -24,6 +25,9 @@ async function getAllOrders(req, res, next) {
         { orderNumber: searchRegex },
         { "shippingAddress.fullName": searchRegex },
         { "shippingAddress.phone": searchRegex },
+        { "shippingAddress.email": searchRegex },
+        { "shippingAddress.state": searchRegex },
+        { "shippingAddress.city": searchRegex },
         { "shipping.awbCode": searchRegex },
       ];
     }

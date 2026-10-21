@@ -18,6 +18,11 @@ class OrderService {
   async _resolveCheckoutItems(user, rawItems) {
     let checkoutItems = rawItems;
     if (!checkoutItems || checkoutItems.length === 0) {
+      if (!user) {
+        const err = new Error("Cart is empty or no items provided");
+        err.statusCode = 400;
+        throw err;
+      }
       const cart = await Cart.findOne({ user: user._id }).populate("items.product");
       if (!cart || !cart.items || cart.items.length === 0) {
         const err = new Error("Cart is empty");
@@ -40,6 +45,27 @@ class OrderService {
     for (const item of checkoutItems) {
       const productId = item.product?._id ? item.product._id.toString() : (item.product?.id || item.product);
       if (!productId) continue;
+
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        // Simulated or mock item (e.g. from Admin Shipping simulator)
+        const unitPrice = Number(item.finalPrice || item.price || 300);
+        const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+        const subtotal = unitPrice * qty;
+        const itemWeight = Number(item.weight) || 0.5;
+
+        itemsTotal += subtotal;
+        totalWeight += itemWeight * qty;
+        validatedItems.push({
+          product: productId,
+          name: item.name || "Product Item",
+          price: unitPrice,
+          finalPrice: unitPrice,
+          quantity: qty,
+          subtotal,
+          weight: itemWeight,
+        });
+        continue;
+      }
 
       const product = await Product.findById(productId);
 
@@ -117,71 +143,193 @@ class OrderService {
       });
     }
 
-    return { validatedItems, itemsTotal, taxTotal, totalWeight };
+    const totalQuantity = validatedItems.reduce((acc, it) => acc + (parseInt(it.quantity, 10) || 1), 0);
+    return { validatedItems, itemsTotal, taxTotal, totalWeight, totalQuantity };
   }
 
-
   /**
-   * Pre-calculate shipping cost for checkout
+   * Pre-calculate shipping cost for checkout with speed options & quantity-based promotional subsidy
+   * 100% Automated Shiprocket courier rates & distinct estimated business days (Slow: 5-8 days vs Fast: 2-3 days)
    */
-  async calculateOrderShipping({ user, items, pincode }) {
+  async calculateOrderShipping({ user, items, pincode, deliverySpeed = "standard" }) {
     if (!pincode) {
       const err = new Error("Destination pincode is required to calculate shipping");
       err.statusCode = 400;
       throw err;
     }
 
-    const { itemsTotal, totalWeight } = await this._resolveCheckoutItems(user, items);
-    const threshold = srConfig.freeShippingThreshold || 800;
+    const { validatedItems, itemsTotal, totalWeight, totalQuantity } = await this._resolveCheckoutItems(user, items);
+    const ShippingSettings = require("../models/ShippingSettings");
+    const settings = await ShippingSettings.getSettings();
 
-    // IMPORTANT BUSINESS RULE: Free shipping above threshold
-    if (itemsTotal >= threshold) {
-      return {
-        isFree: true,
-        amount: 0,
-        currency: "INR",
-        courierName: "Free Delivery",
-        estimatedDeliveryDays: 3,
-        thresholdReached: true,
+    const threshold = settings.freeShippingThreshold || 800;
+    const pin = String(pincode).trim();
+
+    // 1. Fetch real-time Shiprocket courier quotes based on destination PIN & total weight
+    const shippingService = require("./shippingService");
+    const couriers = await shippingService.calculateShippingRates({
+      deliveryPincode: pin,
+      weight: totalWeight > 0 ? totalWeight : 0.5,
+      declaredValue: itemsTotal,
+    });
+
+    if (!Array.isArray(couriers) || couriers.length === 0) {
+      throw new Error(`Courier delivery is currently unavailable for PIN code ${pin}`);
+    }
+
+    // 2. Slow Delivery (Standard Eco): Always pick the absolute CHEAPEST courier quote from Shiprocket (e.g. India Post / Surface)
+    const couriersSortedByCheapest = [...couriers].sort((a, b) => a.rate - b.rate);
+    const cheapestCourier = couriersSortedByCheapest[0];
+
+    // 3. Fast Delivery (Express Priority): Fastest Air courier with priority transit
+    const expressAirCouriers = couriers.filter((c) => c.is_air && c.courier_company_id !== cheapestCourier.courier_company_id);
+    let fastestCourier = null;
+    if (expressAirCouriers.length > 0) {
+      fastestCourier = [...expressAirCouriers].sort((a, b) => {
+        if (a.estimated_delivery_days !== b.estimated_delivery_days) {
+          return a.estimated_delivery_days - b.estimated_delivery_days;
+        }
+        return a.rate - b.rate;
+      })[0];
+    } else {
+      const alt = couriers.filter((c) => c.courier_company_id !== cheapestCourier.courier_company_id);
+      fastestCourier = alt.length > 0
+        ? alt.sort((a, b) => a.estimated_delivery_days - b.estimated_delivery_days)[0]
+        : null;
+    }
+
+    if (!fastestCourier || fastestCourier.courier_company_id === cheapestCourier.courier_company_id) {
+      fastestCourier = {
+        courier_name: `${cheapestCourier.courier_name} (Priority)`,
+        courier_company_id: (cheapestCourier.courier_company_id || 10) + 1,
+        rate: Math.round(cheapestCourier.rate * 1.35 + 20),
+        etd: "2-3 business days",
+        estimated_delivery_days: 2,
+        is_air: true,
       };
     }
 
-    // Call Shiprocket to get dynamic rates
-    try {
-      const rates = await shippingService.calculateShippingRates({
-        deliveryPincode: pincode,
-        weight: Math.max(0.5, totalWeight),
-        cod: 0, // Assume prepaid for rate calculation in standard checkout
-        declaredValue: itemsTotal,
-      });
+    // Enforce clear distinction in delivery business days:
+    // Slow Eco: 5 to 8 business days (or 3-5 days for local intra-city)
+    // Fast Express: 2 to 3 business days (or 1-2 days for local)
+    const pin3 = parseInt(pin.substring(0, 3), 10);
+    const isLocal = [500, 501, 502, 520, 521, 522].includes(pin3);
 
-      if (!rates || rates.length === 0) {
-        throw new Error("No shipping options available for this pincode.");
-      }
+    let slowDaysLabel = cheapestCourier.etd;
+    if (!slowDaysLabel || cheapestCourier.estimated_delivery_days <= 3) {
+      slowDaysLabel = isLocal ? "3-5 business days" : "5-8 business days";
+    }
 
-      // Find the lowest rate
-      const lowestRate = rates.reduce((prev, curr) => (prev.rate < curr.rate ? prev : curr));
+    let fastDaysLabel = fastestCourier.etd;
+    if (!fastDaysLabel || fastestCourier.estimated_delivery_days >= 4) {
+      fastDaysLabel = isLocal ? "1-2 business days" : "2-3 business days";
+    }
 
-      return {
+    // 4. Per-Item Shipping Discount Subsidy (if enabled in Admin Settings):
+    const discountPerItem = (settings.isOfferActive && settings.shippingDiscountOffer > 0)
+      ? Number(settings.shippingDiscountOffer)
+      : 0;
+
+    const itemCount = Math.max(1, totalQuantity || (validatedItems ? validatedItems.length : 1));
+    const totalSubsidy = discountPerItem > 0 ? (itemCount * discountPerItem) : 0;
+
+    // 5. Courier Rate & Delivery Pricing:
+    // Display the CHEAPEST courier rate from Shiprocket (e.g. India Post).
+    // Free delivery is ONLY unlocked if order subtotal reaches Free Shipping Threshold (e.g. ₹800).
+    // Do NOT make eco delivery free automatically!
+    const isThresholdMet = Boolean(settings.isFreeShippingEnabled && itemsTotal >= threshold);
+    const isFreeEligible = isThresholdMet;
+
+    const stdOriginal = cheapestCourier.rate;
+    const stdFinal = isFreeEligible
+      ? 0
+      : (totalSubsidy > 0 ? Math.max(15, stdOriginal - totalSubsidy) : stdOriginal);
+
+    const expOriginal = fastestCourier.rate;
+    const expFinal = isFreeEligible
+      ? Math.min(expOriginal, Math.max(25, expOriginal - stdOriginal))
+      : (totalSubsidy > 0 ? Math.max(25, expOriginal - totalSubsidy) : expOriginal);
+
+    const bannerMsg = totalSubsidy > 0
+      ? (itemCount > 1
+          ? `Special Seva Offer: Flat ₹${totalSubsidy} Delivery Subsidy Applied (₹${discountPerItem} OFF per item × ${itemCount} items!)`
+          : `Special Seva Offer: Flat ₹${discountPerItem} Delivery Subsidy Applied! (Add more items for +₹${discountPerItem} OFF per item)`
+        )
+      : settings.offerBannerText;
+
+    const options = [
+      {
+        id: "standard",
+        name: `Standard Eco Delivery (${slowDaysLabel})`,
+        marketingTag: "Most Economical · Safe Ground Vedic Packaging",
+        courierName: cheapestCourier.courier_name,
+        courierCompanyId: cheapestCourier.courier_company_id,
+        originalRate: stdOriginal,
+        discount: totalSubsidy,
+        rate: stdFinal,
+        isFree: isFreeEligible,
+        estimatedDeliveryDays: slowDaysLabel,
+        deliveryDaysCount: cheapestCourier.estimated_delivery_days || 6,
+        badge: isFreeEligible ? "100% FREE Delivery" : "Lowest Rate",
+        description: "Budget-friendly surface delivery with sacred cow dung dhoop cushion & sealed glass-safe protection",
+      },
+      {
+        id: "express",
+        name: `Express Fast Delivery (${fastDaysLabel})`,
+        marketingTag: "Fastest Arrival · Priority Air Transit",
+        courierName: fastestCourier.courier_name,
+        courierCompanyId: fastestCourier.courier_company_id,
+        originalRate: expOriginal,
+        discount: totalSubsidy,
+        rate: expFinal,
         isFree: false,
-        amount: Math.ceil(lowestRate.rate), // Round up to nearest rupee
-        currency: "INR",
-        courierName: lowestRate.courier_name,
-        courierCompanyId: lowestRate.courier_company_id,
-        estimatedDeliveryDays: lowestRate.etd,
-        thresholdReached: false,
-        shortfall: threshold - itemsTotal,
-      };
-    } catch (err) {
-      console.error("[OrderService] Shipping calculation failed:", err.message);
-      throw new Error("Unable to calculate delivery charges right now. Please try again.");
-    }
+        estimatedDeliveryDays: fastDaysLabel,
+        deliveryDaysCount: fastestCourier.estimated_delivery_days || 2,
+        badge: "Fastest Transit",
+        description: "Priority dispatch within 12-24 hours via express air courier for rapid arrival",
+      },
+    ];
+
+    const selectedOption = options.find((o) => o.id === deliverySpeed) || options[0];
+
+    return {
+      isFree: selectedOption.isFree,
+      amount: selectedOption.rate,
+      originalAmount: selectedOption.originalRate,
+      discount: selectedOption.discount,
+      currency: "INR",
+      courierName: selectedOption.courierName,
+      courierCompanyId: selectedOption.courierCompanyId,
+      estimatedDeliveryDays: selectedOption.estimatedDeliveryDays,
+      thresholdReached: isFreeEligible,
+      threshold,
+      shortfall: Math.max(0, threshold - itemsTotal),
+      deliverySpeed: selectedOption.id,
+      selectedOption,
+      options,
+      offer: {
+        isActive: settings.isOfferActive,
+        discount: totalSubsidy,
+        discountPerItem,
+        itemCount,
+        label: settings.offerLabel,
+        bannerText: bannerMsg,
+      },
+    };
   }
 
   /**
    * 1. Check out and create order draft with Razorpay payment initiation
    */
-  async createCheckoutOrder({ user, items: rawItems, shippingAddress, billingAddress, customerNotes, couponCode }) {
+  async createCheckoutOrder({
+    user,
+    items: rawItems,
+    shippingAddress,
+    billingAddress,
+    customerNotes,
+    couponCode,
+    deliverySpeed = "standard",
+  }) {
     if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.phone || !shippingAddress.line1) {
       const err = new Error("Valid shipping address is required");
       err.statusCode = 400;
@@ -190,17 +338,19 @@ class OrderService {
 
     const actualBilling = billingAddress && billingAddress.fullName ? billingAddress : shippingAddress;
 
-    // IMPORTANT: Use the new helper to resolve items and validate
+    // Resolve items and compute subtotal
     const { validatedItems, itemsTotal, taxTotal, totalWeight } = await this._resolveCheckoutItems(user, rawItems);
 
-    // IMPORTANT: Revalidate shipping cost via Shiprocket dynamically before creating order
+    // Revalidate shipping cost via dynamic rules before creating order
     const shippingInfo = await this.calculateOrderShipping({
       user,
       items: rawItems,
       pincode: shippingAddress.postalCode,
+      deliverySpeed,
     });
-    
+
     const shippingFee = shippingInfo.amount;
+    const shippingDiscount = shippingInfo.discount || 0;
 
     // Optional Coupon Discount logic
     let discountAmount = 0;
@@ -221,7 +371,7 @@ class OrderService {
         amount: grandTotal,
         receipt: orderNumber,
         notes: {
-          userId: user._id.toString(),
+          userId: user ? user._id.toString() : "guest",
           orderNumber,
         },
       });
@@ -229,12 +379,17 @@ class OrderService {
       // Persist Order document
       const order = new Order({
         orderNumber,
-        user: user._id,
+        user: user ? user._id : null,
+        isGuest: !user,
+        guestEmail: shippingAddress.email || (user ? user.email : ""),
+        guestPhone: shippingAddress.phone || (user ? user.phone : ""),
         items: validatedItems,
         pricing: {
           itemsTotal,
           taxTotal,
           shippingFee,
+          shippingDiscount,
+          deliverySpeed,
           discountAmount,
           couponCode: couponCode || "",
           grandTotal,
@@ -243,7 +398,7 @@ class OrderService {
         shippingAddress: {
           fullName: shippingAddress.fullName,
           phone: shippingAddress.phone,
-          email: shippingAddress.email || user.email,
+          email: shippingAddress.email || (user ? user.email : ""),
           line1: shippingAddress.line1,
           line2: shippingAddress.line2 || "",
           city: shippingAddress.city,
@@ -263,7 +418,7 @@ class OrderService {
         billingAddress: {
           fullName: actualBilling.fullName,
           phone: actualBilling.phone,
-          email: actualBilling.email || user.email,
+          email: actualBilling.email || (user ? user.email : shippingAddress.email),
           line1: actualBilling.line1,
           line2: actualBilling.line2 || "",
           city: actualBilling.city,
@@ -314,7 +469,7 @@ class OrderService {
     }
 
     // Verify ownership if requested by user
-    if (user && order.user.toString() !== user._id.toString() && !user.isAdmin) {
+    if (user && order.user && order.user.toString() !== user._id.toString() && !user.isAdmin) {
       const err = new Error("Not authorized to verify this order");
       err.statusCode = 403;
       throw err;
@@ -356,11 +511,13 @@ class OrderService {
     // Commit stock
     await inventoryService.commitStock(order.items);
 
-    // Clear user cart
-    try {
-      await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
-    } catch (cartErr) {
-      console.warn("[OrderService] Cart clear warning:", cartErr.message);
+    // Clear user cart if authenticated
+    if (order.user) {
+      try {
+        await Cart.findOneAndUpdate({ user: order.user }, { items: [] });
+      } catch (cartErr) {
+        console.warn("[OrderService] Cart clear warning:", cartErr.message);
+      }
     }
 
     // Generate Invoice PDF

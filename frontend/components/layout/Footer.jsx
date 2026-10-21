@@ -36,6 +36,7 @@ const QUICK_LINKS = [
   { label: "About Our Goshala", href: "/about" },
   { label: "Gaumata Sanctuary", href: "/goshala" },
   { label: "Sacred Offerings Shop", href: "/shop" },
+  { label: "Track Shipment / Order", href: "/track-order" },
   { label: "Cart & Checkout", href: "/cart" },
   { label: "Saved Wishlist", href: "/account/wishlist" },
   { label: "Devotee Profile", href: "/account" },

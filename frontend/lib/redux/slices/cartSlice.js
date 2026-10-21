@@ -144,10 +144,33 @@ export const selectCartSyncing = (state) => state.cart.isSyncing;
 export const selectCartTotalCount = (state) =>
   state.cart.items.reduce((total, item) => total + (item.quantity || 0), 0);
 
+export const getItemEffectivePrice = (item) => {
+  if (!item) return 0;
+  const product = item.product || {};
+
+  // Check variant price first if item has a variantId
+  if (item.variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+    const variant = product.variants.find(
+      (v) =>
+        (v._id && v._id.toString() === item.variantId.toString()) ||
+        (v.id && v.id.toString() === item.variantId.toString())
+    );
+    if (variant) {
+      const vPrice = Number(variant.price) || 0;
+      const vDisc = Number(variant.discountPrice) || 0;
+      return vDisc > 0 && vDisc < vPrice ? vDisc : vPrice;
+    }
+  }
+
+  // Base product price
+  const pPrice = Number(product.price) || 0;
+  const pDisc = Number(product.discountPrice) || 0;
+  return pDisc > 0 && pDisc < pPrice ? pDisc : pPrice;
+};
+
 export const selectCartSubtotal = (state) =>
   state.cart.items.reduce((total, item) => {
-    const price = item.product?.price || 0;
-    return total + price * item.quantity;
+    return total + getItemEffectivePrice(item) * (item.quantity || 1);
   }, 0);
 
 // Thunks

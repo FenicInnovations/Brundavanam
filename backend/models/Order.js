@@ -70,8 +70,26 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+      default: null,
       index: true,
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    guestEmail: {
+      type: String,
+      default: "",
+      trim: true,
+      lowercase: true,
+      index: true,
+    },
+    guestPhone: {
+      type: String,
+      default: "",
+      trim: true,
     },
     items: [orderItemSchema],
 
@@ -79,6 +97,8 @@ const orderSchema = new mongoose.Schema(
       itemsTotal: { type: Number, required: true, min: 0 },
       taxTotal: { type: Number, default: 0, min: 0 },
       shippingFee: { type: Number, default: 0, min: 0 },
+      shippingDiscount: { type: Number, default: 0, min: 0 },
+      deliverySpeed: { type: String, default: "standard" },
       discountAmount: { type: Number, default: 0, min: 0 },
       couponCode: { type: String, default: "" },
       grandTotal: { type: Number, required: true, min: 0 },

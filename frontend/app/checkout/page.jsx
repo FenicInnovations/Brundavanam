@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSelector, useDispatch, selectCartItems, selectCartSubtotal, clearCart } from "@/lib/redux/store";
+import { useSelector, useDispatch, selectCartItems, selectCartSubtotal, clearCart, getItemEffectivePrice } from "@/lib/redux/store";
 import { resolveProductImage } from "@/lib/productUtils";
 import { apiClient } from "@/lib/api/apiClient";
 import { api } from "@/lib/api";
@@ -27,7 +27,49 @@ import {
   Building,
   ArrowRight,
   ChevronDown,
+  UserCheck,
+  Clock,
+  Zap,
 } from "lucide-react";
+
+export const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -135,15 +177,22 @@ export default function CheckoutPage() {
     }));
   };
 
+  const [selectedSpeed, setSelectedSpeed] = useState("standard"); // "standard" | "express"
   const [shipping, setShipping] = useState({
     loading: false,
     calculated: false,
     error: null,
     amount: 0,
+    originalAmount: 0,
+    discount: 0,
     isFree: false,
     courierName: "",
     shortfall: 0,
+    threshold: 800,
     estimatedDeliveryDays: null,
+    deliverySpeed: "standard",
+    options: [],
+    offer: null,
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -170,7 +219,7 @@ export default function CheckoutPage() {
 
   // Calculate Shipping
   const calculateShipping = useCallback(
-    async (pincode) => {
+    async (pincode, speed = selectedSpeed) => {
       if (!pincode || pincode.length !== 6 || !/^\d{6}$/.test(pincode)) return;
       setShipping((prev) => ({ ...prev, loading: true, error: null, calculated: false }));
       try {
@@ -183,17 +232,25 @@ export default function CheckoutPage() {
         const res = await apiClient.post("/orders/shipping/calculate", {
           pincode,
           items: payloadItems,
+          deliverySpeed: speed,
         });
         if (res.success && res.shipping) {
+          const s = res.shipping;
           setShipping({
             loading: false,
             calculated: true,
             error: null,
-            amount: res.shipping.amount,
-            isFree: res.shipping.isFree,
-            courierName: res.shipping.courierName || "",
-            shortfall: res.shipping.shortfall || 0,
-            estimatedDeliveryDays: res.shipping.estimatedDeliveryDays || null,
+            amount: s.amount,
+            originalAmount: s.originalAmount || s.amount,
+            discount: s.discount || 0,
+            isFree: s.isFree,
+            courierName: s.courierName || "",
+            shortfall: s.shortfall || 0,
+            threshold: s.threshold || 800,
+            estimatedDeliveryDays: s.estimatedDeliveryDays || null,
+            deliverySpeed: s.deliverySpeed || speed,
+            options: Array.isArray(s.options) ? s.options : [],
+            offer: s.offer || null,
           });
         }
       } catch (err) {
@@ -202,25 +259,54 @@ export default function CheckoutPage() {
           calculated: false,
           error: err.message || "Unable to calculate delivery charges. Please try again.",
           amount: 0,
+          originalAmount: 0,
+          discount: 0,
           isFree: false,
           courierName: "",
           shortfall: 0,
+          threshold: 800,
           estimatedDeliveryDays: null,
+          deliverySpeed: speed,
+          options: [],
+          offer: null,
         });
       }
     },
-    [cartItems]
+    [cartItems, selectedSpeed]
   );
+
+  const handleSelectDeliverySpeed = (speedId) => {
+    setSelectedSpeed(speedId);
+    if (shipping.options && shipping.options.length > 0) {
+      const match = shipping.options.find((o) => o.id === speedId);
+      if (match) {
+        setShipping((prev) => ({
+          ...prev,
+          amount: match.rate,
+          originalAmount: match.originalRate,
+          discount: match.discount,
+          isFree: match.isFree,
+          courierName: match.courierName,
+          estimatedDeliveryDays: match.estimatedDeliveryDays,
+          deliverySpeed: speedId,
+        }));
+        return;
+      }
+    }
+    if (address.postalCode?.length === 6) {
+      calculateShipping(address.postalCode, speedId);
+    }
+  };
 
   // Debounced shipping recalculation on pincode/cart change
   useEffect(() => {
     if (address.postalCode?.length === 6) {
-      const timer = setTimeout(() => calculateShipping(address.postalCode), 600);
+      const timer = setTimeout(() => calculateShipping(address.postalCode, selectedSpeed), 500);
       return () => clearTimeout(timer);
     } else {
       setShipping((prev) => ({ ...prev, calculated: false, error: null, amount: 0, isFree: false }));
     }
-  }, [address.postalCode, cartItems, calculateShipping]);
+  }, [address.postalCode, cartItems, calculateShipping, selectedSpeed]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -265,6 +351,7 @@ export default function CheckoutPage() {
         items: payloadItems,
         shippingAddress: { ...address, country: "India" },
         billingAddress: { ...address, country: "India" },
+        deliverySpeed: selectedSpeed,
       });
 
       if (!checkoutData.success) {
@@ -292,7 +379,15 @@ export default function CheckoutPage() {
             });
             if (verifyData.success) {
               dispatch(clearCart());
-              router.push(`/account/orders/${order._id}?success=1`);
+              if (user) {
+                router.push(`/account/orders/${order._id}?success=1`);
+              } else {
+                router.push(
+                  `/track-order?orderNumber=${order.orderNumber}&email=${encodeURIComponent(
+                    address.email || ""
+                  )}&placed=true`
+                );
+              }
             }
           } catch (err) {
             setCheckoutError("Payment verification failed: " + (err.message || "Please contact support."));
@@ -350,9 +445,50 @@ export default function CheckoutPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-900">Checkout</h1>
-          <p className="text-sm text-slate-500 mt-1">Complete your order from Brundavanam Goshala</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-extrabold text-slate-900">Checkout</h1>
+              <p className="text-sm text-slate-500 mt-1">Complete your order from Brundavanam Goshala</p>
+            </div>
+            {!user && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-900 rounded-full text-xs font-bold w-fit border border-amber-300/80 shadow-2xs">
+                <UserCheck size={14} className="text-amber-700" />
+                <span>Guest Checkout Active</span>
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Guest Order Banner / Sign-in nudge */}
+        {!user && (
+          <div className="mb-8 p-4 rounded-3xl bg-gradient-to-r from-amber-500/10 via-amber-50/80 to-emerald-50/60 border border-amber-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="w-5 h-5 text-amber-700" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                  <span>Buying without logging in? You can checkout as Guest!</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Instant
+                  </span>
+                </p>
+                <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                  No login required. We will send your order confirmation and tracking link directly to your email.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <Link
+                href="/login?redirect=/checkout"
+                className="w-full sm:w-auto text-center text-xs font-bold text-emerald-800 hover:text-emerald-900 bg-white hover:bg-emerald-50/80 px-4 py-2 rounded-xl border border-emerald-300 shadow-2xs transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Sign in for Member Benefits</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* LEFT: Address Form */}
@@ -570,7 +706,7 @@ export default function CheckoutPage() {
                           required
                           value={address.fullName}
                           onChange={handleInputChange}
-                          placeholder="As on government ID"
+                          placeholder="Full Name (e.g. Ramesh Kumar)"
                           className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                         />
                       </div>
@@ -641,14 +777,23 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5">State *</label>
-                        <input
-                          type="text"
-                          name="state"
-                          required
-                          value={address.state}
-                          onChange={handleInputChange}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
-                        />
+                        <div className="relative">
+                          <select
+                            name="state"
+                            required
+                            value={address.state}
+                            onChange={handleInputChange}
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer pr-10 text-slate-800"
+                          >
+                            <option value="" disabled>Select State / UT</option>
+                            {INDIAN_STATES.map((st) => (
+                              <option key={st} value={st}>
+                                {st}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
                       </div>
                       <div className="col-span-2 sm:col-span-1">
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
@@ -692,40 +837,138 @@ export default function CheckoutPage() {
                 )}
 
                 {shipping.calculated && !shipping.error && (
-                  <div className="p-4 bg-gradient-to-br from-emerald-50/80 to-teal-50/40 border border-emerald-200/80 rounded-2xl space-y-2">
+                  <div className="space-y-3 pt-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                          <Truck className="w-4 h-4" />
+                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <Truck className="w-4 h-4 text-emerald-600" />
+                        Choose Delivery Speed
+                      </span>
+                      <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100/70 border border-emerald-200 px-2 py-0.5 rounded-full">
+                        Live Shiprocket Rates
+                      </span>
+                    </div>
+
+                    {/* Marketing Offer Banner if Active */}
+                    {shipping.offer?.isActive && shipping.offer.discount > 0 && (
+                      <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-emerald-950 shadow-2xs">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span className="font-bold">{shipping.offer.bannerText}</span>
                         </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-800 block">
-                            {shipping.courierName || "Shiprocket Express"}
-                          </span>
-                          <span className="text-[10px] text-emerald-700 font-medium">
-                            Live Shiprocket Courier Verified
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        {shipping.isFree ? (
-                          <span className="inline-block px-2.5 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-xs rounded-lg uppercase tracking-wide">
-                            FREE Delivery
-                          </span>
-                        ) : (
-                          <div className="text-right">
-                            <span className="text-base font-extrabold text-slate-900">₹{shipping.amount}</span>
-                            <span className="block text-[10px] text-slate-500">Shipping charge</span>
-                          </div>
+                        {!shipping.isFree && (
+                          <Link
+                            href="/shop"
+                            className="shrink-0 text-[11px] font-bold text-emerald-800 hover:text-emerald-900 bg-white border border-emerald-300 hover:border-emerald-400 px-2.5 py-1 rounded-xl shadow-2xs transition-all flex items-center gap-1"
+                          >
+                            <span>+ Add Item (+₹{shipping.offer?.discountPerItem || 20} OFF)</span>
+                          </Link>
                         )}
                       </div>
-                    </div>
-                    {shipping.estimatedDeliveryDays && (
-                      <div className="pt-2 border-t border-emerald-100/80 flex items-center justify-between text-[11px] text-slate-600">
-                        <span>Estimated Transit: <strong>{shipping.estimatedDeliveryDays}</strong></span>
-                        <span className="text-emerald-700 font-medium">Added to Final Total</span>
-                      </div>
                     )}
+
+                    {/* Interactive Speed Option Cards with Live Business Days */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {shipping.options && shipping.options.length > 0 ? (
+                        shipping.options.map((opt) => {
+                          const isSelected = selectedSpeed === opt.id;
+                          const isExpress = opt.id === "express";
+                          return (
+                            <div
+                              key={opt.id}
+                              onClick={() => handleSelectDeliverySpeed(opt.id)}
+                              className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative space-y-2.5 ${
+                                isSelected
+                                  ? isExpress
+                                    ? "border-amber-500 bg-amber-50/40 shadow-xs ring-1 ring-amber-500/20"
+                                    : "border-emerald-600 bg-emerald-50/40 shadow-xs ring-1 ring-emerald-500/20"
+                                  : "border-slate-200 hover:border-slate-300 bg-white"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="space-y-0.5">
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                                        isSelected
+                                          ? isExpress
+                                            ? "border-amber-500 bg-amber-500 text-white"
+                                            : "border-emerald-600 bg-emerald-600 text-white"
+                                          : "border-slate-300"
+                                      }`}
+                                    >
+                                      {isSelected && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-900">{opt.name}</span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 pl-6">
+                                    {opt.marketingTag || (isExpress ? "Fastest Arrival by Air" : "Most Economical Surface")}
+                                  </p>
+                                </div>
+
+                                <div className="text-right shrink-0">
+                                  {opt.isFree ? (
+                                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[11px] uppercase tracking-wide">
+                                      FREE
+                                    </span>
+                                  ) : (
+                                    <div className="flex flex-col items-end">
+                                      {opt.discount > 0 && (
+                                        <span className="text-[11px] text-slate-400 line-through font-normal">
+                                          ₹{opt.originalRate}
+                                        </span>
+                                      )}
+                                      <span className="text-sm font-extrabold text-slate-900">
+                                        ₹{opt.rate}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Prominent Business Days Delivery Indicator */}
+                              <div className="p-2 rounded-xl bg-white/80 border border-slate-200/80 flex items-center justify-between text-xs">
+                                <span className="flex items-center gap-1.5 font-bold text-slate-800">
+                                  {isExpress ? (
+                                    <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                  ) : (
+                                    <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                                  )}
+                                  Delivered in {opt.estimatedDeliveryDays}
+                                </span>
+                                {opt.badge && (
+                                  <span
+                                    className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
+                                      opt.isFree
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : isExpress
+                                        ? "bg-amber-100 text-amber-900 border border-amber-200"
+                                        : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                    }`}
+                                  >
+                                    {opt.badge}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Courier details & Vedic protection */}
+                              <div className="text-[11px] text-slate-500 space-y-0.5 pt-0.5">
+                                <p className="truncate">via <strong className="text-slate-700">{opt.courierName}</strong></p>
+                                <p className="text-[10px] text-slate-400 line-clamp-1">{opt.description}</p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="p-3.5 rounded-2xl border-2 border-emerald-600 bg-emerald-50/30 flex items-center justify-between sm:col-span-2">
+                          <span className="text-xs font-bold text-slate-900">
+                            {shipping.courierName || "Standard Eco Delivery"}
+                          </span>
+                          <span className="text-sm font-bold text-slate-900">
+                            {shipping.isFree ? "FREE" : `₹${shipping.amount}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -790,14 +1033,24 @@ export default function CheckoutPage() {
 
             {/* Cart Items */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-              <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5 text-emerald-600" />
-                Order Items ({cartItems.length})
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-emerald-600" />
+                  Order Items ({cartItems.length})
+                </h3>
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition-all shadow-2xs"
+                >
+                  <Plus size={13} />
+                  <span>Add More Products</span>
+                </Link>
+              </div>
               <div className="divide-y divide-slate-100">
                 {cartItems.map((item) => {
                   const product = item.product || {};
-                  const price = product.discountPrice > 0 ? product.discountPrice : product.price || 0;
+                  const unitPrice = getItemEffectivePrice(item);
+                  const itemTotal = unitPrice * item.quantity;
                   const image = resolveProductImage(product);
                   return (
                     <div key={item._id} className="py-4 first:pt-0 last:pb-0 flex items-center gap-3">
@@ -815,12 +1068,31 @@ export default function CheckoutPage() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-slate-800 truncate">{product.name}</p>
                         {item.variantLabel && <p className="text-xs text-slate-500">Variant: {item.variantLabel}</p>}
-                        <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
+                        <p className="text-xs text-slate-500">
+                          Qty: {item.quantity} × ₹{unitPrice.toFixed(2)}
+                        </p>
                       </div>
-                      <span className="text-sm font-bold text-slate-900 shrink-0">₹{(price * item.quantity).toFixed(2)}</span>
+                      <span className="text-sm font-bold text-slate-900 shrink-0">₹{itemTotal.toFixed(2)}</span>
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Add more items footer */}
+              <div className="pt-4 mt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <Link
+                  href="/cart"
+                  className="font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+                >
+                  ← Modify Cart Quantities
+                </Link>
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                >
+                  <span>Explore Store &amp; Add Products</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
           </div>
@@ -828,9 +1100,15 @@ export default function CheckoutPage() {
           {/* RIGHT: Order Summary */}
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs sticky top-6 space-y-5">
-              <h3 className="text-base font-bold text-slate-900 pb-4 border-b border-slate-100">
-                Order Summary
-              </h3>
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h3 className="text-base font-bold text-slate-900">Order Summary</h3>
+                <Link
+                  href="/shop"
+                  className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1"
+                >
+                  <span>+ Add Items</span>
+                </Link>
+              </div>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between text-slate-600">
@@ -841,7 +1119,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center text-slate-600">
                   <span className="flex items-center gap-1.5">
                     <Truck className="w-3.5 h-3.5 text-slate-400" />
-                    Delivery Charge
+                    Delivery ({selectedSpeed === "express" ? "Express Fast" : "Standard Eco"})
                   </span>
 
                   {shipping.loading ? (
@@ -853,29 +1131,66 @@ export default function CheckoutPage() {
                   ) : shipping.error ? (
                     <span className="text-rose-500 text-xs font-medium">Unavailable</span>
                   ) : shipping.isFree ? (
-                    <span className="text-emerald-600 font-bold text-xs uppercase tracking-wide">FREE</span>
+                    <span className="text-emerald-600 font-extrabold text-xs uppercase tracking-wide">
+                      FREE
+                    </span>
                   ) : (
-                    <span className="font-bold text-slate-900">₹{shipping.amount}</span>
+                    <div className="flex items-center gap-1.5">
+                      {shipping.discount > 0 && (
+                        <span className="text-xs text-slate-400 line-through">
+                          ₹{shipping.originalAmount}
+                        </span>
+                      )}
+                      <span className="font-bold text-slate-900">₹{shipping.amount}</span>
+                    </div>
                   )}
                 </div>
 
-                {shipping.calculated && !shipping.isFree && shipping.estimatedDeliveryDays && (
+                {/* Subsidized Delivery Offer Row */}
+                {shipping.discount > 0 && !shipping.isFree && (
+                  <div className="flex justify-between items-center text-xs text-emerald-700 font-semibold bg-emerald-50/60 border border-emerald-100 p-2.5 rounded-xl">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>
+                        {shipping.offer?.itemCount > 1
+                          ? `Goshala Delivery Subsidy (${shipping.offer.itemCount} items × ₹${shipping.offer.discountPerItem || 20} OFF)`
+                          : `Goshala Delivery Subsidy Offer`}
+                      </span>
+                    </span>
+                    <span className="font-bold">-₹{shipping.discount}</span>
+                  </div>
+                )}
+
+                {shipping.calculated && shipping.estimatedDeliveryDays && (
                   <div className="text-[10px] text-slate-500 text-right">
                     via {shipping.courierName} · Est. {shipping.estimatedDeliveryDays}
                   </div>
                 )}
               </div>
 
-              {/* Free delivery nudge */}
-              {shipping.calculated && !shipping.isFree && shipping.shortfall > 0 && (
-                <div className="p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs text-amber-800">
-                  Add <strong>₹{shipping.shortfall}</strong> more to unlock FREE delivery!
+              {/* Free delivery & Per-item subsidy nudge */}
+              {shipping.calculated && !shipping.isFree && (
+                <div className="p-3.5 bg-gradient-to-br from-amber-50 to-amber-100/40 border border-amber-200/80 rounded-2xl text-xs text-amber-900 space-y-2.5 shadow-2xs">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">
+                      Add 1 more product to save an extra <strong>₹{shipping.offer?.discountPerItem || 20} OFF</strong> delivery
+                      {shipping.shortfall > 0 ? ` or add ₹${shipping.shortfall} to unlock 100% FREE Delivery!` : "!"}
+                    </p>
+                  </div>
+                  <Link
+                    href="/shop"
+                    className="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 group"
+                  >
+                    <span>+ Add Items to Reduce Delivery Fee</span>
+                    <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
               )}
               {shipping.isFree && (
                 <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 shrink-0" />
-                  🎉 You&apos;ve unlocked FREE delivery!
+                  <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>🎉 Your order qualifies for <strong>FREE Delivery</strong>!</span>
                 </div>
               )}
 
