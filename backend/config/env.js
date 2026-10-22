@@ -61,10 +61,10 @@ module.exports = {
   },
 
   shiprocket: {
-    email: process.env.SHIPROCKET_EMAIL || "gokarni1967@yahoo.com",
-    password: process.env.SHIPROCKET_PASSWORD || "kapardhI@1967",
+    email: process.env.SHIPROCKET_EMAIL || "fenicinnovations@gmail.com",
+    password: process.env.SHIPROCKET_PASSWORD || "",
     pickupPincode: process.env.SHIPROCKET_PICKUP_PINCODE || "500081",
-    pickupLocation: process.env.SHIPROCKET_PICKUP_LOCATION || "Primary",
+    pickupLocation: process.env.SHIPROCKET_PICKUP_LOCATION || "home",
     freeShippingThreshold: parseInt(process.env.FREE_SHIPPING_THRESHOLD, 10) || 800,
   },
 

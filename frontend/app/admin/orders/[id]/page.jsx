@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api/apiClient";
 import ConfirmModal from "@/components/admin/ConfirmModal";
+import { useDispatch, triggerToast } from "@/lib/redux/store";
 
 const STATUS_COLORS = {
   pending_payment: "bg-amber-100 text-amber-800",
@@ -30,6 +31,7 @@ const STATUS_COLORS = {
 export default function AdminOrderDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const dispatch = useDispatch();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,11 +68,12 @@ export default function AdminOrderDetailsPage() {
       }
     } catch (err) {
       console.error("Failed to fetch order:", err.message);
+      dispatch(triggerToast(err.message || "Failed to fetch order", "error"));
       router.push("/admin/orders");
     } finally {
       setLoading(false);
     }
-  }, [id, router]);
+  }, [id, router, dispatch]);
 
   useEffect(() => {
     fetchOrder();
@@ -107,14 +110,19 @@ export default function AdminOrderDetailsPage() {
   };
 
   const handleUpdateStatus = async () => {
-    if (!newStatus) return;
+    if (!newStatus) {
+      dispatch(triggerToast("Please select a status first", "warning"));
+      return;
+    }
     setProcessing(true);
     try {
       const res = await apiClient.patch(`/admin/orders/${id}/status`, { status: newStatus });
       setOrder(res.order);
       setStatusModalOpen(false);
+      dispatch(triggerToast(`Order status updated to '${newStatus.replace(/_/g, " ").toUpperCase()}'`, "success"));
     } catch (err) {
       console.error("Status update failed:", err.message);
+      dispatch(triggerToast(err.message || "Status update failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -131,8 +139,10 @@ export default function AdminOrderDetailsPage() {
       };
       const res = await apiClient.post(`/admin/orders/${id}/ship`, payload);
       setOrder(res.order);
+      dispatch(triggerToast("Shipment created with Shiprocket and AWB assigned!", "success"));
     } catch (err) {
       console.error("Shipment creation failed:", err.message);
+      dispatch(triggerToast(err.message || "Shiprocket shipment creation failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -143,8 +153,10 @@ export default function AdminOrderDetailsPage() {
     try {
       const res = await apiClient.get(`/admin/orders/${id}/track`);
       setOrder(res.order);
+      dispatch(triggerToast("Live tracking synced with Shiprocket", "success"));
     } catch (err) {
       console.error("Tracking sync failed:", err.message);
+      dispatch(triggerToast(err.message || "Tracking sync failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -159,8 +171,10 @@ export default function AdminOrderDetailsPage() {
       });
       setOrder(res.order);
       setRefundModalOpen(false);
+      dispatch(triggerToast("Refund processed successfully via Razorpay", "success"));
     } catch (err) {
       console.error("Refund failed:", err.message);
+      dispatch(triggerToast(err.message || "Refund failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -172,8 +186,10 @@ export default function AdminOrderDetailsPage() {
       const res = await apiClient.post(`/admin/orders/${id}/return/approve`);
       setOrder(res.order);
       setApproveReturnModalOpen(false);
+      dispatch(triggerToast("Return approved & reverse pickup scheduled with Shiprocket", "success"));
     } catch (err) {
       console.error("Return approval failed:", err.message);
+      dispatch(triggerToast(err.message || "Return approval failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -187,8 +203,10 @@ export default function AdminOrderDetailsPage() {
       });
       setOrder(res.order);
       setRejectReturnModalOpen(false);
+      dispatch(triggerToast("Return request declined", "info"));
     } catch (err) {
       console.error("Return rejection failed:", err.message);
+      dispatch(triggerToast(err.message || "Return rejection failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -203,8 +221,10 @@ export default function AdminOrderDetailsPage() {
       });
       setOrder(res.order);
       setReceiveReturnModalOpen(false);
+      dispatch(triggerToast("Return received, inventory restocked & refund processed", "success"));
     } catch (err) {
       console.error("Return receipt failed:", err.message);
+      dispatch(triggerToast(err.message || "Return receipt failed", "error"));
     } finally {
       setProcessing(false);
     }
@@ -247,8 +267,11 @@ export default function AdminOrderDetailsPage() {
             <Receipt className="w-4 h-4 text-emerald-600" /> Download Tax Invoice
           </button>
           <button
-            onClick={() => setStatusModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm shadow-sm shadow-emerald-600/20"
+            onClick={() => {
+              setNewStatus(order?.status || "");
+              setStatusModalOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium text-sm shadow-sm shadow-emerald-600/20 cursor-pointer"
           >
             <Settings2 className="w-4 h-4" /> Update Status
           </button>
@@ -560,8 +583,8 @@ export default function AdminOrderDetailsPage() {
 
                     <button
                       onClick={handleCreateShipment}
-                      disabled={processing || !['confirmed', 'processing'].includes(order.status)}
-                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                      disabled={processing || (!['confirmed', 'processing', 'ready_to_ship'].includes(order.status) && !order.shipping?.awbCode)}
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Truck className="w-4 h-4" />
                       <span>{processing ? "Dispatching..." : "Create Shiprocket Shipment & Generate AWB"}</span>
@@ -725,6 +748,7 @@ export default function AdminOrderDetailsPage() {
         onConfirm={handleUpdateStatus}
         title="Update Order Status"
         confirmText="Update Status"
+        isLoading={processing}
         isDestructive={false}
       >
         <div className="space-y-4 my-2">
@@ -736,11 +760,14 @@ export default function AdminOrderDetailsPage() {
             <select
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
-              className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 text-sm"
+              className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:border-emerald-500 text-sm bg-white font-medium text-slate-800"
             >
               <option value="">Select Status</option>
+              <option value="confirmed">Confirmed</option>
               <option value="processing">Processing</option>
+              <option value="ready_to_ship">Ready to Ship</option>
               <option value="shipped">Shipped</option>
+              <option value="out_for_delivery">Out for Delivery</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
               <option value="returned">Returned</option>

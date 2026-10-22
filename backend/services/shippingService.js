@@ -323,8 +323,8 @@ class ShippingService {
         body: JSON.stringify(orderPayload),
       });
 
-      if (!ok) {
-        throw new Error(data.message || JSON.stringify(data.errors || data));
+      if (!ok || !data?.order_id) {
+        throw new Error(data?.message || (data?.errors ? JSON.stringify(data.errors) : "Shiprocket failed to create order"));
       }
 
       const shiprocketOrderId = data.order_id;
@@ -350,8 +350,17 @@ class ShippingService {
       }
 
       let awbData = null;
+      let labelUrl = "";
       try {
         awbData = await this.generateAWB({ shipmentId, courierId: targetCourierId });
+        if (awbData?.awbCode) {
+          try {
+            const labelRes = await this.generateLabel(shipmentId);
+            labelUrl = labelRes?.labelUrl || "";
+          } catch (lblErr) {
+            console.warn("[ShippingService] Label generation deferred:", lblErr.message);
+          }
+        }
       } catch (awbErr) {
         console.warn("[ShippingService] AWB auto-assignment deferred:", awbErr.message);
       }
@@ -363,6 +372,7 @@ class ShippingService {
         courierName: awbData?.courierName || order.shipping?.courierName || "Delhivery Surface",
         courierCompanyId: awbData?.courierCompanyId || targetCourierId || 10,
         trackingUrl: awbData?.awbCode ? `https://shiprocket.co/tracking/${awbData.awbCode}` : "",
+        labelUrl: labelUrl || "",
         currentStatus: awbData?.awbCode ? "AWB Assigned" : "Order Created",
       };
     } catch (err) {
