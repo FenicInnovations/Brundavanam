@@ -70,7 +70,7 @@ const SOCIALS = [
 const TRUST_PILLARS = [
   {
     icon: ShieldCheck,
-    title: "100% Ahimsa Sanctuary",
+    title: "100% Organic Sanctuary",
     desc: "Lifelong care & protection for non-milking cows and bull calves.",
   },
   {
@@ -465,14 +465,14 @@ export default function Footer() {
               ॥ सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः ॥ (May all beings be happy and free from disease)
             </p>
             <p className="text-[11px] text-amber-200/50">
-              © {new Date().getFullYear()} {SITE_NAME}. Handcrafted with devotion for Gaumata Seva & Ahimsa Wellness.
+              © {new Date().getFullYear()} {SITE_NAME}. Handcrafted with devotion for Gaumata Seva & Organic Wellness.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-amber-200/60">
             <span>🛡️ 100% Secure Razorpay Checkout</span>
             <span>•</span>
-            <span>🌱 Verified Ahimsa Dairy</span>
+            <span>🌱 Verified Organic Dairy</span>
           </div>
         </div>
       </div>

@@ -211,7 +211,7 @@ export default function ShopView({ initialProducts = [], products = [] }) {
         <div className="max-w-2xl space-y-2.5">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 bg-white/10 px-3 py-1 rounded-full backdrop-blur-xs">
             <Sparkles size={13} className="text-amber-400" />
-            <span>Sacred Ahimsa Store</span>
+            <span>Sacred Organic Store</span>
           </span>
           <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight">
             The Goshala Store

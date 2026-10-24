@@ -21,7 +21,7 @@ import {
 export const metadata = {
   title: "Brundavanam Goshala | Sacred Sanctuary for Gaumata",
   description:
-    "Rooted in Tradition. Made for a Kinder Tomorrow. Discover life at Brundavanam Goshala — Ahimsa milking, open pasture grazing, lifetime sanctuary, and sacred Ayurvedic care.",
+    "Rooted in Tradition. Made for a Kinder Tomorrow. Discover life at Brundavanam Goshala — Organic milking, open pasture grazing, lifetime sanctuary, and sacred Ayurvedic care.",
 };
 
 const SANCTUARY_PILLARS = [
@@ -64,9 +64,9 @@ const DAILY_SCHEDULE = [
   },
   {
     time: "06:00 AM",
-    title: "Ahimsa Milking — Calves Drink First",
-    desc: "In accordance with Vedic Ahimsa principles, calves are always allowed to drink their mother's milk to their heart's content first. Only excess milk is gently gathered by hand for sacred curd and bilona ghee.",
-    tag: "Ahimsa Practice",
+    title: "Organic Milking — Calves Drink First",
+    desc: "In accordance with Vedic organic principles, calves are always allowed to drink their mother's milk to their heart's content first. Only excess milk is gently gathered by hand for sacred curd and bilona ghee.",
+    tag: "Organic Practice",
   },
   {
     time: "08:30 AM",
@@ -186,7 +186,7 @@ export default function GoshalaPage() {
             </div>
 
             <p className="text-xs uppercase tracking-widest font-extrabold text-amber-400">
-              Sacred Sanctuary • Compassionate Cow Care • Ahimsa Living
+              Sacred Sanctuary • Compassionate Cow Care • Organic Living
             </p>
 
             <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-white tracking-tight drop-shadow-xs">
@@ -194,7 +194,7 @@ export default function GoshalaPage() {
             </h1>
 
             <p className="text-base sm:text-lg text-[#ded4be] leading-relaxed">
-              Rooted in timeless Vedic tradition and compassionate living. At Brundavanam Goshala, we protect, revere, and nurture indigenous cows throughout their natural lives with free-range grazing, Ahimsa milking, and unconditional love.
+              Rooted in timeless Vedic tradition and compassionate living. At Brundavanam Goshala, we protect, revere, and nurture indigenous cows throughout their natural lives with free-range grazing, organic milking, and unconditional love.
             </p>
 
             <div className="rounded-2xl border-l-4 border-amber-500 bg-amber-500/15 p-4 shadow-xs backdrop-blur-xs max-w-xl text-amber-200">
@@ -368,14 +368,14 @@ export default function GoshalaPage() {
         </div>
       </section>
 
-      {/* 5. Lifelong Sanctuary & Strict Ahimsa Promise */}
+      {/* 5. Lifelong Sanctuary & Strict Organic Care Promise */}
       <section className="mx-auto max-w-content px-6 md:px-8">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#fffdf8] via-[#fbf7ed] to-[#f4ecd8] p-6 sm:p-10 lg:p-12 border-2 border-amber-200/90 shadow-sm text-ink">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-7 space-y-5">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-100/90 px-3.5 py-1 rounded-full border border-amber-300">
                 <ShieldCheck size={14} className="text-amber-700" />
-                Our Lifetime Ahimsa Promise
+                Our Lifetime Organic Care Promise
               </span>
 
               <h2 className="font-display text-2xl sm:text-4xl font-bold leading-tight text-ink">

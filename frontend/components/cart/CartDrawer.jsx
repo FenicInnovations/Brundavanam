@@ -119,7 +119,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <Truck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                 <span>Delivery Subsidy</span>
               </span>
-              <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingDiscountOffer}/item)</span>
+              <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingConfig.shippingDiscountOffer}/item)</span>
             </div>
           )}
 

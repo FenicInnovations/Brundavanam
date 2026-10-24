@@ -25,8 +25,11 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Primary Mobile Navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white/98 shadow-[0_-4px_25px_rgba(0,0,0,0.12)] backdrop-blur-md md:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white shadow-[0_-4px_25px_rgba(0,0,0,0.12)] md:hidden"
+      style={{
+        backgroundColor: "#ffffff",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
     >
       <ul className="flex h-[var(--bottom-nav-height)] items-stretch justify-between px-1 sm:px-2">
         {BOTTOM_NAV.map((item) => {

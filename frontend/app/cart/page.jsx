@@ -142,9 +142,18 @@ export default function CartPage() {
                           </button>
                         </div>
 
-                        <span className="font-extrabold text-slate-900 text-sm">
-                          ₹{(((product.discountPrice > 0 && product.discountPrice < product.price) ? product.discountPrice : product.price) * item.quantity).toFixed(2)}
-                        </span>
+                        {(() => {
+                          const rawPrice = product.price !== undefined ? Number(product.price) : 0;
+                          const rawDiscount = product.discountPrice !== undefined ? Number(product.discountPrice) : 0;
+                          const itemPrice = (rawDiscount > 0 && rawDiscount < rawPrice) ? rawDiscount : rawPrice;
+                          const lineTotal = (itemPrice * (item.quantity || 1)).toFixed(2);
+
+                          return (
+                            <span className="font-extrabold text-slate-900 text-sm">
+                              ₹{lineTotal}
+                            </span>
+                          );
+                        })()}
 
                         <button
                           type="button"
@@ -170,30 +179,30 @@ export default function CartPage() {
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal ({totalCount} items)</span>
-                  <span className="font-bold text-slate-900">₹{subtotal.toFixed(2)}</span>
+                  <span className="font-bold text-slate-900">₹{Number(subtotal || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-slate-600">
                   <span>Estimated Shipping</span>
-                  {shippingConfig.isFreeShippingEnabled && subtotal >= (shippingConfig.freeShippingThreshold || 800) ? (
+                  {shippingConfig?.isFreeShippingEnabled && subtotal >= (shippingConfig?.freeShippingThreshold || 800) ? (
                     <span className="text-emerald-600 font-bold text-xs uppercase tracking-wide">
-                      FREE (Above ₹{shippingConfig.freeShippingThreshold || 800})
+                      FREE (Above ₹{shippingConfig?.freeShippingThreshold || 800})
                     </span>
                   ) : (
                     <span className="text-slate-500 font-medium text-xs">Calculated by PIN at Checkout</span>
                   )}
                 </div>
-                {shippingConfig.isOfferActive && shippingConfig.shippingDiscountOffer > 0 && !(shippingConfig.isFreeShippingEnabled && subtotal >= (shippingConfig.freeShippingThreshold || 800)) && (
+                {shippingConfig?.isOfferActive && shippingConfig?.shippingDiscountOffer > 0 && !(shippingConfig?.isFreeShippingEnabled && subtotal >= (shippingConfig?.freeShippingThreshold || 800)) && (
                   <div className="flex justify-between items-center text-amber-900 font-bold bg-amber-50 p-2.5 rounded-xl border border-amber-200">
                     <span className="flex items-center gap-1.5">
                       <Truck className="w-3.5 h-3.5 text-amber-700" />
                       <span>Delivery Discount Offer</span>
                     </span>
-                    <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingDiscountOffer}/item)</span>
+                    <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingConfig.shippingDiscountOffer}/item)</span>
                   </div>
                 )}
                 <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-extrabold text-slate-900">
                   <span>Subtotal Amount</span>
-                  <span className="text-emerald-700">₹{subtotal.toFixed(2)}</span>
+                  <span className="text-emerald-700">₹{Number(subtotal || 0).toFixed(2)}</span>
                 </div>
               </div>
 

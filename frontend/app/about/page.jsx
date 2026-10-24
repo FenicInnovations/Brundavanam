@@ -39,7 +39,7 @@ const BROCHURE_VALUES = [
     icon: "🐄",
     title: "Gaumata Care",
     tagline: "Sacred Protection & Nurturing",
-    desc: "Supporting the lifelong care, protection, and nurturing of cows in an ahimsa sanctuary where every mother and calf lives with love.",
+    desc: "Supporting the lifelong care, protection, and nurturing of cows in an organic sanctuary where every mother and calf lives with love.",
   },
   {
     icon: "🌍",
@@ -130,7 +130,7 @@ export default function AboutPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
                 {[
                   { label: "PEOPLE", desc: "Holistic Health", icon: "🌱" },
-                  { label: "COWS", desc: "Ahimsa Protection", icon: "🐄" },
+                  { label: "COWS", desc: "Organic Protection", icon: "🐄" },
                   { label: "PLANET", desc: "Eco Harmony", icon: "🌍" },
                   { label: "TOGETHER", desc: "A Kinder Tomorrow", icon: "🤝" },
                 ].map((item, idx) => (
@@ -202,7 +202,7 @@ export default function AboutPage() {
                 &ldquo;Care Today for a Brighter Tomorrow&rdquo;
               </p>
               <p className="text-xs text-amber-900/80 mt-2 font-medium">
-                Every drop of ghee, every pinch of kunkuma, and every Ayurvedic remedy at Brundavanam honors our ancient lineage of reverence and ahimsa.
+                Every drop of ghee, every pinch of kunkuma, and every Ayurvedic remedy at Brundavanam honors our ancient lineage of reverence and organic living.
               </p>
             </div>
           </div>

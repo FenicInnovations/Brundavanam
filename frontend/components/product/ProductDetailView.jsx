@@ -173,7 +173,7 @@ export default function ProductDetailView({ product }) {
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-accent-deep bg-amber-100/70 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
                 <Sparkles size={11} className="text-amber-600" />
-                <span>Brundavanam Ahimsa Goshala</span>
+                <span>Brundavanam Organic Goshala</span>
               </span>
               <span className="text-xs text-ink-soft">SKU: {product.sku || "BG-VEDIC"}</span>
             </div>
@@ -231,7 +231,7 @@ export default function ProductDetailView({ product }) {
           <div className="grid grid-cols-2 gap-2.5 pt-1">
             <div className="flex items-center gap-2 rounded-xl bg-surface border border-line p-2.5 text-xs font-semibold text-ink">
               <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
-              <span>100% Ahimsa Cow Care</span>
+              <span>100% Organic Cow Care</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl bg-surface border border-line p-2.5 text-xs font-semibold text-ink">
               <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />

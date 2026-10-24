@@ -65,12 +65,12 @@ const TRUST_BADGES = [
 const HERO_SLIDES = [
   {
     badge: "Brundavanam Goshala • Sacred Sanctuary",
-    supertitle: "Traditional Ahimsa Cow Care & Ayurvedic Living",
+    supertitle: "Traditional Organic Cow Care & Ayurvedic Living",
     title: "Rooted in Tradition. Made for Tomorrow.",
     subtitle:
       "Pure Ayurvedic wellness handcrafted with care for our indigenous Gir cows and your family.",
-    tags: ["Ahimsa Care", "Pure A2 Gir Herd", "100% Chemical-Free"],
-    buttonText: "Shop Sacred Offerings",
+    tags: ["Organic Care", "Pure A2 Gir Herd", "100% Chemical-Free"],
+    buttonText: "chemical free products",
     buttonHref: "/shop",
     secondaryText: "Our Sanctuary",
     secondaryHref: "/about",
@@ -204,7 +204,7 @@ const TESTIMONIALS = [
     name: "Ananya Deshmukh",
     city: "Mumbai",
     rating: 5,
-    text: "Knowing that every jar of ghee supports an ahimsa goshala where cows are never sold or harmed makes every meal a blessing. Exceptional packaging and quality.",
+    text: "Knowing that every jar of ghee supports an organic goshala where cows are never sold or harmed makes every meal a blessing. Exceptional packaging and quality.",
     product: "Cultured A2 Desi Ghee",
   },
 ];
@@ -297,13 +297,13 @@ export default function HomePage() {
                 {HERO_SLIDES[currentSlide].title}
               </h1>
 
-              {/* Subtitle - Short & Crisp */}
-              <p className="text-xs sm:text-sm lg:text-base leading-relaxed text-amber-50/95 font-sans max-w-lg drop-shadow-sm line-clamp-3 sm:line-clamp-none">
+              {/* Subtitle - Short & Crisp (Hidden on mobile to keep banner image visible, shown on desktop) */}
+              <p className="hidden sm:block text-xs sm:text-sm lg:text-base leading-relaxed text-amber-50/95 font-sans max-w-lg drop-shadow-sm line-clamp-3 sm:line-clamp-none">
                 {HERO_SLIDES[currentSlide].subtitle}
               </p>
 
-              {/* Pill Badges List - Compact */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              {/* Pill Badges List - Compact (Hidden on mobile to keep banner image visible, shown on desktop) */}
+              <div className="hidden sm:flex flex-wrap gap-2 pt-1">
                 {HERO_SLIDES[currentSlide].tags.map((tag, i) => (
                   <span
                     key={i}
@@ -390,7 +390,7 @@ export default function HomePage() {
               <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Happy Families</span>
             </div>
             <div className="flex flex-col items-center justify-center p-2 rounded-xl bg-white/[0.03] sm:bg-transparent">
-              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">Ahimsa</span>
+              <span className="font-display text-lg sm:text-2xl font-bold text-amber-400">100% Organic</span>
               <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-amber-200/70">Zero Chemicals</span>
             </div>
           </div>

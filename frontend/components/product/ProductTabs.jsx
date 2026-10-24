@@ -53,7 +53,7 @@ export default function ProductTabs({ product }) {
         onToggle={() => toggle("description")}
       >
         <div className="space-y-3">
-          <p>{product.description || product.shortDescription || "Handmade at Brundavanam Goshala following authentic Vedic principles. Prepared from the milk of naturally grazing indigenous Indian Gir cows with utmost reverence and Ahimsa care."}</p>
+          <p>{product.description || product.shortDescription || "Handmade at Brundavanam Goshala following authentic Vedic principles. Prepared from the milk of naturally grazing indigenous Indian Gir cows with utmost reverence and Organic care."}</p>
           <div className="rounded-xl bg-amber-50/60 border border-amber-200/60 p-3 text-xs text-amber-900 space-y-1">
             <p className="font-bold">🌿 Why Brundavanam Goshala?</p>
             <p>• Calves are fed first before milking.</p>

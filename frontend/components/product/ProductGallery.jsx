@@ -32,7 +32,7 @@ export default function ProductGallery({ images = [], name = "Product" }) {
         <div className="absolute top-4 left-4 z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1c1813]/85 backdrop-blur-md px-3 py-1 text-xs font-bold text-amber-300 shadow-md">
             <Sparkles size={13} className="text-amber-400" />
-            <span>100% Ahimsa Goshala Pure</span>
+            <span>100% Organic Goshala Pure</span>
           </span>
         </div>
 

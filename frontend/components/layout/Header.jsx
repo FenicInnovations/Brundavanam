@@ -212,7 +212,10 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 hidden w-full flex-col bg-surface shadow-xs transition-all md:flex">
+    <header
+      className="sticky top-0 z-50 hidden w-full flex-col bg-white shadow-xs transition-all md:flex"
+      style={{ backgroundColor: "#ffffff" }}
+    >
       {/* 1. Sacred Golden Announcement Bar */}
       <div className="flex items-center justify-between bg-[#1f1911] px-8 py-2 text-xs text-[#faf3e0] border-b border-[#2e261a]">
         <div className="flex items-center gap-2">
@@ -566,7 +569,7 @@ export default function Header() {
             </span>
           </p>
           <span className="text-[11px] text-ink-soft/80 font-medium">
-            100% Ahimsa Goshala
+            100% Organic Goshala
           </span>
         </div>
       </div>

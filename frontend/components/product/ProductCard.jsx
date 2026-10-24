@@ -138,7 +138,7 @@ export default function ProductCard({ product: rawProduct }) {
         <div className="absolute bottom-1.5 left-2 sm:bottom-2 sm:left-2.5 z-10">
           <span className="inline-flex items-center gap-1 rounded-md bg-[#1f1911]/80 backdrop-blur-xs px-1.5 py-0.5 sm:px-2 text-[8px] sm:text-[9px] font-semibold text-[#faf3e0]">
             <Sparkles size={9} className="text-amber-400" />
-            <span>100% Ahimsa</span>
+            <span>100% Organic</span>
           </span>
         </div>
       </div>
