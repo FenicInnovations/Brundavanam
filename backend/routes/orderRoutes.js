@@ -22,13 +22,15 @@ router.post("/checkout", optionalAuth, checkout);
 router.post("/verify-payment", optionalAuth, verifyPayment);
 router.post("/payment-failed", optionalAuth, paymentFailed);
 router.get("/track", optionalAuth, trackOrder);
-router.get("/:id", optionalAuth, getOrderById);
-router.get("/:id/invoice", optionalAuth, downloadInvoice);
 
-// Customer account endpoints requiring login
+// Customer account endpoints requiring login (MUST be declared before /:id)
 router.get("/my-orders", protect, getMyOrders);
 router.post("/:id/cancel", protect, cancelMyOrder);
 router.post("/:id/return", protect, requestReturn);
+
+// Specific order by ID
+router.get("/:id", optionalAuth, getOrderById);
+router.get("/:id/invoice", optionalAuth, downloadInvoice);
 
 module.exports = router;
 

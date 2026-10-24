@@ -313,10 +313,16 @@ function TrackOrderContent() {
                   )}
                 </div>
 
-                {order.shipping?.estimatedDelivery && (
-                  <p className="text-xs text-slate-600 pt-2 border-t border-emerald-100">
-                    Estimated Transit: <strong>{order.shipping.estimatedDelivery}</strong>
-                  </p>
+                {(order.shipping?.etd || order.shipping?.estimatedDelivery) && (
+                  <div className="flex items-center gap-2 text-xs text-emerald-900 bg-white/80 px-3 py-2 rounded-xl border border-emerald-200 font-medium">
+                    <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>
+                      Estimated Delivery Date:{" "}
+                      <strong className="text-emerald-800 font-bold">
+                        {order.shipping.etd || order.shipping.estimatedDelivery}
+                      </strong>
+                    </span>
+                  </div>
                 )}
               </div>
 

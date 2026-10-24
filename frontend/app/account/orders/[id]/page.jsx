@@ -367,14 +367,26 @@ export default function OrderDetailsPage() {
               {order.shipping?.awbCode && (
                 <div className="pt-4 border-t border-slate-100">
                   <div className="text-xs text-slate-500 font-semibold mb-2">Tracking Information</div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center mb-1">
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                    <div className="flex justify-between items-center">
                       <span className="text-xs text-slate-600 font-medium">{order.shipping.courierName || 'Courier'}</span>
-                      <span className="text-xs font-bold text-slate-900">{order.shipping.awbCode}</span>
+                      <span className="text-xs font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200">{order.shipping.awbCode}</span>
                     </div>
+                    {(order.shipping?.etd || order.shipping?.estimatedDelivery) && (
+                      <div className="text-xs text-emerald-800 bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200 font-medium flex items-center justify-between">
+                        <span className="text-slate-600">Estimated Delivery:</span>
+                        <strong className="font-bold text-emerald-900">{order.shipping.etd || order.shipping.estimatedDelivery}</strong>
+                      </div>
+                    )}
+                    {order.shipping?.currentStatus && (
+                      <div className="text-[11px] text-slate-600 flex items-center justify-between">
+                        <span>Courier Status:</span>
+                        <span className="font-semibold text-slate-800 capitalize">{order.shipping.currentStatus}</span>
+                      </div>
+                    )}
                     {order.shipping.trackingUrl && (
-                      <a href={order.shipping.trackingUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 font-semibold hover:underline block mt-2">
-                        Track Package &rarr;
+                      <a href={order.shipping.trackingUrl} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 font-bold hover:underline block pt-1">
+                        Track Live Package &rarr;
                       </a>
                     )}
                   </div>

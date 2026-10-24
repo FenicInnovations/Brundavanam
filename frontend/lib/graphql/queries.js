@@ -44,9 +44,10 @@ export const STOREFRONT_INITIAL_QUERY = `
         discountPrice
         discountPercent
         savingsAmount
+        stock
+        inStock
         images
         shortDescription
-        inStock
         variants {
           id
           label

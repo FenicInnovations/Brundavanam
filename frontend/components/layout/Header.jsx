@@ -39,6 +39,8 @@ import {
   selectIsAdmin,
   logoutUser,
   fetchCategories,
+  selectFreeShippingThreshold,
+  selectIsFreeShippingEnabled,
 } from "@/lib/redux/store";
 
 const NAV_LINKS = [
@@ -77,6 +79,10 @@ export default function Header() {
   const cartTotalCount = useSelector(selectCartTotalCount);
   const wishlistItems = useSelector(selectWishlistItems);
   const wishlistTotalCount = wishlistItems?.length || 0;
+
+  // Dynamic Free Shipping Configuration from Admin
+  const freeShippingThreshold = useSelector(selectFreeShippingThreshold) || 800;
+  const isFreeShippingEnabled = useSelector(selectIsFreeShippingEnabled);
 
   const currentUser = reduxUser || ctxUser;
   const isAuthenticated = ctxStatus === "authenticated" || !!reduxUser;
@@ -206,7 +212,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 hidden w-full flex-col bg-surface shadow-xs transition-all md:flex">
+    <header className="sticky top-0 z-50 hidden w-full flex-col bg-surface shadow-xs transition-all md:flex">
       {/* 1. Sacred Golden Announcement Bar */}
       <div className="flex items-center justify-between bg-[#1f1911] px-8 py-2 text-xs text-[#faf3e0] border-b border-[#2e261a]">
         <div className="flex items-center gap-2">
@@ -553,7 +559,11 @@ export default function Header() {
         <div className="hidden lg:flex items-center gap-4 text-xs font-semibold text-accent-deep">
           <p className="flex items-center gap-1.5 bg-amber-100/70 border border-amber-200/80 px-3 py-1 rounded-full">
             <Zap size={13} className="text-amber-700" />
-            <span>{FREE_SHIPPING_MESSAGE}</span>
+            <span>
+              {isFreeShippingEnabled
+                ? `Free Shipping in India: Order Above ₹${freeShippingThreshold.toLocaleString("en-IN")}/-`
+                : "Free Shipping in India: Order Above ₹800/-"}
+            </span>
           </p>
           <span className="text-[11px] text-ink-soft/80 font-medium">
             100% Ahimsa Goshala

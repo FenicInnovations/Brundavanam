@@ -25,6 +25,10 @@ import {
   addToCart,
   toggleWishlist,
   selectWishlistItems,
+  selectFreeShippingThreshold,
+  selectIsFreeShippingEnabled,
+  selectShippingDiscountOffer,
+  selectIsOfferActive,
   triggerToast,
 } from "@/lib/redux/store";
 
@@ -36,6 +40,12 @@ export default function ProductDetailView({ product }) {
   const isWishlisted = wishlistItems?.some(
     (item) => item.product?._id === product.id || item.product?.slug === product.slug
   );
+
+  // Dynamic Shipping Configuration & Delivery Subsidy Offer
+  const freeShippingThreshold = useSelector(selectFreeShippingThreshold) || 800;
+  const isFreeShippingEnabled = useSelector(selectIsFreeShippingEnabled);
+  const shippingDiscountOffer = useSelector(selectShippingDiscountOffer) || 0;
+  const isOfferActive = useSelector(selectIsOfferActive);
 
   const [variantId, setVariantId] = useState(
     product.variants?.find((v) => v.stock > 0)?.id ?? product.variants?.[0]?.id
@@ -205,7 +215,9 @@ export default function ProductDetailView({ product }) {
             )}
 
             <p className="text-[11px] text-ink-soft">
-              Inclusive of all taxes • Free shipping all over India on orders above ₹1,500.
+              Inclusive of all taxes • {isFreeShippingEnabled
+                ? `Free shipping all over India on orders above ₹${freeShippingThreshold.toLocaleString("en-IN")}.`
+                : "All-India direct goshala shipping."}
             </p>
           </div>
 

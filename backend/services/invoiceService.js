@@ -117,36 +117,36 @@ class InvoiceService {
       // --- HEADER ---
       doc
         .fillColor(primaryColor)
-        .fontSize(20)
+        .fontSize(18)
         .font("Helvetica-Bold")
-        .text(company.name.toUpperCase(), 40, 40)
+        .text(company.name.toUpperCase(), 40, 36)
         .fontSize(8)
         .font("Helvetica")
         .fillColor(mutedColor)
-        .text(company.legalName, 40, 65)
-        .text(company.address, 40, 77, { width: 300 })
-        .text(`GSTIN: ${company.gstin} | PAN: ${company.pan}`, 40, 100)
-        .text(`Email: ${company.email} | Phone: ${company.phone}`, 40, 112);
+        .text(company.legalName, 40, 58)
+        .text(company.address, 40, 70, { width: 330 })
+        .text(`GSTIN: ${company.gstin} | PAN: ${company.pan}`, 40, 94)
+        .text(`Email: ${company.email} | Phone: ${company.phone}`, 40, 107);
 
       // Tax Invoice Label (Right side)
       doc
         .fillColor(primaryColor)
         .fontSize(16)
         .font("Helvetica-Bold")
-        .text("TAX INVOICE", 400, 40, { align: "right" })
-        .fontSize(9)
+        .text("TAX INVOICE", 380, 36, { width: 175, align: "right" })
+        .fontSize(8.5)
         .font("Helvetica")
         .fillColor(darkColor)
-        .text(`Invoice No: ${invoiceNumber}`, 400, 65, { align: "right" })
-        .text(`Invoice Date: ${new Date(invoiceDate).toLocaleDateString("en-IN")}`, 400, 80, { align: "right" })
-        .text(`Order No: ${order.orderNumber}`, 400, 95, { align: "right" })
-        .text(`Payment: ${order.payment.status.toUpperCase()} (${order.payment.provider})`, 400, 110, { align: "right" });
+        .text(`Invoice No: ${invoiceNumber}`, 380, 58, { width: 175, align: "right" })
+        .text(`Invoice Date: ${new Date(invoiceDate).toLocaleDateString("en-IN")}`, 380, 72, { width: 175, align: "right" })
+        .text(`Order No: ${order.orderNumber}`, 380, 86, { width: 175, align: "right" })
+        .text(`Payment: ${order.payment.status.toUpperCase()} (${order.payment.provider})`, 380, 100, { width: 175, align: "right" });
 
       doc
         .strokeColor("#E4DAC5")
         .lineWidth(1)
-        .moveTo(40, 130)
-        .lineTo(555, 130)
+        .moveTo(40, 126)
+        .lineTo(555, 126)
         .stroke();
 
       // --- BILL TO & SHIP TO ---

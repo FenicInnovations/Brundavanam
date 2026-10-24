@@ -7,7 +7,6 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  Twitter,
   Mail,
   Send,
   CheckCircle2,
@@ -51,10 +50,21 @@ const POLICY_LINKS = [
 ];
 
 const SOCIALS = [
-  { label: "Facebook", href: "https://facebook.com", icon: Facebook },
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
-  { label: "Twitter", href: "https://twitter.com", icon: Twitter },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/p/Brundavanam-Goshala-61565490178430/",
+    icon: Facebook,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/brundavanamgoshala/",
+    icon: Instagram,
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@BrundavanamGaushala",
+    icon: Youtube,
+  },
 ];
 
 const TRUST_PILLARS = [

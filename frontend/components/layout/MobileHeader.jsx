@@ -24,14 +24,19 @@ export default function MobileHeader({ onMenuOpen }) {
   const wishlistCount = wishlistItems?.length || 0;
 
   return (
-    <header className="sticky top-0 z-40 flex h-[var(--mobile-header-height)] items-center justify-between border-b border-line bg-surface/95 px-3 backdrop-blur-md md:hidden">
-      <IconButton icon={Menu} label="Open navigation menu" onClick={onMenuOpen} />
+    <header className="sticky top-0 z-50 flex h-[var(--mobile-header-height)] w-full max-w-full items-center justify-between border-b border-line bg-white/98 px-2 sm:px-3 shadow-xs backdrop-blur-md md:hidden">
+      <IconButton
+        icon={Menu}
+        label="Open navigation menu"
+        onClick={onMenuOpen}
+        className="shrink-0"
+      />
 
       <Link
         href="/"
-        className="font-display text-sm font-bold tracking-tight text-ink flex items-center gap-2"
+        className="font-display text-xs sm:text-sm font-bold tracking-tight text-ink flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 justify-center px-1"
       >
-        <div className="relative h-7 w-7 rounded-full overflow-hidden border border-amber-300 shadow-2xs shrink-0 bg-white">
+        <div className="relative h-6 w-6 sm:h-7 sm:w-7 rounded-full overflow-hidden border border-amber-300 shadow-2xs shrink-0 bg-white">
           <Image
             src="/images/logo.png"
             alt={SITE_NAME}
@@ -40,10 +45,10 @@ export default function MobileHeader({ onMenuOpen }) {
             className="h-full w-full object-cover"
           />
         </div>
-        <span className="truncate max-w-[170px]">{SITE_NAME}</span>
+        <span className="truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[170px]">{SITE_NAME}</span>
       </Link>
 
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-0 sm:gap-0.5 shrink-0">
         <IconButton href="/shop" icon={Search} label="Search" />
         <IconButton
           href="/account/wishlist"

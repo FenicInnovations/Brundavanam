@@ -31,7 +31,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/apiClient";
-import { useDispatch, triggerToast } from "@/lib/redux/store";
+import { useDispatch, triggerToast, shippingSliceActions } from "@/lib/redux/store";
 
 export default function AdminShippingPage() {
   const dispatch = useDispatch();
@@ -150,6 +150,7 @@ export default function AdminShippingPage() {
       const res = await apiClient.patch("/admin/shipping/settings", settings);
       if (res.success) {
         setSettings(res.settings);
+        dispatch({ type: shippingSliceActions.UPDATE_CONFIG, payload: res.settings });
         dispatch(triggerToast("Shipping rules and delivery strategy saved successfully!", "success"));
       }
     } catch (err) {
@@ -389,9 +390,16 @@ export default function AdminShippingPage() {
                             </div>
 
                             {isAwBAvailable ? (
-                              <span className="font-mono text-slate-600 text-[11px]">
-                                AWB: {order.shipping.awbCode}
-                              </span>
+                              <>
+                                <span className="font-mono text-slate-600 text-[11px]">
+                                  AWB: {order.shipping.awbCode}
+                                </span>
+                                {(order.shipping?.etd || order.shipping?.estimatedDelivery) && (
+                                  <span className="text-[10px] text-emerald-700 font-semibold">
+                                    EDD: {order.shipping.etd || order.shipping.estimatedDelivery}
+                                  </span>
+                                )}
+                              </>
                             ) : (
                               <span className="text-amber-600 font-medium text-[11px] italic">
                                 AWB Pending

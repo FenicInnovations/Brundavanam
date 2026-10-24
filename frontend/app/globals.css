@@ -14,13 +14,21 @@
      in daily puja, aged wood and brass, tulsi. Named for the source, not
      the hex, so a future palette tweak only touches this block. */
   --color-bg: #faf6ed;          /* Warm Ivory — page background */
+  --color-bg-rgb: 250 246 237;
   --color-surface: #ffffff;     /* card surfaces — full white for contrast */
+  --color-surface-rgb: 255 255 255;
   --color-ink: #201b12;         /* Aged Wood — primary text, near-black brown */
+  --color-ink-rgb: 32 27 18;
   --color-ink-soft: #6b6250;    /* secondary text */
+  --color-ink-soft-rgb: 107 98 80;
   --color-accent: #c97a1f;      /* Marigold — primary actions, links */
+  --color-accent-rgb: 201 122 31;
   --color-accent-deep: #8c4a1f; /* Turmeric Root — hover / pressed states */
+  --color-accent-deep-rgb: 140 74 31;
   --color-support: #3c5233;     /* Tulsi Green — badges, secondary elements */
+  --color-support-rgb: 60 82 51;
   --color-line: #e7dcc4;        /* Husk — borders, dividers */
+  --color-line-rgb: 231 220 196;
 
   --font-display: "Prata", serif;
   --font-sans: "Manrope", system-ui, sans-serif;

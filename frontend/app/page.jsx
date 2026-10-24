@@ -29,7 +29,15 @@ import {
 import ProductCard from "@/components/product/ProductCard";
 import { fetchStorefrontInitial } from "@/lib/productUtils";
 import { CATEGORIES } from "@/lib/mockCategories";
-import { useDispatch, addToCart, triggerToast } from "@/lib/redux/store";
+import {
+  useDispatch,
+  useSelector,
+  selectCartItems,
+  selectFreeShippingThreshold,
+  selectIsFreeShippingEnabled,
+  addToCart,
+  triggerToast,
+} from "@/lib/redux/store";
 
 const TRUST_BADGES = [
   {
@@ -209,6 +217,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Dynamic Free Shipping Configuration from Redux
+  const freeShippingThreshold = useSelector(selectFreeShippingThreshold) || 800;
+  const isFreeShippingEnabled = useSelector(selectIsFreeShippingEnabled);
+
   useEffect(() => {
     async function loadStorefront() {
       try {
@@ -386,7 +398,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. Shop by Category Showcase - Mobile Horizontal Pill Scroll + Desktop Grid */}
-      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8">
+      <section className="mx-auto max-w-content px-4 sm:px-6 md:px-8 overflow-hidden">
         <div className="flex items-end justify-between gap-2 mb-4 sm:mb-8">
           <div>
             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
@@ -734,6 +746,12 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 sm:p-8 shadow-xs">
           {TRUST_BADGES.map((b, idx) => {
             const Icon = b.icon;
+            const isShippingBadge = idx === 0;
+            const badgeText = isShippingBadge
+              ? (isFreeShippingEnabled
+                  ? `Free delivery on orders above ₹${freeShippingThreshold.toLocaleString("en-IN")}`
+                  : "All-India Fast Shipping")
+              : b.text;
             return (
               <div key={idx} className="flex items-start gap-3 p-1.5 sm:p-2">
                 <div className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-100/70 text-accent-deep">
@@ -741,7 +759,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-ink">{b.title}</h3>
-                  <p className="text-[11px] text-ink-soft mt-0.5 leading-snug">{b.text}</p>
+                  <p className="text-[11px] text-ink-soft mt-0.5 leading-snug">{badgeText}</p>
                 </div>
               </div>
             );
@@ -757,6 +775,7 @@ export default function HomePage() {
  */
 function WeeklyDealSpotlight({ product }) {
   const dispatch = useDispatch();
+  const cartItems = useSelector(selectCartItems) || [];
   const [added, setAdded] = useState(false);
 
   if (!product) return null;
@@ -768,7 +787,30 @@ function WeeklyDealSpotlight({ product }) {
     product.discountPercent || (hasDiscount ? Math.round(((comparePrice - sellingPrice) / comparePrice) * 100) : null);
   const savings = hasDiscount ? comparePrice - sellingPrice : 0;
 
+  const prodId = product._id || product.id;
+  const maxStock = Number(product.stock ?? 0);
+  const existingInCart = cartItems.find(
+    (item) => ((item.product?._id || item.product?.id || item.productId) === prodId)
+  );
+  const currentQtyInCart = existingInCart ? existingInCart.quantity : 0;
+  const isOutOfStock = maxStock <= 0 || product.inStock === false;
+  const isMaxReached = !isOutOfStock && currentQtyInCart >= maxStock;
+
   const handleAdd = async () => {
+    if (isOutOfStock) {
+      dispatch(triggerToast(`'${product.name}' is currently out of stock.`, "error"));
+      return;
+    }
+    if (isMaxReached) {
+      dispatch(
+        triggerToast(
+          `Only ${maxStock} unit(s) available in stock. You already have all ${maxStock} in your cart.`,
+          "warning"
+        )
+      );
+      return;
+    }
+
     try {
       await dispatch(
         addToCart({
@@ -781,7 +823,7 @@ function WeeklyDealSpotlight({ product }) {
       dispatch(triggerToast(`Added '${product.name}' to cart!`, "success"));
       setTimeout(() => setAdded(false), 2000);
     } catch (e) {
-      dispatch(triggerToast("Failed to add to cart", "error"));
+      dispatch(triggerToast(e.message || "Failed to add to cart", "error"));
     }
   };
 
@@ -807,7 +849,17 @@ function WeeklyDealSpotlight({ product }) {
             <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-accent-deep bg-amber-100/60 px-2.5 py-0.5 rounded-md">
               Limited Harvest Batch
             </span>
-            <span className="text-[11px] sm:text-xs text-ink-soft">• In Stock & Ready to Ship</span>
+            {isOutOfStock ? (
+              <span className="text-[11px] sm:text-xs text-rose-600 font-bold">• Out of Stock</span>
+            ) : maxStock <= 10 ? (
+              <span className="text-[11px] sm:text-xs text-amber-700 font-bold">
+                • Only {maxStock} left in stock {currentQtyInCart > 0 ? `(${currentQtyInCart} in your cart)` : ""}
+              </span>
+            ) : (
+              <span className="text-[11px] sm:text-xs text-emerald-700 font-medium">
+                • {maxStock} In Stock & Ready to Ship
+              </span>
+            )}
           </div>
 
           <Link href={`/product/${product.slug}`} className="block">
@@ -852,10 +904,25 @@ function WeeklyDealSpotlight({ product }) {
             <button
               type="button"
               onClick={handleAdd}
-              className="flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-xs sm:text-sm font-bold text-surface shadow-md shadow-accent/20 hover:bg-accent-deep active:scale-95 transition-all text-center w-full sm:w-auto"
+              disabled={isOutOfStock || isMaxReached}
+              className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs sm:text-sm font-bold shadow-md transition-all text-center w-full sm:w-auto ${
+                isOutOfStock
+                  ? "bg-stone-300 text-stone-600 cursor-not-allowed"
+                  : isMaxReached
+                  ? "bg-amber-100 text-amber-900 border border-amber-300 cursor-not-allowed"
+                  : "bg-accent text-surface shadow-accent/20 hover:bg-accent-deep active:scale-95 cursor-pointer"
+              }`}
             >
               <ShoppingBag size={16} />
-              <span>{added ? "Added to Cart ✓" : "Add to Cart Now"}</span>
+              <span>
+                {isOutOfStock
+                  ? "Out of Stock"
+                  : isMaxReached
+                  ? `Max Stock in Cart (${currentQtyInCart}/${maxStock})`
+                  : added
+                  ? "Added to Cart ✓"
+                  : "Add to Cart Now"}
+              </span>
             </button>
             <Link
               href={`/product/${product.slug}`}

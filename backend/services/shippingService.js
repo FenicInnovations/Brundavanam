@@ -466,11 +466,33 @@ class ShippingService {
     }
 
     const track = data.tracking_data;
+    const shipmentTrack = track.shipment_track?.[0] || {};
+    const rawStatus = (shipmentTrack.current_status || "").trim();
+    const statusCode = Number(track.shipment_status || shipmentTrack.shipment_status || 0);
+
+    let currentStatus = rawStatus;
+    if (!currentStatus) {
+      if (statusCode === 7) currentStatus = "DELIVERED";
+      else if (statusCode === 17) currentStatus = "OUT FOR DELIVERY";
+      else if (statusCode === 18) currentStatus = "IN TRANSIT";
+      else if (statusCode === 6) currentStatus = "SHIPPED";
+      else if (statusCode === 42) currentStatus = "PICKED UP";
+      else currentStatus = "IN TRANSIT";
+    }
+
+    const edd =
+      shipmentTrack.edd ||
+      shipmentTrack.expected_date ||
+      track.etd ||
+      track.expected_date ||
+      "";
+
     return {
       awbCode,
-      currentStatus: track.track_status ? "Delivered" : track.shipment_track?.[0]?.current_status || "In Transit",
-      courierName: track.shipment_track?.[0]?.courier_name || "",
-      etd: track.shipment_track?.[0]?.edd || "",
+      currentStatus,
+      statusCode,
+      courierName: shipmentTrack.courier_name || "",
+      etd: edd,
       history: (track.shipment_track_activities || []).map((act) => ({
         status: act.status,
         activity: act.activity,
@@ -524,13 +546,13 @@ class ShippingService {
         pickup_email: returnAddress.email || order.user?.email || "customer@brundavanam.org",
         pickup_phone: returnAddress.phone,
         shipping_customer_name: "Brundavanam Goshala Warehouse",
-        shipping_address: "Survey No. 42, Brundavanam Goshala Road",
-        shipping_city: "Guntur",
+        shipping_address: "Sree Raghvendra Brundavanam Garellavalasa, Manyam Parvathipuram Dist",
+        shipping_city: "Salur",
         shipping_state: "Andhra Pradesh",
         shipping_country: "India",
-        shipping_pincode: warehousePincode,
+        shipping_pincode: "535592",
         shipping_email: "brundavanamgaushala@gmail.com",
-        shipping_phone: "9876543210",
+        shipping_phone: "9492602499",
         order_items: (order.items || []).map((item) => ({
           name: item.name,
           sku: item.sku || `PROD-${item.product}`,

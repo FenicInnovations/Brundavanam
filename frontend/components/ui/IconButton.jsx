@@ -14,14 +14,14 @@ export default function IconButton({
   className = "",
 }) {
   const content = (
-    <span className="relative flex h-11 w-11 items-center justify-center">
+    <span className="relative flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center">
       <Icon
-        size={22}
+        size={20}
         strokeWidth={active ? 2.25 : 1.75}
-        className={active ? "text-accent" : "text-ink"}
+        className={`${active ? "text-accent" : "text-ink"} transition-colors`}
       />
       {badge > 0 && (
-        <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-none text-surface">
+        <span className="absolute -right-0.5 -top-0.5 sm:right-1 sm:top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold leading-none text-surface shadow-xs">
           {badge > 9 ? "9+" : badge}
         </span>
       )}

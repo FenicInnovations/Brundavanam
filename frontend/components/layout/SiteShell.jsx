@@ -30,12 +30,12 @@ export default function SiteShell({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col w-full">
       <Header />
       <MobileHeader onMenuOpen={() => setMenuOpen(true)} />
       <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      <main className="flex-1 pb-[var(--bottom-nav-height)] md:pb-0">
+      <main className="flex-1 w-full max-w-full overflow-x-clip pb-[var(--bottom-nav-height)] md:pb-0">
         {children}
       </main>
 

@@ -650,14 +650,35 @@ class OrderService {
       if (track.etd) order.shipping.etd = track.etd;
       if (track.history?.length) order.shipping.history = track.history;
 
-      // Detect delivery
-      if (
-        (track.currentStatus || "").toLowerCase().includes("deliver") &&
-        order.status !== "delivered"
-      ) {
+      const normStatus = (track.currentStatus || "").trim().toUpperCase();
+      const isActuallyDelivered =
+        track.statusCode === 7 ||
+        normStatus === "DELIVERED" ||
+        normStatus === "SHIPMENT DELIVERED" ||
+        normStatus === "PACKAGE DELIVERED";
+
+      const isOutForDelivery =
+        track.statusCode === 17 ||
+        normStatus === "OUT FOR DELIVERY" ||
+        normStatus.includes("OUT FOR DELIVERY");
+
+      const isInTransit =
+        track.statusCode === 18 ||
+        track.statusCode === 6 ||
+        track.statusCode === 42 ||
+        normStatus === "IN TRANSIT" ||
+        normStatus === "SHIPPED" ||
+        normStatus === "PICKED UP" ||
+        normStatus.includes("TRANSIT");
+
+      if (isActuallyDelivered && order.status !== "delivered") {
         order.transitionTo("delivered", "courier", "Shiprocket confirmed delivery");
         order.shipping.deliveredAt = new Date();
         notificationService.sendOrderDelivered(order).catch(console.error);
+      } else if (isOutForDelivery && order.status !== "out_for_delivery" && order.status !== "delivered") {
+        order.transitionTo("out_for_delivery", "courier", "Shiprocket out for delivery");
+      } else if (isInTransit && ["confirmed", "processing", "ready_to_ship"].includes(order.status)) {
+        order.transitionTo("shipped", "courier", `Shiprocket tracking: ${track.currentStatus}`);
       }
 
       await order.save();

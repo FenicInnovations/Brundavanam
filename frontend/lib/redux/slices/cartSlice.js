@@ -66,23 +66,30 @@ export function cartReducer(state = initialCartState, action) {
     case cartSliceActions.ADD_GUEST_ITEM: {
       const { product, variantId, variantLabel, quantity } = action.payload;
       const copy = [...state.items];
+      const prodId = product._id || product.id;
 
       const existingIndex = copy.findIndex(
         (item) =>
-          item.product._id === product._id &&
+          ((item.product?._id || item.product?.id) === prodId) &&
           (variantId ? item.variantId === variantId : !item.variantId)
       );
 
+      const maxStock = Number(product.stock ?? 99);
+
       if (existingIndex > -1) {
-        const combined = copy[existingIndex].quantity + quantity;
-        copy[existingIndex].quantity = Math.min(combined, product.stock || 99);
+        const currentQty = copy[existingIndex].quantity;
+        if (currentQty >= maxStock) {
+          return state;
+        }
+        const combined = currentQty + quantity;
+        copy[existingIndex].quantity = Math.min(combined, maxStock);
       } else {
         copy.push({
           _id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
           product,
           variantId: variantId || null,
           variantLabel: variantLabel || "",
-          quantity: Math.min(quantity, product.stock || 99),
+          quantity: Math.min(quantity, maxStock),
           addedAt: new Date().toISOString(),
         });
       }
@@ -188,7 +195,27 @@ export const fetchCart = () => async (dispatch, getState) => {
 };
 
 export const addToCart = ({ product, variantId, variantLabel, quantity = 1 }) => async (dispatch, getState) => {
-  const { auth } = getState();
+  const { auth, cart } = getState();
+
+  const maxStock = Number(product.stock ?? 99);
+  const prodId = product._id || product.id;
+  const existing = (cart?.items || []).find(
+    (item) =>
+      ((item.product?._id || item.product?.id || item.productId) === prodId) &&
+      (variantId ? item.variantId === variantId : !item.variantId)
+  );
+  const currentInCart = existing ? existing.quantity : 0;
+
+  if (currentInCart >= maxStock) {
+    const errorMsg = `Only ${maxStock} unit(s) available in stock. You already have ${currentInCart} in your cart.`;
+    throw new Error(errorMsg);
+  }
+
+  if (currentInCart + quantity > maxStock) {
+    const remaining = maxStock - currentInCart;
+    const errorMsg = `Cannot add ${quantity} more units. Only ${remaining} additional unit(s) available in stock.`;
+    throw new Error(errorMsg);
+  }
 
   if (!auth.isAuthenticated) {
     // Guest User: store locally
@@ -203,7 +230,7 @@ export const addToCart = ({ product, variantId, variantLabel, quantity = 1 }) =>
   dispatch({ type: cartSliceActions.SET_LOADING, payload: true });
   try {
     const res = await apiClient.post("/cart/items", {
-      productId: product._id,
+      productId: product._id || product.id,
       variantId,
       variantLabel,
       quantity,

@@ -12,6 +12,7 @@ import {
   Sparkles,
   ShieldCheck,
   CheckCircle,
+  Truck,
 } from "lucide-react";
 import {
   useDispatch,
@@ -19,6 +20,7 @@ import {
   selectCartItems,
   selectCartSubtotal,
   selectCartTotalCount,
+  selectShippingConfig,
   updateCartQuantity,
   removeFromCart,
   getItemEffectivePrice,
@@ -31,22 +33,18 @@ export default function CartDrawer({ isOpen, onClose }) {
   const cartItems = useSelector(selectCartItems);
   const subtotal = useSelector(selectCartSubtotal);
   const totalCount = useSelector(selectCartTotalCount);
+  const reduxConfig = useSelector(selectShippingConfig);
 
-  const [shippingConfig, setShippingConfig] = useState({
-    freeShippingThreshold: 800,
-    isFreeShippingEnabled: true,
-  });
+  const [shippingConfig, setShippingConfig] = useState(
+    reduxConfig || {
+      freeShippingThreshold: 800,
+      isFreeShippingEnabled: true,
+    }
+  );
 
   useEffect(() => {
-    if (isOpen) {
-      apiClient
-        .get("/orders/shipping/config")
-        .then((res) => {
-          if (res?.success && res.config) setShippingConfig(res.config);
-        })
-        .catch(() => {});
-    }
-  }, [isOpen]);
+    if (reduxConfig) setShippingConfig(reduxConfig);
+  }, [reduxConfig]);
 
   if (!isOpen) return null;
 
@@ -111,6 +109,17 @@ export default function CartDrawer({ isOpen, onClose }) {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Dynamic Delivery Subsidy Notice */}
+          {shippingConfig.isOfferActive && shippingConfig.shippingDiscountOffer > 0 && cartItems.length > 0 && !isFreeEligible && (
+            <div className="px-6 py-2 bg-amber-50/80 border-b border-amber-200/60 text-xs flex items-center justify-between text-amber-950 font-bold">
+              <span className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                <span>Delivery Subsidy</span>
+              </span>
+              <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingDiscountOffer}/item)</span>
             </div>
           )}
 

@@ -71,10 +71,12 @@ module.exports = {
   company: {
     name: "Brundavanam Goshala",
     legalName: "Brundavanam Goshala Trust",
-    gstin: process.env.COMPANY_GSTIN || "37AAATB1234F1Z5",
-    pan: process.env.COMPANY_PAN || "AAATB1234F",
-    address: "Survey No. 42, Brundavanam Goshala Road, Guntur District, Andhra Pradesh - 522002",
-    phone: "+91 98765 43210",
+    gstin: process.env.COMPANY_GSTIN || "36AALCB2941H1ZN",
+    pan: process.env.COMPANY_PAN || "AALCB2941H",
+    address:
+      process.env.COMPANY_ADDRESS ||
+      "Sree Raghvendra Brundavanam Garellavalasa, Manyam Parvathipuram Dist, Andhra Pradesh, Salur, India, 535592",
+    phone: process.env.COMPANY_PHONE || "+91 9492602499",
     email: process.env.SUPPORT_EMAIL || "brundavanamgaushala@gmail.com",
     website: process.env.FRONTEND_URL || "http://localhost:3000",
   },

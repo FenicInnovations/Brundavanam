@@ -7,13 +7,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        bg: "var(--color-bg)",
-        surface: "var(--color-surface)",
-        ink: "var(--color-ink)",
-        accent: "var(--color-accent)",
-        "accent-deep": "var(--color-accent-deep)",
-        support: "var(--color-support)",
-        line: "var(--color-line)",
+        bg: "rgb(var(--color-bg-rgb) / <alpha-value>)",
+        surface: "rgb(var(--color-surface-rgb) / <alpha-value>)",
+        ink: "rgb(var(--color-ink-rgb) / <alpha-value>)",
+        "ink-soft": "rgb(var(--color-ink-soft-rgb) / <alpha-value>)",
+        accent: "rgb(var(--color-accent-rgb) / <alpha-value>)",
+        "accent-deep": "rgb(var(--color-accent-deep-rgb) / <alpha-value>)",
+        support: "rgb(var(--color-support-rgb) / <alpha-value>)",
+        line: "rgb(var(--color-line-rgb) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-display)"],

@@ -6,6 +6,7 @@ import { productReducer, initialProductState } from "./slices/productSlice";
 import { adminReducer, initialAdminState } from "./slices/adminSlice";
 import { cartReducer, initialCartState, cartSliceActions, getInitialGuestCart } from "./slices/cartSlice";
 import { wishlistReducer, initialWishlistState, wishlistSliceActions, getInitialGuestWishlist } from "./slices/wishlistSlice";
+import { shippingReducer, initialShippingState, fetchShippingConfig } from "./slices/shippingSlice";
 
 const ReduxStoreContext = createContext(null);
 
@@ -15,6 +16,7 @@ const rootInitialState = {
   admin: initialAdminState,
   cart: initialCartState,
   wishlist: initialWishlistState,
+  shipping: initialShippingState,
 };
 
 function rootReducer(state, action) {
@@ -24,6 +26,7 @@ function rootReducer(state, action) {
     admin: adminReducer(state.admin, action),
     cart: cartReducer(state.cart, action),
     wishlist: wishlistReducer(state.wishlist, action),
+    shipping: shippingReducer(state.shipping, action),
   };
 }
 
@@ -60,6 +63,9 @@ export function ReduxProvider({ children }) {
 
     // 2. Verify session & sync cart/wishlist on mount
     checkAuthSession()(customDispatch);
+
+    // 3. Fetch live dynamic shipping configuration & per-item delivery offer
+    fetchShippingConfig()(customDispatch);
   }, [customDispatch]);
 
   const value = {
@@ -92,4 +98,5 @@ export * from "./slices/productSlice";
 export * from "./slices/adminSlice";
 export * from "./slices/cartSlice";
 export * from "./slices/wishlistSlice";
+export * from "./slices/shippingSlice";
 

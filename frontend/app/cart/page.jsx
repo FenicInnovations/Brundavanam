@@ -19,31 +19,18 @@ import {
   selectCartItems,
   selectCartSubtotal,
   selectCartTotalCount,
+  selectShippingConfig,
   updateCartQuantity,
   removeFromCart,
 } from "@/lib/redux/store";
 import { resolveProductImage } from "@/lib/productUtils";
-import { apiClient } from "@/lib/api/apiClient";
 
 export default function CartPage() {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const subtotal = useSelector(selectCartSubtotal);
   const totalCount = useSelector(selectCartTotalCount);
-
-  const [shippingConfig, setShippingConfig] = useState({
-    freeShippingThreshold: 800,
-    isFreeShippingEnabled: true,
-  });
-
-  useEffect(() => {
-    apiClient
-      .get("/orders/shipping/config")
-      .then((res) => {
-        if (res?.success && res.config) setShippingConfig(res.config);
-      })
-      .catch(() => {});
-  }, []);
+  const shippingConfig = useSelector(selectShippingConfig);
 
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -195,6 +182,15 @@ export default function CartPage() {
                     <span className="text-slate-500 font-medium text-xs">Calculated by PIN at Checkout</span>
                   )}
                 </div>
+                {shippingConfig.isOfferActive && shippingConfig.shippingDiscountOffer > 0 && !(shippingConfig.isFreeShippingEnabled && subtotal >= (shippingConfig.freeShippingThreshold || 800)) && (
+                  <div className="flex justify-between items-center text-amber-900 font-bold bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Delivery Discount Offer</span>
+                    </span>
+                    <span className="text-emerald-700">-₹{shippingConfig.shippingDiscountOffer * totalCount} (₹{shippingDiscountOffer}/item)</span>
+                  </div>
+                )}
                 <div className="pt-3 border-t border-slate-200 flex justify-between text-base font-extrabold text-slate-900">
                   <span>Subtotal Amount</span>
                   <span className="text-emerald-700">₹{subtotal.toFixed(2)}</span>

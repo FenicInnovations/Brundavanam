@@ -97,15 +97,35 @@ async function addItem(req, res, next) {
 
     if (existingIndex > -1) {
       const currentQty = cart.items[existingIndex].quantity;
-      const newQty = Math.min(currentQty + requestedQty, product.stock);
-      cart.items[existingIndex].quantity = newQty;
+      if (currentQty >= product.stock) {
+        const err = new Error(
+          `Only ${product.stock} units available in stock. You already have ${currentQty} in your cart.`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
+      if (currentQty + requestedQty > product.stock) {
+        const remaining = product.stock - currentQty;
+        const err = new Error(
+          `Cannot add ${requestedQty} more units. Only ${remaining} additional unit(s) available in stock.`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
+      cart.items[existingIndex].quantity = currentQty + requestedQty;
     } else {
-      const initialQty = Math.min(requestedQty, product.stock);
+      if (requestedQty > product.stock) {
+        const err = new Error(
+          `Cannot add ${requestedQty} units. Only ${product.stock} units available in stock.`
+        );
+        err.statusCode = 400;
+        throw err;
+      }
       cart.items.push({
         product: productId,
         variantId: sanitizedVariantId,
         variantLabel: sanitizedVariantLabel,
-        quantity: initialQty,
+        quantity: requestedQty,
       });
     }
 
