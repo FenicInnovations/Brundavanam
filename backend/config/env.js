@@ -64,7 +64,7 @@ module.exports = {
     email: process.env.SHIPROCKET_EMAIL || "fenicinnovations@gmail.com",
     password: process.env.SHIPROCKET_PASSWORD || "",
     pickupPincode: process.env.SHIPROCKET_PICKUP_PINCODE || "500081",
-    pickupLocation: process.env.SHIPROCKET_PICKUP_LOCATION || "home",
+    pickupLocation: process.env.SHIPROCKET_PICKUP_LOCATION || "Primary",
     freeShippingThreshold: parseInt(process.env.FREE_SHIPPING_THRESHOLD, 10) || 800,
   },
 

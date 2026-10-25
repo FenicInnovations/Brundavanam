@@ -1,4 +1,5 @@
 const ShippingSettings = require("../models/ShippingSettings");
+const shippingService = require("../services/shippingService");
 
 /**
  * GET /api/admin/shipping/settings
@@ -100,7 +101,25 @@ async function updateShippingSettings(req, res, next) {
   }
 }
 
+/**
+ * GET /api/admin/shipping/pickup-locations
+ * List all pickup addresses configured in Shiprocket
+ */
+async function getShiprocketPickupLocations(req, res, next) {
+  try {
+    const locations = await shippingService.getPickupLocations();
+    res.json({
+      success: true,
+      configuredLocation: shippingService.pickupLocation,
+      locations,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getShippingSettings,
   updateShippingSettings,
+  getShiprocketPickupLocations,
 };

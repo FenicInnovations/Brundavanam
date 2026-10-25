@@ -74,6 +74,66 @@ class ShippingService {
   }
 
   /**
+   * Fetch registered pickup locations from Shiprocket account
+   */
+  async getPickupLocations() {
+    if (this.isMock) {
+      return [{ pickup_location: "Primary", is_primary_location: 1, pin_code: this.pickupPincode }];
+    }
+
+    try {
+      const { ok, data } = await this.request("/settings/company/pickup");
+      if (ok && data?.data?.shipping_address && Array.isArray(data.data.shipping_address)) {
+        return data.data.shipping_address;
+      }
+      return [];
+    } catch (err) {
+      console.warn("[ShippingService] Failed to fetch pickup locations:", err.message);
+      return [];
+    }
+  }
+
+  /**
+   * Resolve valid pickup location name from Shiprocket account
+   * Auto-falls back to Primary/active registered location if configured name doesn't match
+   */
+  async resolvePickupLocation() {
+    if (this.isMock) return this.pickupLocation || "Primary";
+
+    const addresses = await this.getPickupLocations();
+    if (!addresses || addresses.length === 0) {
+      return this.pickupLocation || "Primary";
+    }
+
+    // 1. Check if configured location matches any registered location (case-insensitive)
+    const exactMatch = addresses.find(
+      (a) => a.pickup_location && a.pickup_location.toLowerCase().trim() === (this.pickupLocation || "").toLowerCase().trim()
+    );
+    if (exactMatch) {
+      this.pickupLocation = exactMatch.pickup_location;
+      if (exactMatch.pin_code) this.pickupPincode = String(exactMatch.pin_code).trim();
+      return exactMatch.pickup_location;
+    }
+
+    // 2. Fall back to primary location or first active location
+    const primary =
+      addresses.find((a) => a.is_primary_location === 1) ||
+      addresses.find((a) => a.status === 1) ||
+      addresses[0];
+
+    if (primary && primary.pickup_location) {
+      console.log(
+        `[ShippingService] Configured pickup location "${this.pickupLocation}" does not match Shiprocket account locations (${addresses.map((a) => `"${a.pickup_location}"`).join(", ")}). Auto-selecting "${primary.pickup_location}".`
+      );
+      this.pickupLocation = primary.pickup_location;
+      if (primary.pin_code) this.pickupPincode = String(primary.pin_code).trim();
+      return primary.pickup_location;
+    }
+
+    return this.pickupLocation || "Primary";
+  }
+
+  /**
    * Realistic Indian postal zone rates mapped to Shiprocket tariff model
    * Pickup: 500081 (Hyderabad) / 522002 (Guntur, AP)
    */
@@ -286,10 +346,12 @@ class ShippingService {
         .slice(0, 19)
         .replace("T", " ");
 
+      const activePickupLocation = await this.resolvePickupLocation();
+
       const orderPayload = {
         order_id: order.orderNumber,
         order_date: dateFormatted,
-        pickup_location: this.pickupLocation,
+        pickup_location: activePickupLocation,
         billing_customer_name: order.billingAddress.fullName,
         billing_last_name: "",
         billing_address: order.billingAddress.line1,
@@ -318,10 +380,45 @@ class ShippingService {
         weight: Math.max(0.2, Math.round((order.shipping?.weight || 0.5) * 100) / 100),
       };
 
-      const { ok, data } = await this.request("/orders/create/adhoc", {
+      let { ok, data } = await this.request("/orders/create/adhoc", {
         method: "POST",
         body: JSON.stringify(orderPayload),
       });
+
+      // Handle pickup location mismatch gracefully
+      if (!ok && data?.message && /pickup location/i.test(data.message)) {
+        console.warn(`[ShippingService] Pickup location "${orderPayload.pickup_location}" rejected by Shiprocket. Attempting automatic location recovery...`);
+        const addresses = await this.getPickupLocations();
+        const primary =
+          addresses.find((a) => a.is_primary_location === 1) ||
+          addresses.find((a) => a.status === 1) ||
+          addresses[0];
+
+        if (primary?.pickup_location && primary.pickup_location !== orderPayload.pickup_location) {
+          console.log(`[ShippingService] Retrying adhoc order with registered Shiprocket location: "${primary.pickup_location}"`);
+          orderPayload.pickup_location = primary.pickup_location;
+          this.pickupLocation = primary.pickup_location;
+          if (primary.pin_code) this.pickupPincode = String(primary.pin_code).trim();
+          const retryRes = await this.request("/orders/create/adhoc", {
+            method: "POST",
+            body: JSON.stringify(orderPayload),
+          });
+          ok = retryRes.ok;
+          data = retryRes.data;
+        }
+
+        if (!ok) {
+          if (!addresses || addresses.length === 0) {
+            throw new Error(
+              "No Pickup Address found in your Shiprocket account. Please log in to Shiprocket Dashboard (Settings > Pickup Address) and add a pickup address."
+            );
+          }
+          const availableNames = addresses.map((a) => `"${a.pickup_location}"`).join(", ");
+          throw new Error(
+            `Wrong Pickup location entered. Your Shiprocket account has: ${availableNames}. Please set SHIPROCKET_PICKUP_LOCATION in backend .env to one of these nicknames.`
+          );
+        }
+      }
 
       if (!ok || !data?.order_id) {
         throw new Error(data?.message || (data?.errors ? JSON.stringify(data.errors) : "Shiprocket failed to create order"));
