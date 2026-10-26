@@ -64,7 +64,7 @@ const TRUST_BADGES = [
 
 const HERO_SLIDES = [
   {
-    badge: "Brundavanam Goshala • Sacred Sanctuary",
+    badge: "Brundavanam Goshala • Peaceful Sanctuary",
     supertitle: "Traditional Organic Cow Care & Ayurvedic Living",
     title: "Rooted in Tradition. Made for Tomorrow.",
     subtitle:
@@ -90,12 +90,12 @@ const HERO_SLIDES = [
     image: "/images/banners/banner_amrutha_dhara.jpg",
   },
   {
-    badge: "Sacred Purity for Daily Puja",
+    badge: "Traditional Purity for Daily Puja",
     supertitle: "Sahaja Kunkuma — సహజ కుంకుమ",
-    title: "Sahaja Kunkuma Sacred Kumkum",
+    title: "Sahaja Kunkuma Traditional Kumkum",
     subtitle:
-      "Handcrafted natural cow-based sacred kunkuma. Completely free from harmful chemicals & lead.",
-    tags: ["100% Cow-Based", "Zero Harsh Chemicals", "Sacred Puja Purity"],
+      "Handcrafted natural cow-based traditional kunkuma. Completely free from harmful chemicals & lead.",
+    tags: ["100% Cow-Based", "Zero Harsh Chemicals", "Puja Purity"],
     buttonText: "Shop Sahaja Kunkuma",
     buttonHref: "/shop",
     secondaryText: "Learn More",
@@ -126,7 +126,7 @@ const BROCHURE_VALUES = [
   {
     icon: "🪷",
     title: "Ayurvedic Heritage",
-    desc: "Rooted in India's timeless knowledge of holistic well-being and sacred healing scriptures.",
+    desc: "Rooted in India's timeless knowledge of holistic well-being and authentic healing scriptures.",
   },
   {
     icon: "🐄",
@@ -146,7 +146,7 @@ const BROCHURE_SIGNATURE_PRODUCTS = [
     title: "Sahaja Kunkuma",
     teluguTitle: "సహజ కుంకుమ",
     tagline: "Traditional Purity for Everyday Life",
-    desc: "A pure and natural kunkuma made from cow-based ingredients. A 100% chemical-free sacred product for daily prayer and divine grace.",
+    desc: "A pure and natural kunkuma made from cow-based ingredients. A 100% chemical-free product for daily prayer and divine grace.",
     badge: "100% Chemical Free",
     accent: "from-rose-500/10 to-amber-500/10",
     border: "border-rose-200",
@@ -278,7 +278,7 @@ export default function HomePage() {
           {/* Compact, High-Legibility Text Overlay Container (Leaves remainder of banner uncovered) */}
           <div className="relative mx-auto max-w-content px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 w-full">
             <div className="max-w-lg lg:max-w-xl space-y-3 sm:space-y-4 animate-in fade-in duration-500">
-              {/* Sacred Badge */}
+              {/* Hero Badge */}
               <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-400/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] sm:text-xs font-bold text-amber-300 shadow-md">
                 <Sparkles size={13} className="text-amber-400 shrink-0" />
                 <span className="truncate max-w-[280px] sm:max-w-none">
@@ -366,9 +366,8 @@ export default function HomePage() {
                 type="button"
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
-                  currentSlide === idx ? "w-7 sm:w-9 bg-amber-400 shadow-md" : "w-2 sm:w-2.5 bg-white/50 hover:bg-white/80"
-                }`}
+                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${currentSlide === idx ? "w-7 sm:w-9 bg-amber-400 shadow-md" : "w-2 sm:w-2.5 bg-white/50 hover:bg-white/80"
+                  }`}
               />
             ))}
           </div>
@@ -402,7 +401,7 @@ export default function HomePage() {
         <div className="flex items-end justify-between gap-2 mb-4 sm:mb-8">
           <div>
             <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
-              Sacred Offerings
+              Goshala Offerings
             </span>
             <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-0.5">
               Explore by Vedic Category
@@ -459,13 +458,13 @@ export default function HomePage() {
           <div className="flex items-end justify-between gap-2 mb-4 sm:mb-8">
             <div>
               <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-accent-deep">
-                Top Rated Offerings
+                Top Rated Products
               </span>
               <h2 className="font-display text-xl sm:text-3xl font-bold text-ink mt-0.5">
                 Goshala Best Sellers
               </h2>
               <p className="hidden sm:block text-xs text-ink-soft mt-1">
-                Handpicked sacred products cherished for purity, nutritional vitality, and divine aroma.
+                Handpicked pure products cherished for nutritional vitality and divine aroma.
               </p>
             </div>
             <Link
@@ -559,7 +558,7 @@ export default function HomePage() {
                     href={prod.href}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-deep transition-colors"
                   >
-                    <span>Discover Offering</span>
+                    <span>Discover Offers</span>
                     <ArrowRight size={13} />
                   </Link>
                 </div>
@@ -576,7 +575,7 @@ export default function HomePage() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold text-surface hover:bg-accent-deep transition-all shadow-sm w-full sm:w-auto"
             >
               <ShoppingBag size={14} />
-              <span>Explore All Ayurvedic Offerings</span>
+              <span>Explore All Products</span>
             </Link>
           </div>
         </div>
@@ -636,7 +635,7 @@ export default function HomePage() {
                 Small choices. A bigger tomorrow.
               </p>
               <p className="text-xs sm:text-sm text-[#ded4be] leading-relaxed">
-                Every mindful choice creates a brighter world. When you choose Brundavanam Goshala, you bring authentic Ayurvedic goodness into your family while nurturing and honoring indigenous desi cows in our sacred sanctuary.
+                Every mindful choice creates a brighter world. When you choose Brundavanam Goshala, you bring authentic Ayurvedic goodness into your family while nurturing and honoring indigenous desi cows in our peaceful sanctuary.
               </p>
 
               {/* Contacts Card - Subtle Translucent Dark Glass */}
@@ -693,8 +692,8 @@ export default function HomePage() {
             {/* Right Column: 100% Fully Visible Banner Photograph */}
             <div className="lg:col-span-5 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
               <img
-                src="/images/brochure/sacred_gaumata_gratitude.jpg"
-                alt="Sacred Gaumata at Brundavanam Goshala"
+                src="/images/brochure/gaumata_gratitude.jpg"
+                alt="Gaumata at Brundavanam Goshala"
                 className="h-full w-full object-cover"
               />
             </div>
@@ -749,8 +748,8 @@ export default function HomePage() {
             const isShippingBadge = idx === 0;
             const badgeText = isShippingBadge
               ? (isFreeShippingEnabled
-                  ? `Free delivery on orders above ₹${freeShippingThreshold.toLocaleString("en-IN")}`
-                  : "All-India Fast Shipping")
+                ? `Free delivery on orders above ₹${freeShippingThreshold.toLocaleString("en-IN")}`
+                : "All-India Fast Shipping")
               : b.text;
             return (
               <div key={idx} className="flex items-start gap-3 p-1.5 sm:p-2">
@@ -905,23 +904,22 @@ function WeeklyDealSpotlight({ product }) {
               type="button"
               onClick={handleAdd}
               disabled={isOutOfStock || isMaxReached}
-              className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs sm:text-sm font-bold shadow-md transition-all text-center w-full sm:w-auto ${
-                isOutOfStock
-                  ? "bg-stone-300 text-stone-600 cursor-not-allowed"
-                  : isMaxReached
+              className={`flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs sm:text-sm font-bold shadow-md transition-all text-center w-full sm:w-auto ${isOutOfStock
+                ? "bg-stone-300 text-stone-600 cursor-not-allowed"
+                : isMaxReached
                   ? "bg-amber-100 text-amber-900 border border-amber-300 cursor-not-allowed"
                   : "bg-accent text-surface shadow-accent/20 hover:bg-accent-deep active:scale-95 cursor-pointer"
-              }`}
+                }`}
             >
               <ShoppingBag size={16} />
               <span>
                 {isOutOfStock
                   ? "Out of Stock"
                   : isMaxReached
-                  ? `Max Stock in Cart (${currentQtyInCart}/${maxStock})`
-                  : added
-                  ? "Added to Cart ✓"
-                  : "Add to Cart Now"}
+                    ? `Max Stock in Cart (${currentQtyInCart}/${maxStock})`
+                    : added
+                      ? "Added to Cart ✓"
+                      : "Add to Cart Now"}
               </span>
             </button>
             <Link

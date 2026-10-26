@@ -19,16 +19,16 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Brundavanam Goshala | Sacred Sanctuary for Gaumata",
+  title: "Brundavanam Goshala | Sanctuary for Gaumata",
   description:
-    "Rooted in Tradition. Made for a Kinder Tomorrow. Discover life at Brundavanam Goshala — Organic milking, open pasture grazing, lifetime sanctuary, and sacred Ayurvedic care.",
+    "Rooted in Tradition. Made for a Kinder Tomorrow. Discover life at Brundavanam Goshala — Organic milking, open pasture grazing, lifetime sanctuary, and holistic Ayurvedic care.",
 };
 
 const SANCTUARY_PILLARS = [
   {
     tag: "PEOPLE",
     title: "Goodness for People",
-    desc: "Nourishing families with pure, unadulterated A2 Gir cow ghee and sacred Ayurvedic wellness crafted without synthetic chemicals or artificial preservatives.",
+    desc: "Nourishing families with pure, unadulterated A2 Gir cow ghee and authentic Ayurvedic wellness crafted without synthetic chemicals or artificial preservatives.",
     icon: "🥛",
     color: "from-amber-500/10 to-amber-600/10 border-amber-300",
   },
@@ -42,14 +42,14 @@ const SANCTUARY_PILLARS = [
   {
     tag: "PLANET",
     title: "Harmony with Nature",
-    desc: "Regenerative soil revitalisation through sacred Gomaye (organic manure) and Gomutra, restoring soil microbial vitality without chemical fertilizers or pesticides.",
+    desc: "Regenerative soil revitalisation through pure Gomaye (organic manure) and Gomutra, restoring soil microbial vitality without chemical fertilizers or pesticides.",
     icon: "🌱",
     color: "from-lime-500/10 to-emerald-600/10 border-lime-300",
   },
   {
     tag: "TOGETHER",
     title: "A Kinder Tomorrow",
-    desc: "Preserving sacred Vedic traditions by reconnecting conscious families to authentic cow seva and sustaining traditional cowherds and local artisans.",
+    desc: "Preserving timeless Vedic traditions by reconnecting conscious families to authentic cow seva and sustaining traditional cowherds and local artisans.",
     icon: "🪷",
     color: "from-orange-500/10 to-rose-600/10 border-orange-300",
   },
@@ -60,12 +60,12 @@ const DAILY_SCHEDULE = [
     time: "04:30 AM",
     title: "Brahma Muhurta Awakening & Shloka Chanting",
     desc: "Caretakers awaken with morning prayers and Vedic mantras. Airy open sheds are swept, washed with natural neem decoction, and prepped with clean dry bedding.",
-    tag: "Sacred Dawn",
+    tag: "Early Dawn",
   },
   {
     time: "06:00 AM",
     title: "Organic Milking — Calves Drink First",
-    desc: "In accordance with Vedic organic principles, calves are always allowed to drink their mother's milk to their heart's content first. Only excess milk is gently gathered by hand for sacred curd and bilona ghee.",
+    desc: "In accordance with Vedic organic principles, calves are always allowed to drink their mother's milk to their heart's content first. Only excess milk is gently gathered by hand for traditional curd and bilona ghee.",
     tag: "Organic Practice",
   },
   {
@@ -89,7 +89,7 @@ const DAILY_SCHEDULE = [
   {
     time: "06:30 PM",
     title: "Sandhya Go Puja & Evening Aarti",
-    desc: "The day concludes with incense, camphor aarti, and chanting of sacred Go Suktam. Cows rest comfortably in clean, predator-safe, peaceful shelters overnight.",
+    desc: "The day concludes with incense, camphor aarti, and chanting of Vedic Go Suktam. Cows rest comfortably in clean, predator-safe, peaceful shelters overnight.",
     tag: "Evening Worship",
   },
 ];
@@ -115,8 +115,8 @@ const LOGO_STREAMS = [
     word: "Soundary.am",
     title: "Natural Purity & Grace",
     telugu: "సౌందర్యం",
-    desc: "Inner and outer radiance through sacred offerings. Sahaja Kunkuma (100% chemical-free) for daily auspicious grace, herbal bath bars, and pure Gau Dhoop.",
-    badge: "Sacred Daily Essentials",
+    desc: "Inner and outer radiance through pure offerings. Sahaja Kunkuma (100% chemical-free) for daily auspicious grace, herbal bath bars, and pure Gau Dhoop.",
+    badge: "Daily Essentials",
     color: "bg-rose-100 text-rose-900 border-rose-300",
   },
 ];
@@ -133,13 +133,13 @@ const GALLERY_IMAGES = [
     desc: "Sprawling open meadows where cows roam freely",
   },
   {
-    src: "/images/brochure/sacred_gaumata_gratitude.jpg",
-    title: "Sacred Gaumata Reverence",
+    src: "/images/brochure/gaumata_gratitude.jpg",
+    title: "Gaumata Reverence",
     desc: "Treated with dignity, vermilion tilak & fragrant marigold garlands",
   },
   {
     src: "/images/brochure/ayurvedic_products_trio.jpg",
-    title: "Sacred Goshala Wellness",
+    title: "Goshala Wellness",
     desc: "Sahaja Kunkuma, Amrutha Dhara & Gau Dhara pain oil",
   },
 ];
@@ -186,7 +186,7 @@ export default function GoshalaPage() {
             </div>
 
             <p className="text-xs uppercase tracking-widest font-extrabold text-amber-400">
-              Sacred Sanctuary • Compassionate Cow Care • Organic Living
+              Peaceful Sanctuary • Compassionate Cow Care • Organic Living
             </p>
 
             <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-white tracking-tight drop-shadow-xs">
@@ -209,7 +209,7 @@ export default function GoshalaPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-6 py-3.5 text-xs font-bold text-stone-950 hover:brightness-110 active:scale-95 transition-all shadow-md shadow-amber-950/40"
               >
                 <ShoppingBag size={15} />
-                <span>Support via Sacred Offerings</span>
+                <span>Support via Offerings</span>
                 <ArrowRight size={14} />
               </Link>
               <a
@@ -224,7 +224,7 @@ export default function GoshalaPage() {
         </div>
       </section>
 
-      {/* 2. The 3 Sacred Streams from Our Logo */}
+      {/* 2. The 3 Streams from Our Logo */}
       <section className="mx-auto max-w-content px-6 md:px-8">
         <div className="rounded-3xl border-2 border-amber-200/90 bg-gradient-to-br from-[#fffdf8] via-[#faf5e8] to-[#f5eedc] p-6 sm:p-10 shadow-sm">
           <div className="mx-auto max-w-2xl text-center space-y-3 mb-10">
@@ -238,13 +238,13 @@ export default function GoshalaPage() {
               />
             </div>
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-amber-800">
-              The Meaning of Our Sacred Crest
+              The Meaning of Our Crest
             </span>
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">
               Ahar.am • Arogy.am • Soundary.am
             </h2>
             <p className="text-xs sm:text-sm text-ink-soft leading-relaxed">
-              Our official seal symbolizes the sacred cycle of mother cow&apos;s blessings. From ethical nourishment to holistic healing and daily spiritual grace, every stream honors Gaumata.
+              Our official seal symbolizes the divine cycle of mother cow&apos;s blessings. From ethical nourishment to holistic healing and daily spiritual grace, every stream honors Gaumata.
             </p>
           </div>
 
@@ -297,7 +297,7 @@ export default function GoshalaPage() {
             Goodness for People. Care for Cows. Harmony for Planet.
           </h2>
           <p className="text-xs sm:text-sm text-ink-soft">
-            Our daily work at the goshala is guided by four sacred commitments from our founding philosophy.
+            Our daily work at the goshala is guided by four core commitments from our founding philosophy.
           </p>
         </div>
 
@@ -383,7 +383,7 @@ export default function GoshalaPage() {
               </h2>
 
               <p className="text-xs sm:text-sm text-ink-soft leading-relaxed">
-                In many commercial dairies, cows that grow old or stop giving milk are abandoned or sent away. At Brundavanam Goshala, our cows are considered sacred mothers and family members.
+                In many commercial dairies, cows that grow old or stop giving milk are abandoned or sent away. At Brundavanam Goshala, our cows are considered mothers and family members.
               </p>
 
               <div className="space-y-3 pt-1">
@@ -417,8 +417,8 @@ export default function GoshalaPage() {
             {/* Right Photo */}
             <div className="lg:col-span-5 relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-300/80 shadow-xl bg-white">
               <Image
-                src="/images/brochure/sacred_gaumata_gratitude.jpg"
-                alt="Sacred Cow Care at Brundavanam Goshala"
+                src="/images/brochure/gaumata_gratitude.jpg"
+                alt="Cow Care at Brundavanam Goshala"
                 fill
                 className="object-cover"
               />
@@ -437,7 +437,7 @@ export default function GoshalaPage() {
             Glimpses of Brundavanam Goshala
           </h2>
           <p className="text-xs sm:text-sm text-ink-soft">
-            Explore authentic scenes from our sacred pasture sanctuary and daily Vedic wellness routines.
+            Explore authentic scenes from our pasture sanctuary and daily Vedic wellness routines.
           </p>
         </div>
 
@@ -479,7 +479,7 @@ export default function GoshalaPage() {
               </span>
 
               <h2 className="font-display text-2xl sm:text-4xl font-bold leading-tight text-white">
-                Experience the Peace of Go Darshan & Sacred Seva.
+                Experience the Peace of Go Darshan & Seva.
               </h2>
 
               <p className="text-xs sm:text-sm text-[#ded4be] leading-relaxed">

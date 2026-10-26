@@ -216,7 +216,7 @@ export default function Header() {
       className="sticky top-0 z-50 hidden w-full flex-col bg-white shadow-xs transition-all md:flex"
       style={{ backgroundColor: "#ffffff" }}
     >
-      {/* 1. Sacred Golden Announcement Bar */}
+      {/* 1. Golden Announcement Bar */}
       <div className="flex items-center justify-between bg-[#1f1911] px-8 py-2 text-xs text-[#faf3e0] border-b border-[#2e261a]">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />

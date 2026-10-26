@@ -1025,7 +1025,7 @@ export default function CheckoutPage() {
                 <div className="space-y-0.5">
                   <p className="font-bold text-amber-950">Cash on Delivery (COD) Not Available</p>
                   <p className="text-[11px] text-amber-800 leading-relaxed">
-                    To maintain the sacred purity, hygienic direct packing, and fresh dispatch of our goshala items without courier delays, all orders are processed via secure prepaid payment only.
+                    To maintain the highest purity, hygienic direct packing, and fresh dispatch of our goshala items without courier delays, all orders are processed via secure prepaid payment only.
                   </p>
                 </div>
               </div>

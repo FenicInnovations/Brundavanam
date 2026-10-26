@@ -132,7 +132,7 @@ function TrackOrderContent() {
                   </span>
                 </div>
                 <p className="text-xs text-amber-100/90 leading-relaxed max-w-xl">
-                  Sign in or create a free account with your email to automatically track all current &amp; past shipments in one dashboard, download tax invoices, save addresses, and earn sacred devotee rewards!
+                  Sign in or create a free account with your email to automatically track all current &amp; past shipments in one dashboard, download tax invoices, save addresses, and earn devotee rewards!
                 </p>
               </div>
             </div>

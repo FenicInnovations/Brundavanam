@@ -526,7 +526,7 @@ export default function AdminShippingPage() {
                         <span>Express Fast Delivery</span>
                       </div>
                       <p className="text-[11px] text-slate-300">
-                        Automatically selects the <strong>fastest courier</strong> (Air Express) for customers who need sacred ghee &amp; puja items quickly.
+                        Automatically selects the <strong>fastest courier</strong> (Air Express) for customers who need ghee &amp; puja items quickly.
                       </p>
                     </div>
                   </div>

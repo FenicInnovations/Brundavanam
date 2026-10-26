@@ -169,11 +169,11 @@ export default function ProductDetailView({ product }) {
         {/* Right: Product Meta, Pricing & Purchase Controls */}
         <div className="space-y-6">
           <div>
-            {/* Sacred Origin Tag */}
+            {/* Origin Tag */}
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-accent-deep bg-amber-100/70 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
                 <Sparkles size={11} className="text-amber-600" />
-                <span>Brundavanam Organic Goshala</span>
+                <span>Brundavanam Organic Products</span>
               </span>
               <span className="text-xs text-ink-soft">SKU: {product.sku || "BG-VEDIC"}</span>
             </div>
@@ -265,9 +265,8 @@ export default function ProductDetailView({ product }) {
                 max={selectedVariant?.stock || 50}
               />
               <span
-                className={`text-xs font-semibold ${
-                  outOfStock ? "text-rose-600" : "text-emerald-700"
-                }`}
+                className={`text-xs font-semibold ${outOfStock ? "text-rose-600" : "text-emerald-700"
+                  }`}
               >
                 {outOfStock
                   ? "Currently Out of Stock"
@@ -282,13 +281,12 @@ export default function ProductDetailView({ product }) {
               type="button"
               disabled={outOfStock}
               onClick={handleAddToCart}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 px-6 text-sm font-bold shadow-md transition-all active:scale-95 ${
-                justAdded
+              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 px-6 text-sm font-bold shadow-md transition-all active:scale-95 ${justAdded
                   ? "bg-emerald-600 text-white shadow-emerald-900/20"
                   : outOfStock
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed border"
-                  : "bg-accent text-surface hover:bg-accent-deep shadow-accent/20"
-              }`}
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed border"
+                    : "bg-accent text-surface hover:bg-accent-deep shadow-accent/20"
+                }`}
             >
               <ShoppingBag size={18} />
               <span>{justAdded ? "Added to Cart ✓" : "Add to Cart"}</span>
@@ -298,11 +296,10 @@ export default function ProductDetailView({ product }) {
               type="button"
               disabled={outOfStock}
               onClick={handleBuyNow}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 px-6 text-sm font-bold border transition-all active:scale-95 ${
-                outOfStock
+              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 px-6 text-sm font-bold border transition-all active:scale-95 ${outOfStock
                   ? "bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed"
                   : "border-ink bg-surface text-ink hover:bg-bg"
-              }`}
+                }`}
             >
               <Zap size={18} className="text-amber-500 fill-amber-500" />
               <span>Buy Now</span>
@@ -313,11 +310,10 @@ export default function ProductDetailView({ product }) {
               type="button"
               aria-label={isWishlisted ? "Remove from Wishlist" : "Save to Wishlist"}
               onClick={handleToggleWishlist}
-              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all ${
-                isWishlisted
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all ${isWishlisted
                   ? "bg-rose-50 border-rose-200 text-rose-600 shadow-sm"
                   : "border-line bg-surface text-ink-soft hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50/50"
-              }`}
+                }`}
               title={isWishlisted ? "In Wishlist" : "Add to Wishlist"}
             >
               <Heart

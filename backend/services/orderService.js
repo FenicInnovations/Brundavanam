@@ -271,7 +271,7 @@ class OrderService {
         estimatedDeliveryDays: slowDaysLabel,
         deliveryDaysCount: cheapestCourier.estimated_delivery_days || 6,
         badge: isFreeEligible ? "100% FREE Delivery" : "Lowest Rate",
-        description: "Budget-friendly surface delivery with sacred cow dung dhoop cushion & sealed glass-safe protection",
+        description: "Budget-friendly surface delivery with natural cow dung dhoop cushion & sealed glass-safe protection",
       },
       {
         id: "express",

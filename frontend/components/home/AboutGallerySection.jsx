@@ -166,7 +166,7 @@ const DEFAULT_GALLERY_ITEMS = [
   {
     _id: "default-1",
     type: "image",
-    title: "Gaumata & Sacred Calf",
+    title: "Gaumata & Calf",
     description: "Our beloved indigenous cow and calf at Brundavanam Goshala.",
     url: "/images/brochure/hero_gaumata_calf.jpg",
     isPublished: true,
@@ -182,7 +182,7 @@ const DEFAULT_GALLERY_ITEMS = [
   {
     _id: "default-3",
     type: "image",
-    title: "Sahaja Kunkuma Divine Sacred Kumkum",
+    title: "Sahaja Kunkuma Divine Kumkum",
     description: "100% natural, cow-based chemical-free kunkuma for auspicious puja.",
     url: "/images/sahaja_kunkuma.jpg",
     isPublished: true,
@@ -206,9 +206,9 @@ const DEFAULT_GALLERY_ITEMS = [
   {
     _id: "default-6",
     type: "image",
-    title: "Sacred Gratitude to Gaumata",
+    title: "Gratitude to Gaumata",
     description: "Honoring our timeless bond with mother cow.",
-    url: "/images/brochure/sacred_gaumata_gratitude.jpg",
+    url: "/images/brochure/gaumata_gratitude.jpg",
     isPublished: true,
   },
 ];

@@ -34,7 +34,7 @@ import { newsletterApi } from "@/lib/api/newsletterApi";
 const QUICK_LINKS = [
   { label: "About Our Goshala", href: "/about" },
   { label: "Gaumata Sanctuary", href: "/goshala" },
-  { label: "Sacred Offerings Shop", href: "/shop" },
+  { label: "Goshala Offerings Shop", href: "/shop" },
   { label: "Track Shipment / Order", href: "/track-order" },
   { label: "Cart & Checkout", href: "/cart" },
   { label: "Saved Wishlist", href: "/account/wishlist" },
@@ -102,7 +102,7 @@ export default function Footer() {
     if (!cleanEmail) {
       setStatus({
         type: "error",
-        message: "Please enter your email address to receive sacred updates.",
+        message: "Please enter your email address to receive updates.",
       });
       return;
     }
@@ -128,14 +128,14 @@ export default function Footer() {
             type: "info",
             message:
               res.message ||
-              "You are already part of our sacred circle! Thank you for your continued support.",
+              "You are already part of our community! Thank you for your continued support.",
           });
         } else {
           setStatus({
             type: "success",
             message:
               res.message ||
-              "Dhanyavadah! 🙏 You are now subscribed to sacred updates, harvest alerts, and Vedic blessings.",
+              "Dhanyavadah! 🙏 You are now subscribed to goshala updates, harvest alerts, and Vedic blessings.",
           });
           setEmail("");
         }
@@ -196,13 +196,13 @@ export default function Footer() {
             <div className="lg:col-span-6 space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-300">
                 <Sparkles size={12} className="text-amber-400" />
-                <span>Sacred Devotee Community</span>
+                <span>Devotee Community</span>
               </div>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
                 Subscribe to Our Vedic Newsletter
               </h3>
               <p className="text-xs sm:text-sm text-amber-200/80 leading-relaxed max-w-xl">
-                Be the first to receive notifications on fresh seasonal batches of authentic Bilona A2 Ghee, sacred festive offerings, traditional Ayurvedic remedies, and inspiring Gaumata seva stories.
+                Be the first to receive notifications on fresh seasonal batches of authentic Bilona A2 Ghee, festive offerings, traditional Ayurvedic remedies, and inspiring Gaumata seva stories.
               </p>
             </div>
 
@@ -300,7 +300,7 @@ export default function Footer() {
             </div>
 
             <p className="text-xs leading-relaxed text-amber-200/80 max-w-sm">
-              Rooted in Tradition. Made for a Kinder Tomorrow. Brundavanam Goshala is a sacred sanctuary dedicated to the lifelong protection of indigenous Desi cows and sharing pure, authentic Vedic Ayurvedic wellness.
+              Rooted in Tradition. Made for a Kinder Tomorrow. Brundavanam Goshala is a sanctuary dedicated to the lifelong protection of indigenous Desi cows and sharing pure, authentic Vedic Ayurvedic wellness.
             </p>
 
             {/* Direct Sanctuary Contacts */}
@@ -346,7 +346,7 @@ export default function Footer() {
           {/* Column 2: Vedic Categories (lg: 2 cols) */}
           <div className="lg:col-span-2">
             <p className="text-xs font-bold uppercase tracking-widest text-amber-400">
-              Sacred Offerings
+              Goshala Offerings
             </p>
             <ul className="mt-4 flex flex-col gap-2.5 text-xs text-amber-200/80">
               {CATEGORIES.slice(0, 6).map((cat) => (
@@ -457,7 +457,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* 4. Bottom Legal & Sacred Blessing Bar */}
+      {/* 4. Bottom Legal & Blessing Bar */}
       <div className="border-t border-amber-900/30 bg-[#120f0a] py-5 pb-24 md:pb-5">
         <div className="mx-auto max-w-content px-6 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="space-y-1">

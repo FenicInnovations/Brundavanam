@@ -58,7 +58,6 @@ export default function ProductTabs({ product }) {
             <p className="font-bold">🌿 Why Brundavanam Goshala?</p>
             <p>• Calves are fed first before milking.</p>
             <p>• Zero synthetic hormones, chemicals, or preservatives.</p>
-            <p>• Handcrafted in sacred temple environment with mantra chanting.</p>
           </div>
         </div>
       </AccordionItem>

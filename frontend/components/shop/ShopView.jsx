@@ -211,7 +211,7 @@ export default function ShopView({ initialProducts = [], products = [] }) {
         <div className="max-w-2xl space-y-2.5">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 bg-white/10 px-3 py-1 rounded-full backdrop-blur-xs">
             <Sparkles size={13} className="text-amber-400" />
-            <span>Sacred Organic Store</span>
+            <span>Organic Goshala Store</span>
           </span>
           <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight">
             The Goshala Store
@@ -227,13 +227,12 @@ export default function ShopView({ initialProducts = [], products = [] }) {
         <button
           type="button"
           onClick={() => handlePillClick("all")}
-          className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-2xs ${
-            filters.categories.length === 0
+          className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-2xs ${filters.categories.length === 0
               ? "bg-accent text-surface shadow-accent/20"
               : "bg-surface border border-line text-ink-soft hover:text-ink hover:bg-bg"
-          }`}
+            }`}
         >
-          All Offerings ({allProducts.length})
+          All Products ({allProducts.length})
         </button>
 
         {availableCategories.map((cat) => {
@@ -245,11 +244,10 @@ export default function ShopView({ initialProducts = [], products = [] }) {
               key={cat._id || cat.slug}
               type="button"
               onClick={() => handlePillClick(cat.slug || cat._id)}
-              className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-2xs ${
-                isSelected
+              className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-2xs ${isSelected
                   ? "bg-accent text-surface shadow-accent/20"
                   : "bg-surface border border-line text-ink-soft hover:text-ink hover:bg-bg"
-              }`}
+                }`}
             >
               {cat.name}
             </button>
@@ -399,7 +397,7 @@ export default function ShopView({ initialProducts = [], products = [] }) {
           {loading && allProducts.length === 0 ? (
             <div className="min-h-[40vh] flex flex-col items-center justify-center gap-3 text-ink-soft py-16">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-              <p className="text-xs font-semibold">Loading Sacred Goshala Offerings...</p>
+              <p className="text-xs font-semibold">Loading Goshala Offerings...</p>
             </div>
           ) : filtered.length === 0 ? (
             <EmptyState

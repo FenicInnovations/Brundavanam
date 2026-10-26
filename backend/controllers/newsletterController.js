@@ -84,7 +84,7 @@ async function subscribe(req, res, next) {
     return res.status(201).json({
       success: true,
       message:
-        "Thank you for subscribing to Brundavanam Goshala newsletter! Check your inbox for sacred updates and offers.",
+        "Thank you for subscribing to Brundavanam Goshala newsletter! Check your inbox for updates and offers.",
       data: subscriber,
     });
   } catch (err) {

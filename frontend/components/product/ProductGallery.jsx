@@ -32,7 +32,7 @@ export default function ProductGallery({ images = [], name = "Product" }) {
         <div className="absolute top-4 left-4 z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1c1813]/85 backdrop-blur-md px-3 py-1 text-xs font-bold text-amber-300 shadow-md">
             <Sparkles size={13} className="text-amber-400" />
-            <span>100% Organic Goshala Pure</span>
+            <span>100% Organic</span>
           </span>
         </div>
 
@@ -60,11 +60,10 @@ export default function ProductGallery({ images = [], name = "Product" }) {
                 type="button"
                 onClick={() => setActive(i)}
                 aria-label={`View photo ${i + 1} of ${name}`}
-                className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${
-                  isSelected
+                className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all shadow-2xs ${isSelected
                     ? "border-accent ring-2 ring-accent/30 scale-105 shadow-md"
                     : "border-line bg-surface opacity-70 hover:opacity-100 hover:border-accent/60"
-                }`}
+                  }`}
               >
                 <img
                   src={thumbSrc}

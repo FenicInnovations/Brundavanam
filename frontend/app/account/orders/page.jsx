@@ -344,7 +344,7 @@ export default function AccountOrdersPage() {
               className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-xs sm:text-sm font-bold text-surface shadow-md shadow-accent/20 hover:bg-accent-deep transition-all"
             >
               <Sparkles size={16} />
-              <span>Explore Sacred Offerings</span>
+              <span>Explore Offerings</span>
             </Link>
           </div>
         </div>

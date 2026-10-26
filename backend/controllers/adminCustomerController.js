@@ -459,8 +459,8 @@ async function getCustomerLocationInsights(req, res, next) {
         insight: "A 500ml or 1L jar of A2 Ghee lasts 3-4 weeks in an average household. Retargeting past customers at day 25 significantly drives zero-CAC repeat sales.",
         actionPlan: [
           `Set up automated WhatsApp / SMS reminders 25 days after delivery asking for replenishment.`,
-          `Include a sacred Gopastami / Sankranti festive card and ₹100 discount coupon inside every shipped parcel.`,
-          `Create a 'Sacred Goshala Seva Monthly Subscription' option where every monthly purchase protects a specific rescued cow.`,
+          `Include a special Gopastami / Sankranti festive card and ₹100 discount coupon inside every shipped parcel.`,
+          `Create a 'Goshala Seva Monthly Subscription' option where every monthly purchase protects a specific rescued cow.`,
         ],
         estimatedRoas: "8x+ Retention ROI",
         suggestedProducts: ["Monthly A2 Ghee Subscription Jar", "Temple Daily Puja Combo"],

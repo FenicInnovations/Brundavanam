@@ -33,12 +33,12 @@ const BROCHURE_VALUES = [
     icon: "🪷",
     title: "Ayurvedic Heritage",
     tagline: "India's Timeless Knowledge",
-    desc: "Rooted in India's timeless knowledge of holistic well-being, preserving sacred Vedic formulations passed down through generations.",
+    desc: "Rooted in India's timeless knowledge of holistic well-being, preserving authentic Vedic formulations passed down through generations.",
   },
   {
     icon: "🐄",
     title: "Gaumata Care",
-    tagline: "Sacred Protection & Nurturing",
+    tagline: "Protection & Nurturing",
     desc: "Supporting the lifelong care, protection, and nurturing of cows in an organic sanctuary where every mother and calf lives with love.",
   },
   {
@@ -54,7 +54,7 @@ const SIGNATURE_PRODUCTS = [
     title: "Sahaja Kunkuma",
     teluguTitle: "సహజ కుంకుమ",
     tagline: "Traditional Purity for Everyday Life",
-    desc: "A pure and natural kunkuma made from cow-based ingredients. A completely chemical-free sacred product for daily puja and auspicious wellness.",
+    desc: "A pure and natural kunkuma made from cow-based ingredients. A completely chemical-free product for daily puja and auspicious wellness.",
     badge: "100% Chemical Free",
     badgeClass: "bg-rose-100 text-rose-800 border-rose-200",
     icon: "🔴",
@@ -114,7 +114,7 @@ export default function AboutPage() {
             </h1>
 
             <p className="text-base sm:text-lg text-[#ded4be] leading-relaxed max-w-2xl font-sans">
-              Natural. Thoughtful. Meaningful. Brundavanam Goshala is more than a brand — it is a heartfelt initiative to promote holistic wellness and a sustainable future through the sacred bond with Gaumata.
+              Natural. Thoughtful. Meaningful. Brundavanam Goshala is more than a brand — it is a heartfelt initiative to promote holistic wellness and a sustainable future through the bond with Gaumata.
             </p>
 
             {/* Holy Quote Callout */}
@@ -156,7 +156,7 @@ export default function AboutPage() {
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-6 py-3.5 text-xs sm:text-sm font-bold text-stone-950 shadow-lg shadow-amber-950/40 hover:brightness-110 active:scale-95 transition-all"
               >
                 <ShoppingBag size={16} />
-                <span>Shop Sacred Offerings</span>
+                <span>Shop Offerings</span>
               </Link>
               <Link
                 href="/contact"
@@ -185,7 +185,7 @@ export default function AboutPage() {
 
             <div className="space-y-4 text-sm sm:text-base text-ink-soft leading-relaxed">
               <p className="font-medium text-ink">
-                Brundavanam Goshala is more than a brand — it is a heartfelt initiative to promote holistic wellness and a sustainable future through the sacred bond with Gaumata.
+                Brundavanam Goshala is more than a brand — it is a heartfelt initiative to promote holistic wellness and a sustainable future through the bond with Gaumata.
               </p>
               <p>
                 We bring the timeless wisdom of Ayurveda to modern lives with pure, natural products derived from cow-based ingredients, while supporting the care, protection, and well-being of cows.
@@ -341,7 +341,7 @@ export default function AboutPage() {
                 <div className="relative w-full h-full">
                   <Image
                     src="/images/sahaja_kunkuma.jpg"
-                    alt="Sahaja Kunkuma - Natural Sacred Kunkuma"
+                    alt="Sahaja Kunkuma - Natural Kumkum"
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
                   />
@@ -402,7 +402,7 @@ export default function AboutPage() {
               </p>
 
               <p className="text-xs sm:text-sm text-[#ded4be] leading-relaxed">
-                Every offering you bring home from Brundavanam Goshala creates a ripples of blessings — nourishing your family with pure Ayurvedic care while providing lifetime fodder, medical treatment, and dignified shelter for our sacred indigenous herd.
+                Every offering you bring home from Brundavanam Goshala creates a ripples of blessings — nourishing your family with pure Ayurvedic care while providing lifetime fodder, medical treatment, and dignified shelter for our indigenous herd.
               </p>
 
               {/* Contact Information Bar - Subtle Translucent Dark Glass */}
@@ -481,7 +481,7 @@ export default function AboutPage() {
             {/* Right Column: 100% Fully Visible Banner Photograph */}
             <div className="lg:col-span-5 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
               <Image
-                src="/images/brochure/sacred_gaumata_gratitude.jpg"
+                src="/images/brochure/gaumata_gratitude.jpg"
                 alt="Gratitude to Gaumata"
                 fill
                 className="object-cover"
@@ -503,7 +503,7 @@ export default function AboutPage() {
               Photos &amp; Videos from Our Goshala
             </h2>
             <p className="text-sm text-amber-200/70 mt-2 leading-relaxed">
-              A glimpse into our sacred sanctuary, our products, and the people behind Brundavanam Goshala.
+              A glimpse into our sanctuary, our products, and the people behind Brundavanam Goshala.
             </p>
           </div>
 

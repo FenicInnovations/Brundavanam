@@ -52,7 +52,7 @@ export default function AdminNewsletterPage() {
   const [broadcastForm, setBroadcastForm] = useState({
     subject: "",
     message: "",
-    actionText: "Shop Sacred Offerings",
+    actionText: "Shop Offerings",
     actionUrl: "https://brundavanamgoshala.com/shop",
     isTestOnly: false,
     testEmail: "",
@@ -235,7 +235,7 @@ export default function AdminNewsletterPage() {
         setBroadcastForm({
           subject: "",
           message: "",
-          actionText: "Shop Sacred Offerings",
+          actionText: "Shop Offerings",
           actionUrl: "https://brundavanamgoshala.com/shop",
           isTestOnly: false,
           testEmail: "",

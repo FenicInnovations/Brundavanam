@@ -327,7 +327,7 @@ export default function AddressesPage() {
           <div className="space-y-1">
             <h3 className="font-display text-base font-bold text-ink">No Saved Addresses Found</h3>
             <p className="text-xs text-ink-soft max-w-sm mx-auto">
-              Save your home or work address now for lightning-fast checkout on all sacred Goshala products.
+              Save your home or work address now for lightning-fast checkout on all Goshala products.
             </p>
           </div>
           <button

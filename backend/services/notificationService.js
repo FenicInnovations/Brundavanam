@@ -40,7 +40,7 @@ function renderOrderEmailShell({ title, preheader, content, actionUrl, actionTex
   <div class="wrapper">
     <div class="header">
       <h1>${BRAND_NAME}</h1>
-      <p>Pure, Traditional &amp; Sacred Products</p>
+      <p>Pure &amp; Traditional Products</p>
     </div>
     <div class="body">
       ${content}
@@ -127,7 +127,7 @@ class NotificationService {
 
     const content = `
       <div class="greeting">Namaste ${order.shippingAddress.fullName},</div>
-      <p>Thank you for choosing <strong>${BRAND_NAME}</strong>. We are pleased to confirm that your order <strong>#${order.orderNumber}</strong> has been received and is being prepared with sacred care.</p>
+      <p>Thank you for choosing <strong>${BRAND_NAME}</strong>. We are pleased to confirm that your order <strong>#${order.orderNumber}</strong> has been received and is being prepared with utmost care.</p>
       
       <div class="content-box">
         <h4 style="margin: 0 0 10px 0; color: ${BRAND_PRIMARY};">Order Summary</h4>
@@ -232,7 +232,7 @@ class NotificationService {
     const content = `
       <div class="greeting">Namaste ${order.shippingAddress.fullName},</div>
       <p>Our records indicate that your order <strong>#${order.orderNumber}</strong> has been successfully delivered!</p>
-      <p>We hope the sacred and pure products from our goshala bring nourishment, health, and peace to your family.</p>
+      <p>We hope the pure and traditional products from our goshala bring nourishment, health, and peace to your family.</p>
       <p>We would love to hear your feedback on the quality and your shopping experience.</p>
     `;
 
