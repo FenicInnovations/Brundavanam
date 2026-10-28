@@ -538,6 +538,126 @@ class ShippingService {
   }
 
   /**
+   * Fetch order/shipment status from Shiprocket when AWB was assigned externally (e.g. via Shiprocket seller dashboard)
+   */
+  async fetchOrderDetails({ shiprocketOrderId, shipmentId, orderNumber }) {
+    await this.getAuthToken();
+    if (this.isMock) {
+      const mockAwb = `SRKT${Math.floor(1000000000 + Math.random() * 9000000000)}`;
+      return {
+        awbCode: mockAwb,
+        courierName: "Delhivery Surface",
+        courierCompanyId: 10,
+        shipmentId: shipmentId || 12345678,
+        currentStatus: "AWB Assigned",
+        trackingUrl: `https://shiprocket.co/tracking/${mockAwb}`,
+        labelUrl: `https://shiprocket.co/mock-label.pdf`,
+      };
+    }
+
+    try {
+      // 1. Try querying order by Shiprocket Order ID
+      if (shiprocketOrderId) {
+        const { ok, data } = await this.request(`/orders/show/${shiprocketOrderId}`);
+        if (ok && data) {
+          const orderData = data.data || data;
+          let shipment = null;
+          if (Array.isArray(orderData.shipments) && orderData.shipments.length > 0) {
+            shipment = orderData.shipments[0];
+          } else if (orderData.shipments && typeof orderData.shipments === "object") {
+            shipment = orderData.shipments;
+          }
+
+          const awbCode =
+            shipment?.awb ||
+            shipment?.awb_code ||
+            orderData.awb_code ||
+            orderData.awb ||
+            "";
+
+          const courierName =
+            shipment?.courier_name ||
+            shipment?.courier ||
+            orderData.courier_name ||
+            "";
+
+          const courierCompanyId =
+            shipment?.courier_id ||
+            shipment?.courier_company_id ||
+            orderData.courier_company_id ||
+            null;
+
+          const currentStatus =
+            shipment?.current_status ||
+            orderData.status ||
+            "AWB Assigned";
+
+          const resolvedShipmentId =
+            shipment?.id ||
+            orderData.shipment_id ||
+            shipmentId;
+
+          if (awbCode) {
+            let labelUrl = "";
+            if (resolvedShipmentId) {
+              try {
+                const labelRes = await this.generateLabel(resolvedShipmentId);
+                labelUrl = labelRes?.labelUrl || "";
+              } catch (lErr) {
+                console.warn("[ShippingService] Auto label generation deferred:", lErr.message);
+              }
+            }
+
+            return {
+              awbCode: String(awbCode).trim(),
+              courierName: courierName || "Shiprocket Courier",
+              courierCompanyId,
+              shipmentId: resolvedShipmentId,
+              currentStatus,
+              trackingUrl: `https://shiprocket.co/tracking/${awbCode}`,
+              labelUrl,
+            };
+          }
+        }
+      }
+
+      // 2. Try querying by shipmentId tracking
+      if (shipmentId) {
+        const { ok, data } = await this.request(`/courier/track/shipment/${shipmentId}`);
+        if (ok && data?.tracking_data) {
+          const track = data.tracking_data;
+          const shipmentTrack = track.shipment_track?.[0] || {};
+          const awbCode = shipmentTrack.awb_code || track.awb_code || "";
+
+          if (awbCode) {
+            let labelUrl = "";
+            try {
+              const labelRes = await this.generateLabel(shipmentId);
+              labelUrl = labelRes?.labelUrl || "";
+            } catch (lErr) {
+              console.warn("[ShippingService] Auto label generation deferred:", lErr.message);
+            }
+
+            return {
+              awbCode: String(awbCode).trim(),
+              courierName: shipmentTrack.courier_name || "Shiprocket Courier",
+              courierCompanyId: shipmentTrack.courier_company_id || null,
+              shipmentId,
+              currentStatus: shipmentTrack.current_status || "AWB Assigned",
+              trackingUrl: `https://shiprocket.co/tracking/${awbCode}`,
+              labelUrl,
+            };
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[ShippingService] Error in fetchOrderDetails:", err.message);
+    }
+
+    return null;
+  }
+
+  /**
    * Track shipment in real time using AWB code
    */
   async trackShipment(awbCode) {

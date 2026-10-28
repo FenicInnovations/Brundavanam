@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   ArrowLeft, Package, Truck, Receipt, CheckCircle2, 
-  XCircle, Clock, MapPin, Phone, Mail, FileText, Settings2, ShieldAlert, AlertCircle, RotateCcw, Printer
+  XCircle, Clock, MapPin, Phone, Mail, FileText, Settings2, ShieldAlert, AlertCircle, RotateCcw, Printer, RefreshCw
 } from "lucide-react";
 import { apiClient } from "@/lib/api/apiClient";
 import ConfirmModal from "@/components/admin/ConfirmModal";
@@ -153,7 +153,11 @@ export default function AdminOrderDetailsPage() {
     try {
       const res = await apiClient.get(`/admin/orders/${id}/track`);
       setOrder(res.order);
-      dispatch(triggerToast("Live tracking synced with Shiprocket", "success"));
+      if (res.order?.shipping?.awbCode) {
+        dispatch(triggerToast(`Shiprocket synced! AWB: ${res.order.shipping.awbCode}`, "success"));
+      } else {
+        dispatch(triggerToast("Live tracking synced with Shiprocket", "success"));
+      }
     } catch (err) {
       console.error("Tracking sync failed:", err.message);
       dispatch(triggerToast(err.message || "Tracking sync failed", "error"));
@@ -589,6 +593,22 @@ export default function AdminOrderDetailsPage() {
                       <Truck className="w-4 h-4" />
                       <span>{processing ? "Dispatching..." : "Create Shiprocket Shipment & Generate AWB"}</span>
                     </button>
+
+                    {(order.shipping?.shiprocketOrderId || order.shipping?.shipmentId || order.status === "ready_to_ship" || order.shipping?.provider === "shiprocket") && (
+                      <div className="pt-2 border-t border-slate-200">
+                        <button
+                          onClick={handleTrackShipment}
+                          disabled={processing}
+                          className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs shadow-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${processing ? "animate-spin" : ""}`} />
+                          <span>{processing ? "Syncing..." : "Sync AWB from Shiprocket"}</span>
+                        </button>
+                        <p className="text-[10px] text-slate-500 text-center mt-1">
+                          Already confirmed on Shiprocket? Click to pull the new AWB &amp; label.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>

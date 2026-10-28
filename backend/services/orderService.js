@@ -578,7 +578,7 @@ class OrderService {
       throw err;
     }
 
-    if (!["confirmed", "processing"].includes(order.status)) {
+    if (!["confirmed", "processing", "ready_to_ship"].includes(order.status)) {
       const err = new Error(`Order in status '${order.status}' cannot be dispatched.`);
       err.statusCode = 400;
       throw err;
@@ -598,8 +598,32 @@ class OrderService {
       order.shipping.height = Math.max(1, Number(packingOverrides.height));
     }
 
-    // Call Shipping Service
-    const shipmentResult = await shippingService.createShipmentOrder(order);
+    // Check if order is already registered in Shiprocket and needs AWB sync instead of duplicate creation
+    let shipmentResult = null;
+    if (order.shipping?.shiprocketOrderId || order.shipping?.shipmentId) {
+      const existing = await shippingService.fetchOrderDetails({
+        shiprocketOrderId: order.shipping.shiprocketOrderId,
+        shipmentId: order.shipping.shipmentId,
+        orderNumber: order.orderNumber,
+      });
+      if (existing?.awbCode) {
+        shipmentResult = {
+          shiprocketOrderId: order.shipping.shiprocketOrderId,
+          shipmentId: existing.shipmentId || order.shipping.shipmentId,
+          awbCode: existing.awbCode,
+          courierCompanyId: existing.courierCompanyId || order.shipping.courierCompanyId,
+          courierName: existing.courierName || order.shipping.courierName,
+          trackingUrl: existing.trackingUrl,
+          labelUrl: existing.labelUrl || order.shipping.labelUrl || "",
+          currentStatus: existing.currentStatus || "AWB Assigned",
+        };
+      }
+    }
+
+    // Call Shipping Service to create order if not already created
+    if (!shipmentResult) {
+      shipmentResult = await shippingService.createShipmentOrder(order);
+    }
 
     order.shipping = {
       ...order.shipping.toObject(),
@@ -638,8 +662,55 @@ class OrderService {
     const order = await Order.findById(orderId);
     if (!order) throw new Error("Order not found");
 
+    // If order doesn't have an AWB yet, pull latest status & AWB from Shiprocket
     if (!order.shipping?.awbCode) {
-      return order;
+      if (
+        order.shipping?.shiprocketOrderId ||
+        order.shipping?.shipmentId ||
+        order.status === "ready_to_ship" ||
+        order.shipping?.provider === "shiprocket"
+      ) {
+        const srDetails = await shippingService.fetchOrderDetails({
+          shiprocketOrderId: order.shipping?.shiprocketOrderId,
+          shipmentId: order.shipping?.shipmentId,
+          orderNumber: order.orderNumber,
+        });
+
+        if (srDetails && srDetails.awbCode) {
+          order.shipping.awbCode = srDetails.awbCode;
+          if (srDetails.courierName) order.shipping.courierName = srDetails.courierName;
+          if (srDetails.courierCompanyId) order.shipping.courierCompanyId = srDetails.courierCompanyId;
+          if (srDetails.shipmentId) order.shipping.shipmentId = srDetails.shipmentId;
+          if (srDetails.trackingUrl) order.shipping.trackingUrl = srDetails.trackingUrl;
+          if (srDetails.labelUrl) order.shipping.labelUrl = srDetails.labelUrl;
+          order.shipping.currentStatus = srDetails.currentStatus || "AWB Assigned";
+
+          if (["confirmed", "processing", "ready_to_ship"].includes(order.status)) {
+            order.transitionTo(
+              "shipped",
+              "admin",
+              `AWB synced from Shiprocket: ${srDetails.awbCode} (${srDetails.courierName || "Courier"})`
+            );
+            order.shipping.shippedAt = new Date();
+            notificationService.sendOrderShipped(order).catch((err) => {
+              console.error("[OrderService] Dispatch email failed:", err.message);
+            });
+          }
+
+          await order.save();
+          return order;
+        } else {
+          const err = new Error(
+            "Shiprocket has not assigned an AWB to this order yet. If you just clicked 'Ship Now' in Shiprocket, please wait 15–30 seconds for courier confirmation and click Sync again."
+          );
+          err.statusCode = 400;
+          throw err;
+        }
+      }
+
+      const err = new Error("No Shiprocket shipment found for this order yet.");
+      err.statusCode = 400;
+      throw err;
     }
 
     const track = await shippingService.trackShipment(order.shipping.awbCode);
