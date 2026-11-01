@@ -123,24 +123,34 @@ const LOGO_STREAMS = [
 
 const GALLERY_IMAGES = [
   {
-    src: "/images/brochure/hero_gaumata_calf.jpg",
-    title: "Mother Cow & Calf at Sunrise",
-    desc: "Loving bond in lush pastoral serenity",
+    src: "/images/goshala/our_goshala_pasture.jpg",
+    title: "Pastures of Brundavanam",
+    desc: "Sprawling open chemical-free pastures where our Gir herd roams free",
   },
   {
-    src: "/images/brochure/pastoral_sanctuary_sunset.jpg",
-    title: "Sunlit Pastures of Brundavanam",
-    desc: "Sprawling open meadows where cows roam freely",
+    src: "/images/goshala/our_calf_drinking_milk.jpg",
+    title: "Calves Nurse First",
+    desc: "Loving mother cow caring for her newborn calf with unconditional affection",
   },
   {
-    src: "/images/brochure/gaumata_gratitude.jpg",
-    title: "Gaumata Reverence",
-    desc: "Treated with dignity, vermilion tilak & fragrant marigold garlands",
+    src: "/images/goshala/our_gir_bull.jpg",
+    title: "Indigenous Gir Bull",
+    desc: "Lifelong sanctuary, reverent care, and dignified living in open pavilions",
+  },
+  {
+    src: "/images/goshala/our_calves_feeding.jpg",
+    title: "Joyful Calves at Fodder Trough",
+    desc: "Young calves enjoying balanced fresh green fodder and organic nutrients",
+  },
+  {
+    src: "/images/goshala/our_cow_grazing.jpg",
+    title: "Free-Range Grazing",
+    desc: "Organic grazing on natural native grasses and healing medicinal herbs",
   },
   {
     src: "/images/brochure/ayurvedic_products_trio.jpg",
-    title: "Goshala Wellness",
-    desc: "Sahaja Kunkuma, Amrutha Dhara & Gau Dhara pain oil",
+    title: "Goshala Wellness Offerings",
+    desc: "Pure Sahaja Kunkuma, Amrutha Dhara & Gau Dhara Ayurvedic care",
   },
 ];
 
@@ -152,8 +162,8 @@ export default function GoshalaPage() {
         {/* Natural Lighting Background Image with Warm Subtle Dark Overlay */}
         <div className="absolute inset-0">
           <Image
-            src="/images/brochure/pastoral_sanctuary_sunset.jpg"
-            alt="Brundavanam Goshala Sanctuary"
+            src="/images/goshala/our_goshala_pasture.jpg"
+            alt="Brundavanam Goshala Sanctuary and Herd"
             fill
             priority
             className="object-cover object-center"
@@ -417,8 +427,8 @@ export default function GoshalaPage() {
             {/* Right Photo */}
             <div className="lg:col-span-5 relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-300/80 shadow-xl bg-white">
               <Image
-                src="/images/brochure/gaumata_gratitude.jpg"
-                alt="Cow Care at Brundavanam Goshala"
+                src="/images/goshala/our_calf_drinking_milk.jpg"
+                alt="Mother Cow and Nursing Calf at Brundavanam Goshala"
                 fill
                 className="object-cover"
               />
@@ -441,7 +451,7 @@ export default function GoshalaPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {GALLERY_IMAGES.map((img, idx) => (
             <div
               key={idx}
@@ -562,8 +572,8 @@ export default function GoshalaPage() {
             {/* Right Photo */}
             <div className="lg:col-span-5 relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
               <Image
-                src="/images/brochure/hero_gaumata_calf.jpg"
-                alt="Darshan at Brundavanam Goshala"
+                src="/images/goshala/our_calves_feeding.jpg"
+                alt="Darshan & Cow Seva at Brundavanam Goshala"
                 fill
                 className="object-cover"
               />

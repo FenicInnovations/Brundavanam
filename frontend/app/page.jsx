@@ -692,8 +692,8 @@ export default function HomePage() {
             {/* Right Column: 100% Fully Visible Banner Photograph */}
             <div className="lg:col-span-5 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
               <img
-                src="/images/brochure/gaumata_gratitude.jpg"
-                alt="Gaumata at Brundavanam Goshala"
+                src="/images/goshala/our_gir_bull.jpg"
+                alt="Majestic Gir Bull at Brundavanam Goshala"
                 className="h-full w-full object-cover"
               />
             </div>

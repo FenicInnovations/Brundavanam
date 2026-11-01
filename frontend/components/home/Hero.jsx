@@ -35,7 +35,7 @@ export default function Hero() {
       <div className="hero-enter-delayed absolute right-6 top-14 hidden w-[260px] rotate-2 border-4 border-surface shadow-card lg:right-10 lg:block xl:w-[300px]">
         <div className="aspect-[3/4] w-full overflow-hidden bg-line">
           <Image
-            src="https://images.unsplash.com/photo-1560114928-40f1f1eb26a0?w=800&q=80"
+            src="/images/goshala/our_cow_grazing.jpg"
             alt="A cow at Brundavanam Goshala"
             width={600}
             height={800}

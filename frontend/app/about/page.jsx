@@ -87,8 +87,8 @@ export default function AboutPage() {
         {/* Background Overlay with Warm Subtle Dark Lighting */}
         <div className="absolute inset-0">
           <Image
-            src="/images/brochure/hero_gaumata_calf.jpg"
-            alt="Brundavanam Goshala Gaumata and Calf"
+            src="/images/goshala/our_goshala_pasture.jpg"
+            alt="Brundavanam Goshala Gaumata and Herd"
             fill
             priority
             className="object-cover object-right md:object-center"
@@ -210,8 +210,8 @@ export default function AboutPage() {
           {/* Visual Showcase */}
           <div className="lg:col-span-5 relative aspect-[4/3] rounded-3xl overflow-hidden border border-line shadow-lg bg-line">
             <Image
-              src="/images/brochure/pastoral_sanctuary_sunset.jpg"
-              alt="Brundavanam Goshala Sanctuary Landscape"
+              src="/images/goshala/our_cow_grazing.jpg"
+              alt="Indigenous Cow Grazing at Brundavanam Goshala"
               fill
               className="object-cover"
             />
@@ -481,8 +481,8 @@ export default function AboutPage() {
             {/* Right Column: 100% Fully Visible Banner Photograph */}
             <div className="lg:col-span-5 relative aspect-square sm:aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-xl bg-stone-900">
               <Image
-                src="/images/brochure/gaumata_gratitude.jpg"
-                alt="Gratitude to Gaumata"
+                src="/images/goshala/our_gir_bull.jpg"
+                alt="Majestic Gir Bull at Brundavanam Goshala"
                 fill
                 className="object-cover"
               />
