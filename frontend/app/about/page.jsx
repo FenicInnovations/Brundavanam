@@ -87,10 +87,11 @@ export default function AboutPage() {
         {/* Background Overlay with Warm Subtle Dark Lighting */}
         <div className="absolute inset-0">
           <Image
-            src="/images/goshala/our_goshala_pasture.jpg"
+            src="/images/goshala/banner_about_pasture.jpg"
             alt="Brundavanam Goshala Gaumata and Herd"
             fill
             priority
+            quality={95}
             className="object-cover object-right md:object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#18130e]/95 via-[#201811]/85 sm:via-[#201811]/70 md:via-[#201811]/50 to-transparent" />
